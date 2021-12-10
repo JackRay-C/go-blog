@@ -1,7 +1,8 @@
 # server configuration
 server:
-  # server port
+  # 端口
   port: 8000
+  # https
   enableTLS: false
   readTimeout: 60
   writeTimeout: 60
@@ -9,21 +10,20 @@ server:
 
 # app configuration
 app:
-  # application name
+  # 应用名称
   name: blog
-  # application version
+  # 应用版本
   version: v1.0.0
-  # run mode： debug/release
+  # 运行模式： debug/release
   run-mode: release
   # 是否打印带有颜色的日志
   log-color-colsole: true
   # 数据库类型，暂时只有mysql，其他的需要自己支持开发
   db-type: mysql
-  # static path
+  # 静态文件路径
   static-path: static/
-  # storage type local/qiniu/aliyun-oss/tencent-oss
+  # 存储类型 local/qiniu/aliyun-oss/tencent-oss
   storage-type: local
-  # storage file max size  KB/MB/GB/
   # 允许上传文件的大小 单位KB/MB/GB/，不允许出现小数 如0.5GB，因为浮点数会丢失精度 比如5.2MB，转换成可能会变成5.18MB
   upload-max-size: 2GB
   # 允许的文件扩展名，不支持复合扩展名
@@ -74,6 +74,7 @@ app:
     - .json
     - .txt
 
+# 雪花算法初始化的参数
 snowflake:
   work-id: 1
   data-center-id: 1
@@ -82,28 +83,23 @@ snowflake:
 zap:
   # logger level  default: info
   level: 'info'
-  # logger format style: json or console
   # 日志输出格式，可选： `json` 和 `console`
-  # json example {"time":"2021/01/01 24:00:00","level":"info","message": "example"...}
-  # console example
   format: 'console'
-  # logger director
   # 日志文件目录
   director: 'logs'
-  # logger file name
   # 日志文件名称
   linkName: 'latest_log'
-  # show line number
   # 显示行号
   showLine: true
-  # 编码
   encodeLevel: 'LowercaseColorLevelEncoder'
   stacktraceKey: 'stacktrace'
-  # whether print log in console
   # 是否打印日志在控制台
   logInConsole: true
+  # 滚动日志存储大小
   logMaxSize: 1000
+  # 滚动日志存储周期
   logMaxAge: 30
+  # 滚动日志文件备份
   logMaxBackups: 5
 
 mysql:
@@ -119,21 +115,32 @@ mysql:
   max-open-ponns: 30 # 连接池最大连接数
 
 smtp:
+  # smtp邮件服务器的地址
   host:
+  # smtp服务器端口
   port:
+  # smtp服务器鉴权用户名
   username:
+  # smtp服务器鉴权密码
   password:
+  # 是否使用ssl
   isSSL:
+  # 发送邮件的用户地址
   from:
 
 jwt:
+  # jwt的密钥
   secret:
+  # jwt的过期时间
   expire: 7200000s
+  # jwt的issuer
   issuer:
 
+# 本地存储
 local:
   path: static/uploads/
 
+# 七牛云存储
 qiniu:
   zone: zone
   bucket: ''
@@ -143,6 +150,7 @@ qiniu:
   secret-key: ''
   domain: ''
 
+# 阿里云oss存储
 aliyun-oss:
   # 阿里云访问节点，服务器和oss再同一地域可以使用内网域名
   endpoint: ''
@@ -162,6 +170,7 @@ aliyun-oss:
   # 是否允许覆盖同名文件 默认false表示允许覆盖 true表示不允许覆盖
   forbid-over-write: true
 
+# 腾讯云oss
 tencent-oss:
   bucket: ''
   region: ''
