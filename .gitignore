@@ -8,5 +8,7 @@ web/dist
 server/configs/config-product.yaml
 server/.idea
 
+.idea
 .DS_Store
 *.log
+latest_log
