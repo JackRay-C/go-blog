@@ -1,0 +1,12 @@
+# node dependencies
+web/node_modules
+
+# production
+web/dist
+
+# config
+server/configs/config-product.yaml
+server/.idea
+
+.DS_Store
+*.log

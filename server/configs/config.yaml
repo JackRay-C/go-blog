@@ -1,0 +1,171 @@
+# server configuration
+server:
+  # server port
+  port: 8000
+  enableTLS: false
+  readTimeout: 60
+  writeTimeout: 60
+
+
+# app configuration
+app:
+  # application name
+  name: blog
+  # application version
+  version: v1.0.0
+  # run mode： debug/release
+  run-mode: release
+  # 是否打印带有颜色的日志
+  log-color-colsole: true
+  # 数据库类型，暂时只有mysql，其他的需要自己支持开发
+  db-type: mysql
+  # static path
+  static-path: static/
+  # storage type local/qiniu/aliyun-oss/tencent-oss
+  storage-type: local
+  # storage file max size  KB/MB/GB/
+  # 允许上传文件的大小 单位KB/MB/GB/，不允许出现小数 如0.5GB，因为浮点数会丢失精度 比如5.2MB，转换成可能会变成5.18MB
+  upload-max-size: 2GB
+  # 允许的文件扩展名，不支持复合扩展名
+  upload-allow-exts:
+    - .jpg
+    - .jpeg
+    - .png
+    - .bmp
+    - .psd
+    - .icon
+    - .gif
+    - .mp3
+    - .wav
+    - .mid
+    - .flac
+    - .mp4
+    - .mov
+    - .avi
+    - .flv
+    - .m4v
+    - .rmvb
+    - .zip
+    - .rar
+    - .tar
+    - .gz
+    - .bz2
+    - .doc
+    - .xlsx
+    - .pdf
+    - .ppt
+    - .pptx
+    - .xls
+    - .word
+    - .md
+    - .html
+    - .js
+    - .css
+    - .java
+    - .class
+    - .py
+    - .go
+    - .sh
+    - .log
+    - .yaml
+    - .yml
+    - .ini
+    - .xmind
+    - .json
+    - .txt
+
+snowflake:
+  work-id: 1
+  data-center-id: 1
+
+# zap logger configuration
+zap:
+  # logger level  default: info
+  level: 'info'
+  # logger format style: json or console
+  # 日志输出格式，可选： `json` 和 `console`
+  # json example {"time":"2021/01/01 24:00:00","level":"info","message": "example"...}
+  # console example
+  format: 'console'
+  # logger director
+  # 日志文件目录
+  director: 'logs'
+  # logger file name
+  # 日志文件名称
+  linkName: 'latest_log'
+  # show line number
+  # 显示行号
+  showLine: true
+  # 编码
+  encodeLevel: 'LowercaseColorLevelEncoder'
+  stacktraceKey: 'stacktrace'
+  # whether print log in console
+  # 是否打印日志在控制台
+  logInConsole: true
+  logMaxSize: 1000
+  logMaxAge: 30
+  logMaxBackups: 5
+
+mysql:
+  username: root # 数据库用户名
+  password: ren123 # 数据库密码
+  host: 127.0.0.1 # 数据库地址
+  port: 3306 # 数据库端口
+  db-name: go_blog # 数据库名称
+  parse-time: True # 解析时间
+  charset: utf8 # 字符集
+  log-mode: info  # info/
+  max-idle-conns: 10 # 连接池最大空闲连接
+  max-open-ponns: 30 # 连接池最大连接数
+
+smtp:
+  host:
+  port:
+  username:
+  password:
+  isSSL:
+  from:
+
+jwt:
+  secret:
+  expire: 7200000s
+  issuer:
+
+local:
+  path: static/uploads/
+
+qiniu:
+  zone: zone
+  bucket: ''
+  img-path: ''
+  use-https: true
+  access-key: ''
+  secret-key: ''
+  domain: ''
+
+aliyun-oss:
+  # 阿里云访问节点，服务器和oss再同一地域可以使用内网域名
+  endpoint: ''
+  # AK
+  access-key-id: ''
+  # AS
+  access-key-secret: ''
+  # bucket空间名称
+  bucket-name: ''
+  # 自定义域名或阿里云oss bucket域名
+  bucket-url: ''
+  http-timeout: 10
+  # 阿里云oss读写超时时间
+  read-write-timeout: 200
+  # 是否开启crc校验，默认开启
+  enable-crc: false
+  # 是否允许覆盖同名文件 默认false表示允许覆盖 true表示不允许覆盖
+  forbid-over-write: true
+
+tencent-oss:
+  bucket: ''
+  region: ''
+  secret-id: ''
+  secret-key: ''
+  base-url: ''
+  base-prefix: ''
