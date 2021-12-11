@@ -7,7 +7,7 @@
 
 ## 一、快速开始
 
-### 1.1、准备工作
+### 准备工作
 
 1. MySQL 服务器，参照此文档进行安装 [MySQL安装]()
 
@@ -17,9 +17,9 @@
 
 4. 将MySQL账号及SMTP账号配置到server的配置文件中
 
-### 1.2、安装
+### 安装
 
-#### 1.2.1、server端
+#### 1、server端
 
 ```bash
 # 进入server端目录
@@ -30,7 +30,7 @@ go mod download
 go run main.go -c configs/config.yaml
 ```
 
-#### 1.2.2、web端
+#### 2、web端
 
 ```bash
 # 进入web端目录
@@ -44,7 +44,7 @@ yarn serve
 
 ## 二、部署
 
-#### 2.1、server端
+#### 1、server端
 
 1. 编译
 
@@ -56,7 +56,7 @@ go build
 
 3. 启动服务
 
-#### 2.2、web端
+#### 2、web端
 
 1. 编译
 
@@ -64,7 +64,7 @@ go build
 
 3. 启动服务
 
-> #### 2.3、Nginx
+> #### 3、Nginx
 > 可以额外通过nginx做反向代理使用一个域名和端口来进行集群配置和隐藏后端ip，
 > nginx的配置可以下载nginx.conf，修改其中的域名和HTTPS证书位置。
 
