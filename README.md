@@ -1,9 +1,13 @@
 # go-blog
 基于Gin、Vue两个框架开发的一个前后端分离的博客系统，数据库采用的是mysql。
 
-## 快速开始
+* 在线示例 [www.renhj.cc](https://www.renhj.cc)
+* 文档地址 [go-blog.renhj.cc](go-blog.renhj.cc)
 
-### 准备工作
+
+## 一、快速开始
+
+### 1.1、准备工作
 
 1. MySQL 服务器，参照此文档进行安装 [MySQL安装]()
 
@@ -13,9 +17,9 @@
 
 4. 将MySQL账号及SMTP账号配置到server的配置文件中
 
-### 安装
+### 1.2、安装
 
-#### server端
+#### 1.2.1、server端
 
 ```bash
 # 进入server端目录
@@ -26,7 +30,7 @@ go mod download
 go run main.go -c configs/config.yaml
 ```
 
-#### web端
+#### 1.2.2、web端
 
 ```bash
 # 进入web端目录
@@ -38,9 +42,9 @@ yarn serve
 ```
 
 
-### 部署
+## 二、部署
 
-#### server端
+#### 2.1、server端
 
 1. 编译
 
@@ -52,7 +56,7 @@ go build
 
 3. 启动服务
 
-#### web端
+#### 2.2、web端
 
 1. 编译
 
@@ -60,13 +64,21 @@ go build
 
 3. 启动服务
 
-> #### Nginx
+> #### 2.3、Nginx
 > 可以额外通过nginx做反向代理使用一个域名和端口来进行集群配置和隐藏后端ip，
 > nginx的配置可以下载nginx.conf，修改其中的域名和HTTPS证书位置。
 
-### 编译工具
+## 三、编译工具
 
 * Go - 后端server的编译工具
 * Webpack - 前端node的编辑工具
 
-###
+## 四、贡献指南
+
+## 五、版本管理
+
+## 六、作者
+
+## 七、许可证
+
+## 八、示例及文档地址
