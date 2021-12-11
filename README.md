@@ -6,9 +6,9 @@
 文档地址 [go-blog.renhj.cc](go-blog.renhj.cc)
 
 
-## 一、快速开始
+## Getting Started
 
-### 准备工作
+### Prerequisites
 
 1. MySQL 服务器，参照此文档进行安装 [MySQL安装]()
 
@@ -18,12 +18,12 @@
 
 4. 将MySQL账号及SMTP账号配置到server的配置文件中
 
-### 安装
+### Installing
 
-#### 1、server端
+1. Server
 
 ```bash
-# 进入server端目录
+# 进入server目录
 cd server
 # 下载go依赖
 go mod download
@@ -31,7 +31,7 @@ go mod download
 go run main.go -c configs/config.yaml
 ```
 
-#### 2、web端
+2. Web
 
 ```bash
 # 进入web端目录
@@ -43,43 +43,53 @@ yarn serve
 ```
 
 
-## 二、部署
+## Deployment
 
-#### 1、server端
+1. Server
 
-1. 编译
+1.1. 编译
 
 ```bash
 go build 
 ```
 
-2. 上传文件
+1.2. 上传文件
 
-3. 启动服务
+1.3. 启动服务
 
-#### 2、web端
+2. web
 
-1. 编译
+2.1. 编译
 
-2. 上传
+2.2. 上传
 
-3. 启动服务
+2.3. 启动服务
 
 > #### 3、Nginx
 > 可以额外通过nginx做反向代理使用一个域名和端口来进行集群配置和隐藏后端ip，
 > nginx的配置可以下载nginx.conf，修改其中的域名和HTTPS证书位置。
 
-## 三、编译工具
+## Build With
 
 * Go - 后端server的编译工具
 * Webpack - 前端node的编辑工具
 
-## 四、贡献指南
+## Contributing
 
-## 五、版本管理
+Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests to us.
 
-## 六、作者
+## Versioning
 
-## 七、许可证
+We use SemVer for versioning. For the versions available, see the tags on this repository.
+
+## Authors
+
+* JackRay-C 
+
+See also the list of contributors who participated in this project.
+
+## License
+
+This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details
 
 ## 八、示例及文档地址
