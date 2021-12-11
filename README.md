@@ -15,7 +15,7 @@
 
 ### 安装
 
-1. server端
+#### server端
 
 ```bash
 # 进入server端目录
@@ -26,7 +26,7 @@ go mod download
 go run main.go -c configs/config.yaml
 ```
 
-2. web端
+#### web端
 
 ```bash
 # 进入web端目录
@@ -36,3 +36,37 @@ yarn install
 # 运行前端服务
 yarn serve
 ```
+
+
+### 部署
+
+#### server端
+
+1. 编译
+
+```bash
+go build 
+```
+
+2. 上传文件
+
+3. 启动服务
+
+#### web端
+
+1. 编译
+
+2. 上传
+
+3. 启动服务
+
+> #### Nginx
+> 可以额外通过nginx做反向代理使用一个域名和端口来进行集群配置和隐藏后端ip，
+> nginx的配置可以下载nginx.conf，修改其中的域名和HTTPS证书位置。
+
+### 编译工具
+
+* Go - 后端server的编译工具
+* Webpack - 前端node的编辑工具
+
+###
