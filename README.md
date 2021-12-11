@@ -2,6 +2,7 @@
 基于Gin、Vue两个框架开发的一个前后端分离的博客系统，数据库采用的是mysql。
 
 在线示例 [www.renhj.cc](https://www.renhj.cc)
+
 文档地址 [go-blog.renhj.cc](go-blog.renhj.cc)
 
 
