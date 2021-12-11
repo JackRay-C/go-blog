@@ -11,9 +11,28 @@
 
 3. 一台云主机  
 
+4. 将MySQL账号及SMTP账号配置到server的配置文件中
 
 ### 安装
 
-1、server端
+1. server端
 
-2、web端
+```bash
+# 进入server端目录
+cd server
+# 下载go依赖
+go mod download
+# 启动main.go并指定配置文件位置
+go run main.go -c configs/config.yaml
+```
+
+2. web端
+
+```bash
+# 进入web端目录
+cd web
+# 安装node的依赖
+yarn install
+# 运行前端服务
+yarn serve
+```
