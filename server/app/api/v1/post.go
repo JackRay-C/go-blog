@@ -47,6 +47,8 @@ func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 	}
 }
 
+
+// 查询当前用户的博客、包括已发布、草稿、公开、私有的
 func (p *Post) List(c *gin.Context) (*response.Response, error) {
 	// 1、获取参数
 	post := dto.ListPosts{}

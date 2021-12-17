@@ -34,7 +34,6 @@ func (s Subject) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	p := pager.Pager{}
-
 	if err := s.subjectService.SelectAllWeb(c, &p, &params); err != nil {
 		s.log.Errorf("分页查询失败： %s", err)
 		return nil, err

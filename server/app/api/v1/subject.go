@@ -28,7 +28,6 @@ func NewSubject() *Subject {
 }
 
 func (s *Subject) Get(c *gin.Context) (*response.Response, error) {
-	// 1、获取用户ID参数 /user/id
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
@@ -45,13 +44,14 @@ func (s *Subject) Get(c *gin.Context) (*response.Response, error) {
 }
 
 func (s *Subject) List(c *gin.Context) (*response.Response, error) {
-	p := pager.Pager{
+	params := dto.ListSubjects{
 		PageNo:   request.GetPageNo(c),
 		PageSize: request.GetPageSize(c),
 	}
-	s.log.Infof("分页查询专题")
 
-	if err := s.subjectService.SelectAll(&p, &domain.Subject{}); err != nil {
+	p := pager.Pager{}
+	s.log.Infof("分页查询专题")
+	if err := s.subjectService.SelectAll(c, &p, params); err != nil {
 		s.log.Errorf("分页查询失败： %s", err)
 		return nil, err
 	}
