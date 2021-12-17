@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"blog/app/api"
 	"blog/app/domain"
 	"blog/app/model/dto"
 	"blog/app/pager"
@@ -33,7 +34,6 @@ func (s *Subject) Get(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
-
 	if v, err := s.subjectService.SelectOneById(id); err != nil {
 		s.log.Errorf("根据ID查询专题 : %s", err)
 		return nil, err
@@ -51,7 +51,7 @@ func (s *Subject) List(c *gin.Context) (*response.Response, error) {
 
 	p := pager.Pager{}
 	s.log.Infof("分页查询专题")
-	if err := s.subjectService.SelectAll(c, &p, params); err != nil {
+	if err := s.subjectService.SelectAll(c, &p, &params); err != nil {
 		s.log.Errorf("分页查询失败： %s", err)
 		return nil, err
 	}
@@ -83,19 +83,28 @@ func (s *Subject) Post(c *gin.Context) (*response.Response, error) {
 }
 
 func (s *Subject) Delete(c *gin.Context) (*response.Response, error) {
-	s.log.Infof("删除专题")
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
-		s.log.Errorf("参数绑定错误：%s", err)
 		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
 
-	subject := &domain.Subject{ID: id}
-	if err := s.subjectService.DeleteOne(subject); err != nil {
-		s.log.Infof("删除失败")
-		return nil, err
+	// 2、获取当前用户
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin.SetMsg("新建专题失败：未登录. ")
 	}
-	s.log.Infof("删除成功")
+
+	// 3、判断是否有权限
+	if !api.CheckPermission(c, "subjects", "delete") {
+		return nil, response.Forbidden.SetMsg("新建博客失败：没有权限. ")
+	}
+
+	// 4、删除该专题
+	if err := s.subjectService.DeleteOne(c, id); err != nil {
+		s.log.Infof("删除ID为【%d】的专题失败: %s", err)
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
+	s.log.Infof("删除ID为【%d】的专题成功")
 	return response.Success("delete success"), nil
 }
 

@@ -77,74 +77,42 @@ func (s *SubjectService) SelectAllWeb(c *gin.Context, page *pager.Pager, filter 
 	offset := (filter.PageNo - 1) * filter.PageSize
 	limit := filter.PageSize
 	var count int64
-	// 1、判断是否是搜索
+
+	db := global.DB.Model(&domain.Subject{})
+
+	// 判断是否登录
+	isLogin, exists := c.Get("is_login")
+	if exists {
+		if !isLogin.(bool) {
+			if filter.UserId == 0 {
+				db.Where("visibility=2")
+			} else {
+				db.Where("user_id=? and visibility=2", filter.UserId)
+			}
+		} else {
+			userId, _ := c.Get("current_user_id")
+			if filter.UserId == 0 {
+				db.Where("visibility=2").Or("user_id=? and visibility=1", userId.(int))
+			}else {
+				if filter.UserId == userId.(int) {
+					db.Where("user_id=?", filter.UserId)
+				} else {
+					db.Where("user_id=? and visibility=?", filter.UserId, 2)
+				}
+			}
+		}
+	}
+
 	if filter.Search != "" {
-		db := global.DB.Model(&domain.Subject{}).Where("name like %s", filter.Search).Or("description like %s", filter.Search)
-		isLogin, exists := c.Get("is_login")
-		if exists {
-			if !isLogin.(bool) {
-				if filter.UserId == 0 {
-					db.Where("visibility=2")
-				} else {
-					db.Where("user_id =? and visibility=2", filter.UserId)
-				}
-			} else {
-				userId, e := c.Get("current_user_id")
-				if e {
-					if filter.UserId == 0 {
-						db.Where("visibility=2").Or("user_id=? and visibility=1", userId.(int))
-					} else {
-						if filter.UserId == userId.(int) {
-							db.Where("user_id=?", filter.UserId)
-						} else {
-							db.Where("user_id=? and visibility=?", filter.UserId, 2)
-						}
-					}
-				}
-			}
-		}
+		db.Where("name like ?", fmt.Sprintf("%%%s%%", filter.Search))
+	}
 
-		if err := db.Count(&count).Error; err != nil {
-			return err
-		}
+	if err := db.Count(&count).Error; err != nil {
+		return err
+	}
 
-		if err := db.Offset(offset).Limit(limit).Select("id").Find(&subjects).Error; err != nil {
-			return err
-		}
-
-	} else {
-		// 查询所有公开专题
-		db := global.DB.Model(&domain.Subject{})
-		isLogin, exists := c.Get("is_login")
-		if exists {
-			if !isLogin.(bool) {
-				if filter.UserId == 0 {
-					db.Where("visibility=2")
-				} else {
-					db.Where("user_id =? and visibility=2", filter.UserId)
-				}
-			} else {
-				userId, e := c.Get("current_user_id")
-				if e {
-					if filter.UserId == 0 {
-						db.Where("visibility=2").Or("user_id=? and visibility=1", userId.(int))
-					} else {
-						if filter.UserId == userId.(int) {
-							db.Where("user_id=?", filter.UserId)
-						} else {
-							db.Where("user_id=? and visibility=?", filter.UserId, 2)
-						}
-					}
-				}
-			}
-		}
-
-		if err := db.Count(&count).Error; err != nil {
-			return err
-		}
-		if err := db.Order("created_at desc").Offset(offset).Limit(limit).Select("ID").Find(&subjects).Error; err != nil {
-			return err
-		}
+	if err := db.Order("created_at desc").Offset(offset).Limit(limit).Select("id").Find(&subjects).Error; err != nil {
+		return err
 	}
 
 	for _, subject := range subjects {
@@ -164,28 +132,67 @@ func (s *SubjectService) SelectAllWeb(c *gin.Context, page *pager.Pager, filter 
 	return nil
 }
 
-func (s *SubjectService) SelectAll(page *pager.Pager, subject *domain.Subject) error {
-	var subjects []domain.Subject
+func (s *SubjectService) SelectAll(c *gin.Context,page *pager.Pager, filter *dto.ListSubjects) error {
+	var subjects []*domain.Subject
+	var vSubjects []*vo.VSubject
 
-	if err := subject.Count(&page.TotalRows); err != nil {
-		s.Log.Errorf("%s", err)
-		return response.DatabaseSelectError.SetMsg("query subject count failed: %s", err)
+	offset := (filter.PageNo - 1) * filter.PageSize
+	limit := filter.PageSize
+	var count int64
+
+	userId, _ := c.Get("current_user_id")
+	db := global.DB.Model(&domain.Subject{}).Where("user_id=?", userId)
+
+	if filter.Visibility != 0 {
+		db.Where("visibility=?", filter.Visibility)
 	}
 
-	page.PageCount = int((page.TotalRows + int64(page.PageSize) - 1) / int64(page.PageSize))
-	page.List = &subjects
-	if err := subject.List(&subjects, (page.PageNo-1)*page.PageSize, page.PageSize); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	// 搜索
+	if filter.Search != "" {
+		db.Where("name like %s", fmt.Sprintf("%%%s%%", filter.Search))
 	}
+
+	if err := db.Count(&count).Error; err != nil {
+		return err
+	}
+
+	if err := db.Order("created_at desc").Offset(offset).Limit(limit).Select("id").Find(&subjects).Error; err != nil {
+		return err
+	}
+
+	for _, subject := range subjects {
+		if vSubject, err := s.SelectOneById(subject.ID); err != nil {
+			return err
+		} else {
+			vSubjects = append(vSubjects, vSubject)
+		}
+	}
+
+	page.PageNo = filter.PageNo
+	page.PageSize = filter.PageSize
+	page.TotalRows = count
+	page.PageCount = int((count + int64(page.PageSize) - 1)/int64(page.PageSize))
+	page.List = &vSubjects
 
 	return nil
 }
 
-func (s *SubjectService) DeleteOne(subject *domain.Subject) error {
 
-	if err := subject.Delete(); err != nil {
-		return response.DatabaseDeleteError.SetMsg("%s", err)
+func (s *SubjectService) DeleteOne(c *gin.Context, subjectId int) error {
+	var subject *domain.Subject
+
+	// 1、根据user_id id查询subject
+	userId, _ := c.Get("current_user_id")
+	db := global.DB.Model(&domain.Subject{}).Where("user_id=? and id=?", userId, subjectId)
+	if err := db.First(&subject).Error; err  != nil {
+		return err
 	}
+
+	// 2、根据id删除subject
+	if err:= db.Delete(subject).Error; err != nil {
+		return err
+	}
+
 	return nil
 }
 
