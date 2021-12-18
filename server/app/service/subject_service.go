@@ -5,7 +5,6 @@ import (
 	"blog/app/model/dto"
 	"blog/app/model/vo"
 	"blog/app/pager"
-	"blog/app/response"
 	"blog/core/global"
 	"blog/core/logger"
 	"errors"
@@ -182,15 +181,17 @@ func (s *SubjectService) SelectAll(c *gin.Context,page *pager.Pager, filter *dto
 func (s *SubjectService) DeleteOne(c *gin.Context, subjectId int) error {
 	var subject *domain.Subject
 
-	// 1、根据user_id id查询subject
+	// 1、获取user_id
 	userId, _ := c.Get("current_user_id")
-	db := global.DB.Model(&domain.Subject{}).Where("user_id=? and id=?", userId, subjectId)
-	if err := db.First(&subject).Error; err  != nil {
+	db := global.DB.Model(&domain.Subject{})
+
+	// 2、根据user_id和subject_id查询专题
+	if err := db.Where("user_id=? and id=?", userId, subjectId).First(&subject).Error; err  != nil {
 		return err
 	}
 
 	// 2、根据id删除subject
-	if err:= db.Delete(subject).Error; err != nil {
+	if err:= db.Where("user_id=? and id=?", userId, subjectId).Delete(subject).Error; err != nil {
 		return err
 	}
 
@@ -226,25 +227,35 @@ func (s *SubjectService) CreateOne(c *gin.Context, param *dto.AddSubjects) (*dom
 	return subject, nil
 }
 
-func (s *SubjectService) UpdateOne(subject *domain.Subject) error {
-	if err := subject.Update(); err != nil {
-		return response.DatabaseUpdateError.SetMsg("%s", err)
+func (s *SubjectService) SaveOne(c *gin.Context, param *dto.PutSubjects) (*domain.Subject, error) {
+	// 1、获取当前用户
+	userId, _ := c.Get("current_user_id")
+
+	db := global.DB.Model(&domain.Subject{})
+	var subject *domain.Subject
+
+	// 2、查询是否存在同名专题
+	if err := db.Where("title=?", param.Title).First(&subject).Error; err != gorm.ErrRecordNotFound {
+		return nil, errors.New("该专题已存在. ")
 	}
 
-	if err := subject.Select(); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
-	}
-	return nil
-}
-
-func (s *SubjectService) SaveOne(subject *domain.Subject) error {
-	if err := subject.Select(); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	// 3、查询是否存在该专题
+	if err := db.Where("user_id=? and id=?", userId, param.ID).First(&subject).Error; err  != nil {
+		return nil, err
 	}
 
+	subject.ID = param.ID
+	subject.Visibility = param.Visibility
+	subject.Description = param.Description
+	subject.Title = param.Title
 	subject.UpdatedAt = time.Now()
-	if err := subject.Save(); err != nil {
-		return response.DatabaseUpdateError.SetMsg("%s", err)
+	subject.Views = param.Views
+	subject.Avatar = param.AvatarId
+	subject.CoverImage = param.CoverImageId
+
+	// 4、保存
+	if err := db.Save(subject).Error; err !=nil {
+		return nil, err
 	}
-	return nil
+	return subject, nil
 }

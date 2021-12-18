@@ -16,10 +16,6 @@ func InitSubjectRouter(group *gin.RouterGroup) {
 		subjectGroup.POST("", Wrapper(subject.Post))
 		subjectGroup.PUT("/:id", Wrapper(subject.Put))
 		subjectGroup.DELETE("/:id", Wrapper(subject.Delete))
-
-
-		subjectGroup.DELETE("/:id/posts", Wrapper(subject.DeletePosts))
-
 	}
 }
 

@@ -2,7 +2,6 @@ package v1
 
 import (
 	"blog/app/api"
-	"blog/app/domain"
 	"blog/app/model/dto"
 	"blog/app/pager"
 	"blog/app/request"
@@ -100,20 +99,17 @@ func (s *Subject) Post(c *gin.Context) (*response.Response, error) {
 		return nil, response.Forbidden.SetMsg("新建专题失败：没有权限. ")
 	}
 
-	// 4、获取当前用户id
-	if currentUserId, ok := c.Get("current_user_id"); ok {
-		subject.UserID = currentUserId.(int)
-	}
-
-	// 5、创建专题
-	if err := s.subjectService.CreateOne(c, subject); err != nil {
+	// 4、创建专题
+	one, err := s.subjectService.CreateOne(c, subject)
+	if err != nil {
 		s.log.Errorf("新建专题失败：error: %s", err)
-		return nil, err
+		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
-	return response.Success(subject), nil
+	return response.Success(one), nil
 }
 
 func (s *Subject) Delete(c *gin.Context) (*response.Response, error) {
+	// 1、绑定参数
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("%s", err)
@@ -137,61 +133,18 @@ func (s *Subject) Delete(c *gin.Context) (*response.Response, error) {
 	return response.Success("delete success"), nil
 }
 
-func (s *Subject) Patch(c *gin.Context) (*response.Response, error) {
-	// 1、绑定参数
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		s.log.Errorf("参数绑定错误：%s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-	subject := &domain.Subject{}
-	if err := c.ShouldBindJSON(subject); err != nil {
-		s.log.Errorf("参数绑定错误：%s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	// 2、判读是否登录
-	if !api.CheckLogin(c) {
-		return nil, response.NotLogin.SetMsg("获取专题列表失败：未登录. ")
-	}
-
-	// 3、判断是否有权限
-	if !api.CheckPermission(c, "subjects", "add") {
-		return nil, response.Forbidden.SetMsg("获取专题列表失败：没有权限. ")
-	}
-
-	// 4、获取当前用户
-	subject.ID = id
-	if currentUserId, ok := c.Get("current_user_id"); ok {
-		subject.UserID = currentUserId.(int)
-	}
-
-	// 5、更新专题
-	if err := s.subjectService.UpdateOne(subject); err != nil {
-		s.log.Errorf("更新错误： %s", err)
-		return nil, err
-	}
-
-	s.log.Infof("更新成功")
-	return response.Success(subject), nil
-}
-
 func (s *Subject) Put(c *gin.Context) (*response.Response, error) {
-	s.log.Infof("put更新subject")
 	// 1、绑定参数
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
 		s.log.Errorf("参数绑定错误：%s", err)
 		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
-	var subject domain.Subject
+
+	var subject dto.PutSubjects
 	if err := c.ShouldBindJSON(&subject); err != nil {
 		s.log.Errorf("参数绑定错误：%s", err)
 		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-	subject.ID = id
-	if currentUserId, ok := c.Get("current_user_id"); ok {
-		subject.UserID = currentUserId.(int)
 	}
 
 	// 2、判读是否登录
@@ -204,15 +157,14 @@ func (s *Subject) Put(c *gin.Context) (*response.Response, error) {
 		return nil, response.Forbidden.SetMsg("更新专题失败：没有权限. ")
 	}
 
-	if err := s.subjectService.SaveOne(&subject); err != nil {
-		return nil, err
+	// 4、更新专题
+	one, err := s.subjectService.SaveOne(c, &subject)
+	if err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 
-	if v, err := s.subjectService.SelectOneById(id); err != nil {
-		return nil, err
-	} else {
-		return response.Success(v), nil
-	}
+	byId, _ := s.subjectService.SelectOneById(one.ID)
+	return response.Success(byId), nil
 }
 
 func (s *Subject) GetPosts(c *gin.Context) (*response.Response, error) {
@@ -239,12 +191,4 @@ func (s *Subject) GetPosts(c *gin.Context) (*response.Response, error) {
 
 	s.log.Infof("根据专题查询博客成功")
 	return response.Success(&p), nil
-}
-
-func (s *Subject) DeletePosts(c *gin.Context) (*response.Response, error) {
-	return response.Success("success"), nil
-}
-
-func (s *Subject) PutPosts(c *gin.Context) (*response.Response, error) {
-	return response.Success("success"), nil
 }
