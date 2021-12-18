@@ -1,7 +1,6 @@
 package web
 
 import (
-	"blog/app/domain"
 	"blog/app/model/dto"
 	"blog/app/pager"
 	"blog/app/request"
@@ -53,7 +52,6 @@ func (s Subject) Get(c *gin.Context) (*response.Response, error) {
 	if vSubject, err := s.subjectService.SelectOneById(id); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	} else {
-
 		if vSubject.Visibility == 1 {
 			// 判断是否登录
 			get, exists := c.Get("is_login")
@@ -67,8 +65,7 @@ func (s Subject) Get(c *gin.Context) (*response.Response, error) {
 						if userId == vSubject.UserID {
 							// 更新subject views + 1
 							go func() {
-								s1 := &domain.Subject{ID: id, Views: vSubject.Views + 1}
-								_ = s.subjectService.UpdateOne(s1)
+								_ = s.subjectService.IncrementViews(id)
 							}()
 							return response.Success(vSubject), nil
 						} else {
@@ -80,8 +77,7 @@ func (s Subject) Get(c *gin.Context) (*response.Response, error) {
 		}
 		// 更新subject views + 1
 		go func() {
-			s1 := &domain.Subject{ID: id, Views: vSubject.Views + 1}
-			_ = s.subjectService.UpdateOne(s1)
+			_ = s.subjectService.IncrementViews(id)
 		}()
 		return response.Success(vSubject), nil
 	}

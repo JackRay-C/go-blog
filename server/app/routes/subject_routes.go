@@ -26,6 +26,6 @@ func InitPublicSubjectRouter(group *gin.RouterGroup) {
 		subjectGroup.GET("", Wrapper(subject.List))
 		subjectGroup.GET("/:id", Wrapper(subject.Get))
 
-		subjectGroup.GET("/:id/posts", Wrapper(subject.GetPosts))
+		//subjectGroup.GET("/:id/posts", Wrapper(subject.GetPosts))
 	}
 }

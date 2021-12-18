@@ -26,9 +26,20 @@ func NewPost() *Post {
 }
 
 func (p *Post) Get(c *gin.Context) (*response.Response, error) {
+	// 1、获取参数
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
+	}
+
+	// 2、判断是否登录
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin.SetMsg("获取ID为【%d】的博客失败：未登录. ",id)
+	}
+
+	// 3、判断是否有权限
+	if !api.CheckPermission(c, "posts", "read") {
+		return nil, response.Forbidden.SetMsg("获取ID为【%d】的博客失败：没有权限. ", id)
 	}
 
 	if one, err := p.postService.SelectOne(id); err != nil {

@@ -259,3 +259,11 @@ func (s *SubjectService) SaveOne(c *gin.Context, param *dto.PutSubjects) (*domai
 	}
 	return subject, nil
 }
+
+func (s *SubjectService) IncrementViews(id int) error  {
+	return global.DB.Model(&domain.Subject{}).Where("id=?", id).Update("views", gorm.Expr("views + 1")).Error
+}
+
+func (s *SubjectService) DecrementViews(id int) error   {
+	return global.DB.Model(&domain.Subject{}).Where("id=?", id).Update("views", gorm.Expr("views - 1")).Error
+}
