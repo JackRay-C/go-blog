@@ -8,6 +8,7 @@ import (
 	"blog/app/response"
 	"blog/core/global"
 	"blog/core/logger"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -196,19 +197,33 @@ func (s *SubjectService) DeleteOne(c *gin.Context, subjectId int) error {
 	return nil
 }
 
-func (s *SubjectService) CreateOne(subject *domain.Subject) error {
-	// 1、根据名称查询是否存在
-	if err := subject.Select(); err == gorm.ErrRecordNotFound {
-		// 2、如果不存在，插入
-		if err := subject.Insert(); err != nil {
-			return response.DatabaseInsertError.SetMsg("%s", err)
-		}
-	} else if err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
-	} else {
-		return response.RecoreExisted.SetMsg("该专题已经存在. ")
+func (s *SubjectService) CreateOne(c *gin.Context, param *dto.AddSubjects) (*domain.Subject, error) {
+	// 1、获取当前用户
+	userId, _ := c.Get("current_user_id")
+
+	// 2、查询是否存在同名专题
+	db := global.DB.Model(&domain.Subject{})
+
+	var subject *domain.Subject
+	if err := db.Where("title=?", param.Title).First(&subject).Error; err != gorm.ErrRecordNotFound {
+		return nil, errors.New("该专题已存在. ")
 	}
-	return nil
+
+	// 3、创建专题
+	subject = &domain.Subject{
+		Title:       param.Title,
+		Avatar:      param.AvatarId,
+		CoverImage:  param.CoverImageId,
+		Description: param.Description,
+		Visibility:  param.Visibility,
+		UserID:      userId.(int),
+		Views:       0,
+		CreatedAt:   time.Now(),
+	}
+	if err := db.Create(subject).Error; err != nil {
+		return nil, err
+	}
+	return subject, nil
 }
 
 func (s *SubjectService) UpdateOne(subject *domain.Subject) error {

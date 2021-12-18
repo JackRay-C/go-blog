@@ -79,16 +79,6 @@ func (l *PutPosts) String() string {
 	return string(marshal)
 }
 
-// patch 修改post某项参数
-type PatchPosts struct {
-	Title       string `json:"title"`
-	SubjectId   int    `json:"subject_id"`
-	Content     string `json:"content"`
-	HtmlContent string `json:"html_content"`
-	CoverImage  string `json:"cover_image"`
-	Description string `json:"description"`
-	Type        uint8  `json:"type"`
-}
 
 // 为某个专题添加posts
 type AddOneSubjectsAllPosts struct {

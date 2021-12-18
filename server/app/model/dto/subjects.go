@@ -13,7 +13,7 @@ type AddSubjects struct {
 	AvatarId     int    `json:"avatar_id"`
 	CoverImageId int    `json:"cover_image_id"`
 	Description  string `json:"description"`
-	Visibility   bool   `json:"visibility"`
+	Visibility   int    `json:"visibility"`
 }
 
 type PutSubjects struct {
@@ -22,8 +22,6 @@ type PutSubjects struct {
 	AvatarId     int    `json:"avatar_id"`
 	CoverImageId int    `json:"cover_image_id"`
 	Description  string `json:"description"`
-	Visibility   bool   `json:"visibility"`
+	Visibility   int   `json:"visibility"`
 	Views        int    `json:"views"`
 }
-
-
