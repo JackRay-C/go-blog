@@ -1,7 +1,6 @@
 package response
 
 import (
-	"blog/app/pager"
 	"encoding/json"
 )
 
@@ -28,10 +27,9 @@ func Success(data interface{}) *Response {
 }
 
 
-func PagerResponse(pager *pager.Pager) *Response {
+func Failed(code int, message string) *Response {
 	return &Response{
-		Code:    200,
-		Message: "Success",
-		Data:    pager,
+		Code:    code,
+		Message: message,
 	}
 }

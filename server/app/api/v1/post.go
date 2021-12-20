@@ -87,7 +87,7 @@ func (p *Post) List(c *gin.Context) (*response.Response, error) {
 
 	// 4、返回查询结果
 	p.log.Infof("分页查询博客成功: [第 %d 页，总页数：%d, 总行数：%d]", page.PageNo, page.PageCount, page.TotalRows)
-	return response.PagerResponse(&page), nil
+	return response.Success(&page), nil
 }
 
 func (p *Post) Post(c *gin.Context) (*response.Response, error) {

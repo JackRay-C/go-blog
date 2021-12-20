@@ -55,7 +55,7 @@ func (r *Role) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	r.log.Infof("分页查询角色成功：%s", &p)
-	return response.PagerResponse(&p), nil
+	return response.Success(&p), nil
 }
 
 func (r *Role) Post(c *gin.Context) (*response.Response, error) {

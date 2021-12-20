@@ -47,12 +47,10 @@ func (u *User) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	if err := u.userService.SelectAll(&p, &domain.User{}); err != nil {
-		u.log.Errorf("查询用户列表失败： %s", err)
-		return nil, err
+		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 
-	u.log.Infof("查询用户列表成功：%s", &p)
-	return response.PagerResponse(&p), nil
+	return response.Success(&p), nil
 }
 
 // 根据ID获取用户信息

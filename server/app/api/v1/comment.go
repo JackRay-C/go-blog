@@ -54,7 +54,7 @@ func (c *Comment) List(ctx *gin.Context) (*response.Response, error) {
 
 	// 4、返回查询结果
 	c.log.Infof("分页查询评论成功: %s", &page)
-	return response.PagerResponse(&page), nil
+	return response.Success(&page), nil
 }
 
 func (c *Comment) Post(ctx *gin.Context) (*response.Response, error) {

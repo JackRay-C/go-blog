@@ -54,7 +54,7 @@ func (m *Menu) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	m.log.Infof("分页查询菜单成功：%s", &p)
-	return response.PagerResponse(&p), nil
+	return response.Success(&p), nil
 }
 
 func (m *Menu) Post(c *gin.Context) (*response.Response, error) {

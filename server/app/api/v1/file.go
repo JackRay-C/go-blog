@@ -50,7 +50,7 @@ func (i *File) List(c *gin.Context) (*response.Response, error) {
 		return nil, err
 	}
 
-	return response.PagerResponse(&p), nil
+	return response.Success(&p), nil
 }
 
 func (i *File) Post(c *gin.Context) (*response.Response, error) {

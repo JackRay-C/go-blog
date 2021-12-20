@@ -57,7 +57,7 @@ func (d *Dict) List(c *gin.Context) (*response.Response, error) {
 		return nil, err
 	}
 
-	return response.PagerResponse(&p), nil
+	return response.Success(&p), nil
 }
 
 func (d *Dict) Post(c *gin.Context) (*response.Response, error) {

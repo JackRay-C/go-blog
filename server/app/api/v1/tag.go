@@ -54,7 +54,7 @@ func (t *Tag) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	t.log.Infof("分页查询标签成功. ")
-	return response.PagerResponse(&p), nil
+	return response.Success(&p), nil
 }
 
 func (t *Tag) ListPosts(c *gin.Context) (*response.Response, error) {
@@ -79,7 +79,7 @@ func (t *Tag) ListPosts(c *gin.Context) (*response.Response, error) {
 
 	// 3、返回查询结果
 	t.log.Infof("根据TagId【%id】查询博客成功: [第 %d 页，总页数：%d, 总行数：%d]", id, page.PageNo, page.PageCount, page.TotalRows)
-	return response.PagerResponse(&page), nil
+	return response.Success(&page), nil
 }
 
 func (t *Tag) Post(c *gin.Context) (*response.Response, error) {

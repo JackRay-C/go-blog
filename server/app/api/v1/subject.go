@@ -78,7 +78,7 @@ func (s *Subject) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	s.log.Infof("获取专题列表成功：%s", &p)
-	return response.PagerResponse(&p), nil
+	return response.Success(&p), nil
 }
 
 func (s *Subject) Post(c *gin.Context) (*response.Response, error) {
