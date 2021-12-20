@@ -72,7 +72,7 @@ func (t *Tag) ListPosts(c *gin.Context) (*response.Response, error) {
 	post.TagId = id
 
 	page := pager.Pager{}
-	if err := t.postService.SelectAll1(c, &page, &post); err != nil {
+	if err := t.postService.SelectAllWeb(c, &page, &post); err != nil {
 		t.log.Errorf("根据TagId【%id】查询博客: %s", err)
 		return nil, response.InternalServerError.SetMsg("根据TagId【%id】查询博客失败：%s", err)
 	}

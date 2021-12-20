@@ -25,7 +25,6 @@ func NewPost() *Post {
 	}
 }
 
-
 func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 	// 1、获取参数
 	id, err := strconv.Atoi(c.Param("id"))
@@ -35,7 +34,7 @@ func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 
 	// 2、判断是否登录
 	if !api.CheckLogin(c) {
-		return nil, response.NotLogin.SetMsg("获取ID为【%d】的博客失败：未登录. ",id)
+		return nil, response.NotLogin.SetMsg("获取ID为【%d】的博客失败：未登录. ", id)
 	}
 
 	// 3、判断是否有权限
@@ -44,14 +43,15 @@ func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 	}
 
 	userId, _ := c.Get("current_user_id")
+
+	// 4、查询一条记录
 	v, err := p.postService.SelectOne(&domain.Post{ID: id, UserId: userId.(int)})
 	if err != nil {
-		p.log.Errorf("查询ID为【%d】的博客失败： %s", id, err)
 		return nil, response.InternalServerError.SetMsg("查询ID为【%d】的博客失败： %s", id, err)
 	}
+
 	return response.Success(v), nil
 }
-
 
 // 查询当前用户的博客、包括已发布、草稿、公开、私有的
 func (p *Post) List(c *gin.Context) (*response.Response, error) {
@@ -129,17 +129,12 @@ func (p *Post) Delete(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("删除ID为【%d】的博客失败： %s ", id, err)
 	}
 
-	// 2、获取当前用户
-	if !api.CheckLogin(c) {
-		return nil, response.NotLogin.SetMsg("删除ID为【%d】的博客失败：未登录. ", id)
-	}
-
-	// 3、判断是否有权限
+	// 2、判断是否有权限
 	if !api.CheckPermission(c, "posts", "delete") {
 		return nil, response.Forbidden.SetMsg("删除ID为【%d】的博客失败：没有权限. ", id)
 	}
 
-	// 4、删除博客
+	// 3、删除博客
 	if err := p.postService.DeleteOne(c, id); err != nil {
 		return nil, response.InternalServerError.SetMsg("删除ID为【%d】的博客失败: %s", id, err)
 	}
@@ -156,36 +151,26 @@ func (p *Post) Put(c *gin.Context) (*response.Response, error) {
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
-	p.log.Infof("更新博客【%d】", id)
 
-	// 2、获取当前用户
-	if !api.CheckLogin(c) {
-		p.log.Infof("更新博客【%d】失败：未登录", id)
-		return nil, response.NotLogin.SetMsg("更新博客【%d】失败：未登录", id)
-	}
-	if currentUserId, ok := c.Get("current_user_id"); ok {
-		params.UserId = currentUserId.(int)
-	}
+	// 2、获取当前用户id
+	currentUserId, _ := c.Get("current_user_id")
+	params.UserId = currentUserId.(int)
+	params.ID = id
 
 	// 3、判断是否有权限
 	if !api.CheckPermission(c, "posts", "update") {
-		p.log.Infof("更新博客【%d】失败：没有权限", id)
 		return nil, response.Forbidden.SetMsg("更新博客【%d】失败：没有权限", id)
 	}
 
-	// 4、绑定body参数
+	// 4、绑定json到结构体上
 	if err := c.ShouldBindJSON(&params); err != nil {
-		p.log.Infof("更新博客【%d】失败：%s", id, err)
 		return nil, response.InvalidParams.SetMsg("更新博客【%d】失败：%s", id, err)
 	}
 
-	// 根据路由上传递的ID，而不是传递的ID
-	params.ID = id
+	// 5、更新博客
 	if post, err := p.postService.UpdateOne(&params); err != nil {
-		p.log.Infof("更新博客【%d】失败：%s", id, err)
 		return nil, response.InternalServerError.SetMsg("更新博客【%d】失败：%s", id, err)
 	} else {
-		p.log.Infof("更新博客【%d】成功", id)
 		return response.Success(post), nil
 	}
 }

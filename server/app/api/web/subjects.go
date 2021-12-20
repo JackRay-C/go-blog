@@ -99,7 +99,7 @@ func (s Subject) GetPosts(c *gin.Context) (*response.Response, error) {
 	}
 	p := pager.Pager{}
 
-	if err := s.postService.SelectAll1(c, &p, &params); err != nil {
+	if err := s.postService.SelectAllWeb(c, &p, &params); err != nil {
 		return nil, err
 	}
 

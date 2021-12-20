@@ -31,36 +31,37 @@ func NewRouters(setting *setting.App) *gin.Engine {
 	r.StaticFS("/static", http.Dir(setting.StaticPath))
 
 	// 公共中间件
-	r.Use(middleware.Cors())
-	r.Use(middleware.AppInfo())   // 元数据信息
-	r.Use(middleware.RequestID()) // 为每个请求生成一个唯一的请求ID
- 	r.Use(middleware.Logger())    // 请求完成后记录日志
-	r.Use(middleware.Recovery())  // 全局异常处理
+	r.Use(middleware.Cors())           // 跨域设置
+	r.Use(middleware.AppInfo())        // 元数据信息
+	r.Use(middleware.RequestID())      // 为每个请求生成一个唯一的请求ID
+	r.Use(middleware.Logger())         // 请求完成后记录日志
+	r.Use(middleware.Recovery())       // 全局异常处理
 	r.Use(middleware.Authentication()) // 根据token判断是否登录
 
-
-	publicGroup := r.Group("/api/v1")
+	webGroup := r.Group("/api/v1")
 	{
-		InitAuthRouter(publicGroup)
-		InitPublicPostRouter(publicGroup)
-		InitPublicSubjectRouter(publicGroup)
-		InitPublicUserRouter(publicGroup)
-		InitPublicTagRouter(publicGroup)
-		InitPublicFileRouter(publicGroup)
-		InitPublicDictRouter(publicGroup)
+		InitAuthRouter(webGroup)
+		InitPublicPostRouter(webGroup)
+		InitPublicSubjectRouter(webGroup)
+		InitPublicUserRouter(webGroup)
+		InitPublicTagRouter(webGroup)
+		InitPublicFileRouter(webGroup)
+		InitPublicDictRouter(webGroup)
 	}
-	privateGroup := r.Group("/api/v1/admin/")
-	privateGroup.Use(middleware.Permission()) // 获取用户角色及权限列表
+
+	consoleGroup := r.Group("/api/v1/admin/")
+	consoleGroup.Use(middleware.Permission()) // 认证及鉴权中间件
 	{
-		InitUserRouter(privateGroup)
-		InitPostRouter(privateGroup)
-		InitTagRouter(privateGroup)
-		InitSubjectRouter(privateGroup)
-		InitFileRouter(privateGroup)
-		InitRolesRouter(privateGroup)
-		InitMenuRouter(privateGroup)
-		InitDictRouter(privateGroup)
-		InitCommentRouter(privateGroup)
+		InitUserRouter(consoleGroup)
+		InitPostRouter(consoleGroup)
+		InitTagRouter(consoleGroup)
+		InitSubjectRouter(consoleGroup)
+		InitFileRouter(consoleGroup)
+		InitRolesRouter(consoleGroup)
+		InitMenuRouter(consoleGroup)
+		InitDictRouter(consoleGroup)
+		InitCommentRouter(consoleGroup)
+		InitPermissionRouter(consoleGroup)
 	}
 
 	return r

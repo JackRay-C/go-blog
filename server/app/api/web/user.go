@@ -58,7 +58,7 @@ func (u *User) ListPosts(c *gin.Context) (*response.Response, error)  {
 	}
 
 	p := pager.Pager{}
-	if err := u.postService.SelectAll1(c, &p, params); err != nil {
+	if err := u.postService.SelectAllWeb(c, &p, params); err != nil {
 		return nil, err
 	}
 	return response.Success(p), nil
