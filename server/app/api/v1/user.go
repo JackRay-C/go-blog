@@ -272,7 +272,7 @@ func (u *User) ListSubjects(c *gin.Context) (*response.Response, error) {
 	}
 	u.log.Infof("获取用户：%d 所有博客", id)
 
-	if err := u.subjectService.SelectAll(&p, &domain.Subject{UserID: id}); err != nil {
+	if err := u.subjectService.SelectAll(c, &p, &dto.ListSubjects{UserId: id}); err != nil {
 		return nil, err
 	}
 

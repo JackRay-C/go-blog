@@ -2,6 +2,7 @@ package web
 
 import (
 	"blog/app/api"
+	"blog/app/domain"
 	"blog/app/model/dto"
 	"blog/app/pager"
 	"blog/app/response"
@@ -30,7 +31,7 @@ func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
-	if one, err := p.postService.SelectOne(id); err != nil {
+	if one, err := p.postService.SelectOne(&domain.Post{ID: id}); err != nil {
 		p.log.Errorf("查询ID为【%d】的博客失败： %s", id, err)
 		return nil, response.InternalServerError.SetMsg("查询ID为【%d】的博客失败： %s", id, err)
 	} else {
@@ -54,11 +55,7 @@ func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 
 		go func() {
 			// 更新博客views
-			params := &dto.PutPosts{
-				ID:    id,
-				Views: one.Views + 1,
-			}
-			_, _ = p.postService.UpdateOne(params)
+			_ = p.postService.IncrementViews(id)
 		}()
 
 		p.log.Infof("查询博客【%d】成功. ", id)
@@ -76,7 +73,7 @@ func (p *Post) List(c *gin.Context) (*response.Response, error) {
 
 	// 2、查询博客
 	page := pager.Pager{}
-	if err := p.postService.SelectAll1(c, &page, &post); err != nil {
+	if err := p.postService.SelectAllWeb(c, &page, &post); err != nil {
 		p.log.Errorf("分页查询博客失败: %s", err)
 		return nil, response.InternalServerError.SetMsg("分页查询博客失败：%s", err)
 	}
@@ -93,14 +90,14 @@ func (p *Post) Like(c *gin.Context) (*response.Response, error){
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
-	if one, err := p.postService.SelectOne(id); err != nil {
+	if one, err := p.postService.SelectOne(&domain.Post{ID: id}); err != nil {
 		return nil, response.RecordNotFound.SetMsg("该博客不存在. ")
 	} else {
 		if one.Status == 1  {
 			return nil, response.RecordNotFound.SetMsg("该博客不存在. ")
 		}
 		go func() {
-			// 更新博客views
+			// 更新博客like
 			params := &dto.PutPosts{
 				ID:    id,
 				Likes: one.Likes + 1,

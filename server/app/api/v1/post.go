@@ -25,6 +25,7 @@ func NewPost() *Post {
 	}
 }
 
+
 func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 	// 1、获取参数
 	id, err := strconv.Atoi(c.Param("id"))
@@ -42,20 +43,13 @@ func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 		return nil, response.Forbidden.SetMsg("获取ID为【%d】的博客失败：没有权限. ", id)
 	}
 
-	if one, err := p.postService.SelectOne(id); err != nil {
+	userId, _ := c.Get("current_user_id")
+	v, err := p.postService.SelectOne(&domain.Post{ID: id, UserId: userId.(int)})
+	if err != nil {
 		p.log.Errorf("查询ID为【%d】的博客失败： %s", id, err)
 		return nil, response.InternalServerError.SetMsg("查询ID为【%d】的博客失败： %s", id, err)
-	} else {
-		get, exists := c.Get("current_user_id")
-		if !exists {
-			return nil, response.NotLogin
-		}
-		if one.Visibility == 1 && one.UserId != get  {
-			return nil, response.Forbidden.SetMsg("查询ID为【%d】的博客失败： 没有权限. ")
-		}
-		p.log.Infof("查询博客【%d】成功. ", id)
-		return response.Success(one), nil
 	}
+	return response.Success(v), nil
 }
 
 
@@ -134,6 +128,7 @@ func (p *Post) Delete(c *gin.Context) (*response.Response, error) {
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("删除ID为【%d】的博客失败： %s ", id, err)
 	}
+
 	// 2、获取当前用户
 	if !api.CheckLogin(c) {
 		return nil, response.NotLogin.SetMsg("删除ID为【%d】的博客失败：未登录. ", id)
@@ -143,8 +138,9 @@ func (p *Post) Delete(c *gin.Context) (*response.Response, error) {
 	if !api.CheckPermission(c, "posts", "delete") {
 		return nil, response.Forbidden.SetMsg("删除ID为【%d】的博客失败：没有权限. ", id)
 	}
+
 	// 4、删除博客
-	if err := p.postService.DeleteOne(&domain.Post{ID: id}); err != nil {
+	if err := p.postService.DeleteOne(c, id); err != nil {
 		return nil, response.InternalServerError.SetMsg("删除ID为【%d】的博客失败: %s", id, err)
 	}
 	p.log.Infof("删除博客【%d】成功.", id)
