@@ -31,8 +31,37 @@ func NewUser() *User {
 	}
 }
 
+// 更新用户信息
 func (u *User) Put(c *gin.Context) (*response.Response, error) {
-	panic("implement me")
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id == 0 {
+		return nil, response.InvalidParams.SetMsg("ID is required. ")
+	}
+
+	var putUser *dto.PutUser
+	if err := c.ShouldBindJSON(&putUser); err != nil {
+		return nil, response.InvalidParams.SetMsg("%s", err)
+	}
+
+	if putUser.ID == 0 {
+		putUser.ID = id
+	}
+
+	currentUserId, _ := c.Get("current_user_id")
+	// 修改别人的信息
+	if putUser.ID != currentUserId.(int) {
+		if !api.CheckPermission(c, "users", "update") {
+			return nil, response.Forbidden.SetMsg("修改ID为【%d】的用户信息失败：没有权限. ", id)
+		}
+	}
+
+	// 修改自己的信息
+	one, err := u.userService.UpdateOne(putUser)
+	if err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
+	return response.Success(one), nil
 }
 
 // 分页获取用户列表
@@ -42,11 +71,17 @@ func (u *User) List(c *gin.Context) (*response.Response, error) {
 		PageSize: request.GetPageSize(c),
 	}
 
+	active := c.DefaultQuery("active", "0")
+	atoi, err := strconv.Atoi(active)
+	if err != nil {
+		return nil, response.InvalidParams.SetMsg("%s", err)
+	}
+
 	if !api.CheckPermission(c, "users", "list") {
 		return nil, response.Forbidden.SetMsg("查询用户列表失败：没有权限")
 	}
 
-	if err := u.userService.SelectAll(&p, &domain.User{}); err != nil {
+	if err := u.userService.SelectAll(&p, &domain.User{Active: int8(atoi)}); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 
@@ -60,17 +95,11 @@ func (u *User) Get(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
-	active := c.DefaultQuery("active", "0")
-	atoi, err := strconv.Atoi(active)
-	if err != nil {
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
 	if !api.CheckPermission(c, "users", "read") {
 		return nil, response.Forbidden.SetMsg("查询用户信息失败：没有权限")
 	}
 
-	one, err := u.userService.SelectOne(&domain.User{ID: id, Active: int8(atoi)})
+	one, err := u.userService.SelectOne(&domain.User{ID: id})
 	if err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
@@ -114,30 +143,7 @@ func (u *User) Delete(c *gin.Context) (*response.Response, error) {
 	return response.Success("删除成功"), nil
 }
 
-// 部分更新
-func (u *User) Patch(c *gin.Context) (*response.Response, error) {
-	u.log.Infof("更新用户信息")
 
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		u.log.Errorf("参数错误： %d", id)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	user := &domain.User{}
-	if err := c.ShouldBindJSON(&user); err != nil {
-		u.log.Errorf("参数错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("参数错误: %s", err)
-	}
-	user.ID = id
-	if err := u.userService.UpdateOne(user); err != nil {
-		u.log.Errorf("更新失败：error： %s", err)
-		return nil, response.InternalServerError.SetMsg("%s", err)
-	}
-
-	u.log.Infof("更新成功")
-	return response.Success(user), nil
-}
 
 func (u *User) ListRole(c *gin.Context) (*response.Response, error) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -195,88 +201,3 @@ func (u *User) PutRole(c *gin.Context) (*response.Response, error) {
 	return response.Success(requestRoles), nil
 }
 
-// 获取用户的菜单
-func (u *User) ListMenus(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		u.log.Errorf("参数绑定错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	u.log.Infof("获取用户：%d 所有菜单", id)
-
-	p := pager.Pager{
-		PageNo:   request.GetPageNo(c),
-		PageSize: request.GetPageSize(c),
-	}
-	if err := u.userService.SelectMenus(&p, &domain.User{ID: id}); err != nil {
-		return nil, err
-	}
-	return response.Success(&p), nil
-}
-
-// 获取用户的博客
-func (u *User) ListPosts(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		u.log.Errorf("参数绑定错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	p := pager.Pager{}
-	u.log.Infof("获取用户：%d 所有博客", id)
-	posts := dto.ListPosts{}
-	if err := c.ShouldBind(&posts); err != nil {
-		return nil, err
-	}
-
-	posts.Visibility = 2
-	posts.Status = 2
-
-	if err := u.postService.SelectAll(&p, &posts); err != nil {
-		return nil, err
-	}
-	return response.Success(&p), nil
-}
-
-// 获取用户的文件列表
-func (u *User) ListFiles(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		u.log.Errorf("参数绑定错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	p := pager.Pager{
-		PageNo:   request.GetPageNo(c),
-		PageSize: request.GetPageSize(c),
-	}
-	u.log.Infof("获取用户：%d 所有文件", id)
-
-	if err := u.fileService.SelectAll(&p, &domain.File{UserID: id}); err != nil {
-		return nil, err
-	}
-
-	return response.Success(&p), nil
-}
-
-// 获取用户的专题
-func (u *User) ListSubjects(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		u.log.Errorf("参数绑定错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	p := pager.Pager{
-		PageNo:   request.GetPageNo(c),
-		PageSize: request.GetPageSize(c),
-	}
-	u.log.Infof("获取用户：%d 所有博客", id)
-
-	if err := u.subjectService.SelectAll(c, &p, &dto.ListSubjects{UserId: id}); err != nil {
-		return nil, err
-	}
-
-	return response.Success(&p), nil
-}

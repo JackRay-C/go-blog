@@ -12,6 +12,7 @@ import (
 	"blog/core/logger"
 	"errors"
 	"gorm.io/gorm"
+	"time"
 )
 
 type UserService struct {
@@ -67,22 +68,29 @@ func (u *UserService) DeleteOne(user *domain.User) error {
 }
 
 func (u *UserService) SelectOne(user *domain.User) (*vo.VUser, error) {
-	if err := global.DB.Model(&domain.User{}).Where("id=? and active=?", user.ID, user.Active).First(&user).Error; err != nil {
+	db := global.DB.Model(&domain.User{})
+
+	if user.Active != 0 {
+		db.Where("active=?", user.Active)
+	}
+
+	if err := db.Where("id=?", user.ID).First(&user).Error; err != nil {
 		return nil, err
 	}
+
 	var file *domain.File
-	if err:=global.DB.Model(&domain.File{}).Where("id=?", user.Avatar).First(&file).Error; err != nil {
+	if err := global.DB.Model(&domain.File{}).Where("id=?", user.Avatar).First(&file).Error; err != nil {
 		return nil, err
 	}
 
 	return &vo.VUser{
-		ID:       user.ID,
-		Username: user.Username,
-		Nickname: user.Nickname,
-		Active:   user.Active,
-		Email:    user.Email,
-		Avatar:   file,
-		Created:  user.CreatedAt,
+		ID:        user.ID,
+		Username:  user.Username,
+		Nickname:  user.Nickname,
+		Active:    user.Active,
+		Email:     user.Email,
+		Avatar:    file,
+		CreatedAt: user.CreatedAt,
 	}, nil
 
 }
@@ -108,6 +116,8 @@ func (u *UserService) CreateOne(user *domain.User) error {
 			return errors.New("该昵称已经存在. ")
 		}
 
+		// 密码加密
+		user.Password = encrypt.Sha256(user.Password)
 		if err := tx.Model(&domain.User{}).Create(user).Error; err != nil {
 			return err
 		}
@@ -116,35 +126,81 @@ func (u *UserService) CreateOne(user *domain.User) error {
 		return err
 	}
 
-
 	return nil
 }
 
 func (u *UserService) SelectAll(p *pager.Pager, user *domain.User) error {
-	var users []domain.User
+	var users []*domain.User
+	var voUsers []*vo.VUser
+	offset := (p.PageNo - 1) * p.PageSize
+	limit := p.PageSize
 
-	if err := user.Count(&p.TotalRows); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	db := global.DB.Model(&domain.User{})
+	if user.Active != 0 {
+		db.Where("active=?", user.Active)
 	}
 
-	p.PageCount = int((p.TotalRows + int64(p.PageSize) - 1) / int64(p.PageSize))
-	p.List = &users
-	if err := user.List(&users, (p.PageNo-1)*p.PageSize, p.PageSize); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	if err := db.Count(&p.TotalRows).Error; err != nil {
+		return err
+	}
+
+	if err := db.Offset(offset).Limit(limit).Find(&users).Error; err != nil {
+		return err
+	}
+
+	for _, user := range users {
+		var userAvatar *domain.File
+		if err := global.DB.Model(&domain.File{ID: user.Avatar}).First(&userAvatar).Error; err != nil {
+			return err
+		}
+		voUsers = append(voUsers, &vo.VUser{
+			ID:        user.ID,
+			Username:  user.Username,
+			Nickname:  user.Nickname,
+			Active:    user.Active,
+			Email:     user.Email,
+			Avatar:    userAvatar,
+			CreatedAt: user.CreatedAt,
+		})
+	}
+
+	if p.TotalRows == 0 {
+		p.PageCount = 0
+		p.List = make([]string, 0)
+	} else {
+		p.PageCount = int((p.TotalRows + int64(p.PageSize) - 1) / int64(p.PageSize))
+		p.List = &voUsers
 	}
 
 	return nil
 }
 
-func (u *UserService) UpdateOne(user *domain.User) error {
-	if err := user.Update(); err != nil {
-		return response.DatabaseUpdateError.SetMsg("%s", err)
+func (u *UserService) UpdateOne(param *dto.PutUser) (*vo.VUser, error) {
+	var user *domain.User
+	err := global.DB.Model(&domain.User{}).Where("id=? and username=?", param.ID, param.Username).First(&user).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, errors.New("该用户不存在. ")
+	}
+	if err != nil {
+		return nil, err
 	}
 
-	if err := user.Select(); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	user = &domain.User{
+		ID:        param.ID,
+		Username:  param.Username,
+		Nickname:  param.Nickname,
+		Password:  encrypt.Sha256(param.Password),
+		Active:    param.Active,
+		Email:     param.Email,
+		Avatar:    param.Avatar,
+		UpdatedAt: time.Now(),
 	}
-	return nil
+
+	if err := global.DB.Model(&domain.User{}).Where("id=? and username=?", param.ID, param.Username).Omit("id", "username").Updates(user).Error; err != nil {
+		return nil, err
+	}
+
+	return u.SelectOne(&domain.User{ID: user.ID})
 }
 
 func (u *UserService) SelectRoles(user *domain.User, roles *[]*domain.Role) error {

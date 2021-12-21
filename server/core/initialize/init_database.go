@@ -86,7 +86,7 @@ func initUserData() {
 		Email:    "18435175817@163.com",
 		Avatar:   1,
 	}
-	if err := u.Insert(); err != nil {
+	if err := global.DB.Model(&domain.User{}).Clauses(clause.OnConflict{DoNothing: true}).Create(u).Error; err != nil {
 		panic(err)
 	}
 }

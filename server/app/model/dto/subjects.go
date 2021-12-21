@@ -1,8 +1,6 @@
 package dto
 
 type ListSubjects struct {
-	PageNo     int    `json:"page_no" form:"page_no"`
-	PageSize   int    `json:"page_size" form:"page_size"`
 	UserId     int    `json:"user_id" form:"user_id"`
 	Visibility int    `json:"visibility" form:"visibility"`
 	Search     string `json:"search" form:"search"`

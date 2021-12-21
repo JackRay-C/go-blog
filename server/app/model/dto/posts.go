@@ -8,13 +8,13 @@ import (
 
 // list post列表参数
 type ListPosts struct {
-	PageNo     int    `json:"page_no" form:"page_no" binding:"gt=0" `
-	PageSize   int    `json:"page_size" form:"page_size"`
+	PageNo     int    `json:"page_no" form:"page_no" default:"1"`
+	PageSize   int    `json:"page_size" form:"page_size" default:"10"`
 	Visibility int    `json:"visibility" form:"visibility" `
 	Status     int    `json:"status"  form:"status"`
 	UserId     int    `json:"user_id" form:"user_id"`
 	SubjectId  int    `json:"subject_id"  form:"subject_id"`
-	OrderBy    int    `json:"order_by" form:"order_by"`
+	OrderBy    int    `json:"order_by" form:"order_by" default:"1"`
 	TagId      int    `json:"tag_id" form:"tag_id"`
 	Search     string `json:"search" form:"search"`
 }

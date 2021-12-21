@@ -12,18 +12,12 @@ func InitUserRouter(group *gin.RouterGroup) {
 		user := v1.NewUser()
 		userGroup.GET("", Wrapper(user.List))
 		userGroup.POST("", Wrapper(user.Post))
-		userGroup.PATCH("/:id", Wrapper(user.Patch))
+		userGroup.PUT("/:id", Wrapper(user.Put))
 		userGroup.DELETE("/:id", Wrapper(user.Delete))
-
 
 		userGroup.GET("/:id/roles", Wrapper(user.ListRole))
 		userGroup.POST("/:id/roles", Wrapper(user.PostRole))
 		userGroup.PUT("/:id/roles", Wrapper(user.PutRole))
-
-
-		userGroup.GET("/:id/menus", Wrapper(user.ListMenus))
-
-		userGroup.GET("/:id/files", Wrapper(user.ListFiles))
 
 	}
 }
@@ -33,9 +27,5 @@ func InitPublicUserRouter(group *gin.RouterGroup)  {
 	{
 		user := web.NewUser()
 		userGroup.GET("/:id", Wrapper(user.Get))
-
-		userGroup.GET("/:id/posts", Wrapper(user.ListPosts))
-
-		userGroup.GET("/:id/subjects", Wrapper(user.ListSubjects))
 	}
 }

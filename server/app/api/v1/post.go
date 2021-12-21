@@ -5,6 +5,7 @@ import (
 	"blog/app/domain"
 	"blog/app/model/dto"
 	"blog/app/pager"
+	"blog/app/request"
 	"blog/app/response"
 	"blog/app/service"
 	"blog/core/global"
@@ -71,6 +72,7 @@ func (p *Post) List(c *gin.Context) (*response.Response, error) {
 			post.UserId = userId.(int)
 		}
 	}
+
 	if post.UserId != userId {
 		if !api.CheckAdmin(c) || !api.CheckPermission(c, "posts", "list") {
 			// 判断是否是管理员，不是管理员，判断是否有posts-list权限，没有的话，返回错误
@@ -79,7 +81,10 @@ func (p *Post) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	// 3、查询博客
-	page := pager.Pager{}
+	page := pager.Pager{
+		PageNo:   request.GetPageNo(c),
+		PageSize: request.GetPageSize(c),
+	}
 	if err := p.postService.SelectAll(&page, &post); err != nil {
 		p.log.Errorf("分页查询博客失败: %s", err)
 		return nil, response.InternalServerError.SetMsg("分页查询博客失败：%s", err)

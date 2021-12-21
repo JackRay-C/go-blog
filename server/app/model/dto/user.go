@@ -41,13 +41,14 @@ type RequestCreateUser struct {
 	Avatar   string `json:"avatar"`
 }
 
-type RequestPutUser struct {
-	ID       int    `json:"username" binding:"required"`
+type PutUser struct {
+	ID       int    `json:"id" binding:"required"`
 	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Nickname string `json:"nickname" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-	Avatar   string `json:"avatar"`
+	Password string `json:"password"`
+	Nickname string `json:"nickname"`
+	Email    string `json:"email"`
+	Active   int8   `json:"active"`
+	Avatar   int    `json:"avatar"`
 }
 
 type PostUserRoles struct {

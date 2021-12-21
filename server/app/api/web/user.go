@@ -2,9 +2,6 @@ package web
 
 import (
 	"blog/app/domain"
-	"blog/app/model/dto"
-	"blog/app/pager"
-	"blog/app/request"
 	"blog/app/response"
 	"blog/app/service"
 	"blog/core/global"
@@ -45,44 +42,3 @@ func (u *User) Get(c *gin.Context) (*response.Response, error) {
 	}
 }
 
-func (u *User) ListPosts(c *gin.Context) (*response.Response, error)  {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		return nil, response.InvalidParams.SetMsg("ID is required. ")
-	}
-
-	// 根据用户id查询posts
-	params := &dto.ListPosts{
-		PageNo:   request.GetPageNo(c),
-		PageSize: request.GetPageSize(c),
-		UserId:   id,
-	}
-
-	p := pager.Pager{}
-	if err := u.postService.SelectAllWeb(c, &p, params); err != nil {
-		return nil, err
-	}
-	return response.Success(p), nil
-}
-
-func (u *User) ListSubjects(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		return nil, response.InvalidParams.SetMsg("ID is required. ")
-	}
-
-
-	params:= &dto.ListSubjects{
-		PageNo:   request.GetPageNo(c),
-		PageSize: request.GetPageSize(c),
-		UserId: id,
-	}
-
-	page := &pager.Pager{}
-
-	if err := u.subjectService.SelectAllWeb(c, page, params); err != nil {
-		return nil, err
-	}
-
-	return response.Success(page), nil
-}

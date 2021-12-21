@@ -27,15 +27,19 @@ func NewSubject() *Subject {
 }
 
 func (s Subject) List(c *gin.Context) (*response.Response, error) {
-	params := dto.ListSubjects{
+	params := dto.ListSubjects{}
+	if err := c.ShouldBind(&params); err != nil {
+		return nil, response.InvalidParams.SetMsg("%s", err)
+	}
+
+	p := pager.Pager{
 		PageNo:   request.GetPageNo(c),
 		PageSize: request.GetPageSize(c),
 	}
 
-	p := pager.Pager{}
 	if err := s.subjectService.SelectAllWeb(c, &p, &params); err != nil {
 		s.log.Errorf("分页查询失败： %s", err)
-		return nil, err
+		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 
 	s.log.Infof("分页查询成功：%s", &p)

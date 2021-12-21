@@ -86,13 +86,13 @@ func (p *PostService) SelectOne(post *domain.Post) (*vo.VPosts, error) {
 		Views:           post.Views,
 		UserId:          post.UserId,
 		User: &vo.VUser{
-			ID:       user.ID,
-			Username: user.Username,
-			Nickname: user.Nickname,
-			Active:   user.Active,
-			Email:    user.Email,
-			Avatar:   userAvatar,
-			Created:  user.CreatedAt,
+			ID:        user.ID,
+			Username:  user.Username,
+			Nickname:  user.Nickname,
+			Active:    user.Active,
+			Email:     user.Email,
+			Avatar:    userAvatar,
+			CreatedAt: user.CreatedAt,
 		},
 		CreatedAt:   post.CreatedAt,
 		PublishedAt: post.PublishedAt,
@@ -215,8 +215,8 @@ func (p *PostService) SelectAllWeb(c *gin.Context, page *pager.Pager, filter *dt
 	var vPosts []*vo.VPosts
 	var order domain.Dict
 
-	offset := (filter.PageNo - 1) * filter.PageSize
-	limit := filter.PageSize
+	offset := (page.PageNo - 1) * page.PageSize
+	limit := page.PageSize
 	var count int64
 
 	if filter.OrderBy != 0 {
@@ -283,8 +283,6 @@ func (p *PostService) SelectAllWeb(c *gin.Context, page *pager.Pager, filter *dt
 	}
 
 	// 判断是否为空
-	page.PageNo = filter.PageNo
-	page.PageSize = filter.PageSize
 	page.TotalRows = count
 	if count == 0 {
 		page.PageCount = 0
@@ -314,8 +312,8 @@ func (p *PostService) SelectAll(page *pager.Pager, filter *dto.ListPosts) error 
 
 	// 1、判断是否是搜索
 	db := global.DB.Model(&domain.Post{})
-	offset := (filter.PageNo - 1) * filter.PageSize
-	limit := filter.PageSize
+	offset := (page.PageNo - 1) * page.PageSize
+	limit := page.PageSize
 	var count int64
 
 	if filter.Search != "" {
@@ -377,12 +375,12 @@ func (p *PostService) DeleteOne(c *gin.Context, id int) error {
 	db := global.DB.Model(&domain.Post{})
 
 	// 2、根据user_id和id查询博客
-	if err := db.Where("user_id=? and id=?", userId, id).First(&post).Error; err  != nil {
+	if err := db.Where("user_id=? and id=?", userId, id).First(&post).Error; err != nil {
 		return err
 	}
 
 	// 2、根据id删除subject
-	if err:= db.Where("user_id=? and id=?", userId, id).Delete(&post).Error; err != nil {
+	if err := db.Where("user_id=? and id=?", userId, id).Delete(&post).Error; err != nil {
 		return err
 	}
 
@@ -486,19 +484,19 @@ func (p *PostService) UpdateOne(params *dto.PutPosts) (vPosts *vo.VPosts, err er
 	}
 }
 
-func (p *PostService) IncrementViews(id int) error  {
+func (p *PostService) IncrementViews(id int) error {
 	return global.DB.Model(&domain.Post{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views + 1")).Error
 }
 
-func (p *PostService) DecrementViews(id int) error   {
+func (p *PostService) DecrementViews(id int) error {
 	return global.DB.Model(&domain.Post{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views - 1")).Error
 }
 
-func (p *PostService) IncrementLikes(id int) error  {
+func (p *PostService) IncrementLikes(id int) error {
 	return global.DB.Model(&domain.Post{}).Select("likes").Omit("updated_at").Where("id=?", id).Update("likes", gorm.Expr("likes + 1")).Error
 }
 
-func (p *PostService) DecrementLikes(id int) error  {
+func (p *PostService) DecrementLikes(id int) error {
 	return global.DB.Model(&domain.Post{}).Select("likes").Omit("updated_at").Where("id=?", id).Update("likes", gorm.Expr("likes - 1")).Error
 }
 

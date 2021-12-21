@@ -74,8 +74,8 @@ func (s *SubjectService) SelectAllWeb(c *gin.Context, page *pager.Pager, filter 
 	var subjects []*domain.Subject
 	var vSubjects []*vo.VSubject
 
-	offset := (filter.PageNo - 1) * filter.PageSize
-	limit := filter.PageSize
+	offset := (page.PageNo - 1) * page.PageSize
+	limit := page.PageSize
 	var count int64
 
 	db := global.DB.Model(&domain.Subject{})
@@ -123,8 +123,6 @@ func (s *SubjectService) SelectAllWeb(c *gin.Context, page *pager.Pager, filter 
 		}
 	}
 
-	page.PageNo = filter.PageNo
-	page.PageSize = filter.PageSize
 	page.TotalRows = count
 	page.PageCount = int((count + int64(page.PageSize) - 1)/int64(page.PageSize))
 	page.List = &vSubjects
@@ -136,8 +134,8 @@ func (s *SubjectService) SelectAll(c *gin.Context,page *pager.Pager, filter *dto
 	var subjects []*domain.Subject
 	var vSubjects []*vo.VSubject
 
-	offset := (filter.PageNo - 1) * filter.PageSize
-	limit := filter.PageSize
+	offset := (page.PageNo - 1) * page.PageSize
+	limit := page.PageSize
 	var count int64
 
 	userId, _ := c.Get("current_user_id")
@@ -168,8 +166,6 @@ func (s *SubjectService) SelectAll(c *gin.Context,page *pager.Pager, filter *dto
 		}
 	}
 
-	page.PageNo = filter.PageNo
-	page.PageSize = filter.PageSize
 	page.TotalRows = count
 	page.PageCount = int((count + int64(page.PageSize) - 1)/int64(page.PageSize))
 	page.List = &vSubjects

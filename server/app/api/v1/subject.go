@@ -55,9 +55,9 @@ func (s *Subject) Get(c *gin.Context) (*response.Response, error) {
 
 func (s *Subject) List(c *gin.Context) (*response.Response, error) {
 	// 1、获取参数
-	params := dto.ListSubjects{
-		PageNo:   request.GetPageNo(c),
-		PageSize: request.GetPageSize(c),
+	params := dto.ListSubjects{}
+	if err := c.ShouldBind(&params); err != nil {
+		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
 
 	// 2、判读是否登录
@@ -71,7 +71,11 @@ func (s *Subject) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	// 4、获取专题列表
-	p := pager.Pager{}
+	p := pager.Pager{
+		PageNo:   request.GetPageNo(c),
+		PageSize: request.GetPageSize(c),
+	}
+
 	if err := s.subjectService.SelectAll(c, &p, &params); err != nil {
 		s.log.Errorf("获取专题列表失败： %s", err)
 		return nil, response.InternalServerError.SetMsg("%s", err)
