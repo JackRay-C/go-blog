@@ -1,6 +1,7 @@
 package web
 
 import (
+	"blog/app/domain"
 	"blog/app/model/dto"
 	"blog/app/pager"
 	"blog/app/request"
@@ -35,7 +36,7 @@ func (u *User) Get(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
-	if one, err := u.userService.SelectOneById(id); err != nil {
+	if one, err := u.userService.SelectOne(&domain.User{ID: id}); err != nil {
 		u.log.Errorf("根据ID查询用户失败 : %s", err)
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	} else {

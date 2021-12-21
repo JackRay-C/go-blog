@@ -487,13 +487,20 @@ func (p *PostService) UpdateOne(params *dto.PutPosts) (vPosts *vo.VPosts, err er
 }
 
 func (p *PostService) IncrementViews(id int) error  {
-	return global.DB.Model(&domain.Post{}).Where("id=?", id).Update("views", gorm.Expr("views + 1")).Error
+	return global.DB.Model(&domain.Post{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views + 1")).Error
 }
 
 func (p *PostService) DecrementViews(id int) error   {
-	return global.DB.Model(&domain.Post{}).Where("id=?", id).Update("views", gorm.Expr("views - 1")).Error
+	return global.DB.Model(&domain.Post{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views - 1")).Error
 }
 
+func (p *PostService) IncrementLikes(id int) error  {
+	return global.DB.Model(&domain.Post{}).Select("likes").Omit("updated_at").Where("id=?", id).Update("likes", gorm.Expr("likes + 1")).Error
+}
+
+func (p *PostService) DecrementLikes(id int) error  {
+	return global.DB.Model(&domain.Post{}).Select("likes").Omit("updated_at").Where("id=?", id).Update("likes", gorm.Expr("likes - 1")).Error
+}
 
 func (p *PostService) SelectPostComments(post *domain.Post, comments *[]*domain.Comment) error {
 	// 根据post id 查询所有评论

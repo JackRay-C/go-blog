@@ -52,7 +52,7 @@ func (s *SubjectService) SelectOneById(id int) (*vo.VSubject, error) {
 	}
 
 	service := NewUserService()
-	if user, err := service.SelectOneById(subject.UserID); err != nil {
+	if user, err := service.SelectOne(&domain.User{ID: subject.UserID}); err != nil {
 		return nil, err
 	} else {
 		return &vo.VSubject{
@@ -261,9 +261,9 @@ func (s *SubjectService) SaveOne(c *gin.Context, param *dto.PutSubjects) (*domai
 }
 
 func (s *SubjectService) IncrementViews(id int) error  {
-	return global.DB.Model(&domain.Subject{}).Where("id=?", id).Update("views", gorm.Expr("views + 1")).Error
+	return global.DB.Model(&domain.Subject{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views + 1")).Error
 }
 
 func (s *SubjectService) DecrementViews(id int) error   {
-	return global.DB.Model(&domain.Subject{}).Where("id=?", id).Update("views", gorm.Expr("views - 1")).Error
+	return global.DB.Model(&domain.Subject{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views - 1")).Error
 }

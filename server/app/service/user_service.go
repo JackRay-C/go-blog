@@ -40,13 +40,11 @@ func (a *UserService) Auth(login *dto.Login) (*vo.VToken, error) {
 	}
 
 	if user.Active == 2 {
-		a.Log.Errorf("用户【%s】已被锁定，请联系管理员解锁该用户. ", login.Username)
 		return nil, response.AccountLocked.SetMsg("用户【%s】已被锁定，请联系管理员解锁该用户. ", login.Username)
 	}
 
 	// 4、生成token
 	if token, err := jwt.GenerateToken(user.ID, user.Username); err != nil {
-		a.Log.Errorf("登录失败：用户【%s】生成token失败. ", login.Username)
 		return nil, response.FailedGenerateToken.SetMsg("登录失败：用户【%s】生成token失败. ", login.Username)
 	} else {
 		a.Log.Infof("用户【%s】登录成功.", login.Username)
@@ -55,7 +53,9 @@ func (a *UserService) Auth(login *dto.Login) (*vo.VToken, error) {
 }
 
 func (u *UserService) DeleteOne(user *domain.User) error {
-	if err := u.SelectOne(user); err != nil {
+	if err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error; err == gorm.ErrRecordNotFound {
+		return errors.New("该用户不存在. ")
+	} else if err != nil {
 		return err
 	}
 
@@ -66,22 +66,46 @@ func (u *UserService) DeleteOne(user *domain.User) error {
 	return nil
 }
 
-func (u *UserService) SelectOne(user *domain.User) error {
-	if err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error;err != nil {
-		return err
+func (u *UserService) SelectOne(user *domain.User) (*vo.VUser, error) {
+	if err := global.DB.Model(&domain.User{}).Where("id=? and active=?", user.ID, user.Active).First(&user).Error; err != nil {
+		return nil, err
+	}
+	var file *domain.File
+	if err:=global.DB.Model(&domain.File{}).Where("id=?", user.Avatar).First(&file).Error; err != nil {
+		return nil, err
 	}
 
-	return nil
+	return &vo.VUser{
+		ID:       user.ID,
+		Username: user.Username,
+		Nickname: user.Nickname,
+		Active:   user.Active,
+		Email:    user.Email,
+		Avatar:   file,
+		Created:  user.CreatedAt,
+	}, nil
+
 }
 
 func (u *UserService) CreateOne(user *domain.User) error {
 	if err := global.DB.Transaction(func(tx *gorm.DB) error {
-		var u1 domain.User
-		err := tx.Model(&domain.User{}).Where("username=?", user.Username).Or("email=?", user.Email).Or("nickname=?", user.Nickname).First(&u1).Error
-
+		var u1 *domain.User
+		err := tx.Model(&domain.User{}).Where("username=?", user.Username).First(&u1).Error
 
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return errors.New("该用户已存在. ")
+			return errors.New("该用户名已存在. ")
+		}
+
+		u1 = nil
+		err = tx.Model(&domain.User{}).Where("email=?", user.Email).First(&u1).Error
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("该邮箱已经注册. ")
+		}
+
+		u1 = nil
+		err = tx.Model(&domain.User{}).Where("nickname=?", user.Nickname).First(&u1).Error
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("该昵称已经存在. ")
 		}
 
 		if err := tx.Model(&domain.User{}).Create(user).Error; err != nil {
@@ -92,37 +116,6 @@ func (u *UserService) CreateOne(user *domain.User) error {
 		return err
 	}
 
-
-	//if err := u1.Select(); err == gorm.ErrRecordNotFound {
-	//	// 2、根据昵称判断，查询不到则判断是否存在相同邮箱
-	//	u2 := &domain.User{Nickname: user.Nickname}
-	//	if err := u2.Select(); err == gorm.ErrRecordNotFound {
-	//		// 3、判断重复邮箱
-	//		u3 := &domain.User{Email: user.Email}
-	//		if err := u3.Select(); err == gorm.ErrRecordNotFound {
-	//			// 创建用户
-	//			if err := user.Insert(); err != nil {
-	//				return response.DatabaseInsertError.SetMsg("%s", err)
-	//			}
-	//			// 查询用户
-	//			if err := user.Select(); err != nil {
-	//				return response.DatabaseSelectError.SetMsg("%s", err)
-	//			}
-	//		} else if err != nil {
-	//			return response.DatabaseSelectError.SetMsg("%s", err)
-	//		} else {
-	//			return response.RecoreExisted.SetMsg("该邮箱已注册: %s", user.Email)
-	//		}
-	//	} else if err != nil {
-	//		return response.DatabaseSelectError.SetMsg("%s", err)
-	//	} else {
-	//		return response.RecoreExisted.SetMsg("该昵称已存在: %s", user.Nickname)
-	//	}
-	//} else if err != nil {
-	//	return response.DatabaseSelectError.SetMsg("%s", err)
-	//} else {
-	//	return response.RecoreExisted.SetMsg("该用户名已存在: %s", user.Username)
-	//}
 
 	return nil
 }
@@ -228,27 +221,6 @@ func (u *UserService) SelectPosts(p *pager.Pager, user *domain.User) error {
 
 func (u *UserService) SelectFiles(p *pager.Pager, user *domain.User) error {
 	return nil
-}
-
-func (u *UserService) SelectOneById(id int) (vUser *vo.VUser,err  error) {
-	var user *domain.User
-	if err := global.DB.Model(&domain.User{}).Where("id=?", id).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
-		return nil, err
-	}
-	var file *domain.File
-	if err:=global.DB.Model(&domain.File{}).Where("id=?", user.Avatar).First(&file).Error; err != nil {
-		return nil, err
-	}
-
-	return &vo.VUser{
-		ID:       user.ID,
-		Username: user.Username,
-		Nickname: user.Nickname,
-		Active:   user.Active,
-		Email:    user.Email,
-		Avatar:   file,
-		Created:  user.CreatedAt,
-	}, nil
 }
 
 func sendActiveEmail(done chan int) {

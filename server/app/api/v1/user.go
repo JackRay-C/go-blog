@@ -60,17 +60,22 @@ func (u *User) Get(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
+	active := c.DefaultQuery("active", "0")
+	atoi, err := strconv.Atoi(active)
+	if err != nil {
+		return nil, response.InvalidParams.SetMsg("%s", err)
+	}
+
 	if !api.CheckPermission(c, "users", "read") {
 		return nil, response.Forbidden.SetMsg("查询用户信息失败：没有权限")
 	}
 
-	if one, err := u.userService.SelectOneById(id); err != nil {
-		u.log.Errorf("根据ID查询用户失败 : %s", err)
+	one, err := u.userService.SelectOne(&domain.User{ID: id, Active: int8(atoi)})
+	if err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
-	} else {
-		u.log.Infof("根据ID查询用户成功: %s", one)
-		return response.Success(one), nil
 	}
+
+	return response.Success(one), nil
 }
 
 // 创建用户
@@ -168,7 +173,6 @@ func (u *User) PostRole(c *gin.Context) (*response.Response, error) {
 
 	return response.Success(requestRoles), nil
 }
-
 
 func (u *User) PutRole(c *gin.Context) (*response.Response, error) {
 	// 修改用户角色

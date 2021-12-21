@@ -80,9 +80,10 @@ func (p *Post) List(c *gin.Context) (*response.Response, error) {
 
 	// 3、返回查询结果
 	p.log.Infof("分页查询博客成功: [第 %d 页，总页数：%d, 总行数：%d]", page.PageNo, page.PageCount, page.TotalRows)
-	return response.PagerResponse(&page), nil
+	return response.Success(&page), nil
 }
 
+// todo: 增加用户like表，管理用户喜欢的文章
 func (p *Post) Like(c *gin.Context) (*response.Response, error){
 	// 更新post的like
 	id, err := strconv.Atoi(c.Param("id"))
@@ -98,11 +99,7 @@ func (p *Post) Like(c *gin.Context) (*response.Response, error){
 		}
 		go func() {
 			// 更新博客like
-			params := &dto.PutPosts{
-				ID:    id,
-				Likes: one.Likes + 1,
-			}
-			_, _ = p.postService.UpdateOne(params)
+			_ = p.postService.IncrementLikes(id)
 		}()
 	}
 

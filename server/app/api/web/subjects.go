@@ -39,7 +39,7 @@ func (s Subject) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	s.log.Infof("分页查询成功：%s", &p)
-	return response.PagerResponse(&p), nil
+	return response.Success(&p), nil
 }
 
 func (s Subject) Get(c *gin.Context) (*response.Response, error) {
