@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"blog/core/global"
 	"encoding/json"
 	"gorm.io/gorm"
 	"time"
@@ -29,8 +28,4 @@ func (t *Tag) String() string {
 
 func (*Tag) TableName() string {
 	return "tags"
-}
-
-func (t *Tag) DeleteIds(ids []int) error {
-	return global.DB.Delete(t, ids).Error
 }

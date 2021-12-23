@@ -16,8 +16,6 @@ func InitTagRouter(group *gin.RouterGroup) {
 		tagGroup.POST("", Wrapper(tag.Post))
 		tagGroup.DELETE("/:id", Wrapper(tag.Delete))
 		tagGroup.PUT("/:id", Wrapper(tag.Put))
-
-		tagGroup.GET("/:id/posts", Wrapper(tag.ListPosts))
 	}
 }
 
@@ -28,7 +26,5 @@ func InitPublicTagRouter(group *gin.RouterGroup) {
 
 		tagGroup.GET("", Wrapper(tag.List))
 		tagGroup.GET("/:id", Wrapper(tag.Get))
-		tagGroup.GET("/:id/posts", Wrapper(tag.ListPosts))
-
 	}
 }

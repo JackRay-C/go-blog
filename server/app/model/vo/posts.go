@@ -12,7 +12,7 @@ type VPosts struct {
 	MarkdownContent string        `json:"markdown_content" `                                              // markdown
 	HtmlContent     string        `json:"html_content" `                                                  // html
 	CoverImageId    int           `json:"cover_image_id"`                                                 // 封面图片id
-	CoverImage      *domain.File        `json:"cover_image"`                                                    // 封面图片
+	CoverImage      *domain.File  `json:"cover_image"`                                                    // 封面图片
 	Description     string        `json:"description"`                                                    // 描述
 	Visibility      int           `json:"visibility"`                                                     // 1、私有 2、公开
 	Status          int           `json:"status"`                                                         // 1、草稿 2、发布

@@ -42,44 +42,6 @@ func (u *User) String() string {
 	return string(marshal)
 }
 
-//func (u *User) Select() error {
-//	return global.DB.Model(u).Where(u).First(&u).Error
-//}
-//
-//func (u *User) List(list *[]User, offset int, limit int) error {
-//	return global.DB.Model(u).Where(u).Offset(offset).Limit(limit).Find(list).Error
-//}
-//
-//func (u *User) Insert() error {
-//	return global.DB.Model(u).Clauses(clause.OnConflict{DoNothing: true}).Create(u).Error
-//}
-//
-////func (u *User) Save(db *gorm.DB) error {
-////	return db.Save(u).Error
-////}
-//
-//func (u *User) Update() error {
-//	return global.DB.Model(u).Omit("Username").Updates(u).Error
-//}
-//
-//func (u *User) Delete() error {
-//	return global.DB.Model(u).Delete(u).Error
-//}
-//
-//func (u *User) DeleteIds(ids []int) error {
-//	return global.DB.Model(u).Delete(u, ids).Error
-//}
-//
-//func (u *User) Count(count *int64) error {
-//
-//	return global.DB.Model(u).Where(u).Count(count).Error
-//
-//}
-//
-//func (u *User) CountByCondition(m map[string]interface{}) (count int64) {
-//	global.DB.Model(u).Where(m).Limit(1).Count(&count)
-//	return count
-//}
 
 func (u *User) CountRole(count *int64) error {
 	return global.DB.Table("roles").Joins("left join users_roles as ur on ur.role_id=roles.id").Joins("left join users as u on ur.user_id=u.id").Where("u.id=?", u.ID).Count(count).Error

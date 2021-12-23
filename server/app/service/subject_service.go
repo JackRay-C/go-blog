@@ -26,14 +26,6 @@ func NewSubjectService() *SubjectService {
 	}
 }
 
-func (s *SubjectService) DeleteAll(ids []int) error {
-	subject := &domain.Subject{}
-
-	if err := subject.DeleteIds(ids); err != nil {
-		return fmt.Errorf("failed delete all tag [%s]: %s", ids, err)
-	}
-	return nil
-}
 
 func (s *SubjectService) SelectOneById(id int) (*vo.VSubject, error) {
 	var subject *domain.Subject
