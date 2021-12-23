@@ -13,7 +13,6 @@ func InitMenuRouter(group *gin.RouterGroup) {
 		menuGroup.POST("", Wrapper(menus.Post))
 		menuGroup.GET("/:id", Wrapper(menus.Get))
 		menuGroup.PUT("/:id", Wrapper(menus.Put))
-		menuGroup.PATCH("/:id", Wrapper(menus.Patch))
 		menuGroup.DELETE("/:id", Wrapper(menus.Delete))
 	}
 }

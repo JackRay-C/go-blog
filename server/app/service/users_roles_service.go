@@ -19,11 +19,10 @@ func NewUsersRolesService() *UsersRolesService {
 // 根据用户id获取所有角色
 func (urs UsersRolesService) SelectRolesByUserId(userId int, roles *[]*domain.Role) error {
 	urs.log.Infof("根据用户ID【%d】获取所有角色", userId)
-	if err := global.DB.Table("roles").Joins("left join users_roles as ur on roles.id=ur.role_id").Where("ur.user_id=?", userId).Find(&roles).Error;err!=nil {
+	if err := global.DB.Debug().Table("roles").Joins("left join users_roles as ur on roles.id=ur.role_id").Where("ur.user_id=?", userId).Find(&roles).Error;err!=nil {
 		urs.log.Errorf("获取用户角色失败：%s", err)
 		return err
 	}
-
 	return nil
 }
 

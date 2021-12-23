@@ -152,7 +152,6 @@ func ParseSize(data interface{}) Size {
 		}
 	}
 
-
 	num, err := strconv.ParseInt(string(temp[:index]), 10, 64)
 	if err != nil {
 		panic(fmt.Sprintf("storage size convert error: %s\n", err))

@@ -101,6 +101,7 @@ func initRoleData() {
 		panic(err)
 	}
 }
+
 func initPermissionData() {
 	if err := global.DB.Model(&domain.Permissions{}).Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches([]*domain.Permissions{
 		{ID: 1, Name: "Add posts", ObjectType: "posts", ActionType: "add", Description: "add posts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
@@ -191,10 +192,23 @@ func initPermissionData() {
 }
 
 func initRoleMenuData() {
-	m := &domain.Menu{}
-	if err := m.InsertAll(
-		&domain.Menu{ID: 1, Name: "dashboard", Component: "", Path: "/admin/dashboard"},
-	); err != nil {
+	if err := global.DB.Model(&domain.Menu{}).Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches([]*domain.Menu{
+		{ID: 1, Name: "AdminDashboard", Path: "/admin/dashboard", Meta: &domain.Meta{Title: "管理台", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Dashboard.vue')", CreatedAt: time.Now()},
+		{ID: 2, Name: "AdminPosts", Path: "/admin/posts", Meta: &domain.Meta{Title: "所有博客", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Posts.vue')", CreatedAt: time.Now()},
+		{ID: 3, Name: "AdminPages", Path: "/admin/pages", Meta: &domain.Meta{Title: "页面管理", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Pages.vue')", CreatedAt: time.Now()},
+		{ID: 4, Name: "AdminSettings", Path: "/admin/setting", Meta: &domain.Meta{Title: "设置", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Settings.vue')", CreatedAt: time.Now()},
+		{ID: 5, Name: "AdminDicts", Path: "/admin/dicts", Meta: &domain.Meta{Title: "字典管理", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Dicts.vue')", CreatedAt: time.Now()},
+		{ID: 6, Name: "AdminSubject", Path: "/admin/subject", Meta: &domain.Meta{Title: "专题", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Subjects.vue')", CreatedAt: time.Now()},
+		{ID: 7, Name: "AdminSubjectSetting", Path: "/admin/subject/:id/setting", Meta: &domain.Meta{Title: "专题设置", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/NewSubject.vue')", CreatedAt: time.Now()},
+		{ID: 8, Name: "AdminSubjectPosts", Path: "/admin/subject/:id/posts", Meta: &domain.Meta{Title: "专题文章", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Posts.vue')", CreatedAt: time.Now()},
+		{ID: 9, Name: "AdminNewSubject", Path: "/admin/subject/new", Meta: &domain.Meta{Title: "新建专题", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/NewSubject.vue')", CreatedAt: time.Now()},
+		{ID: 10, Name: "AdminDraft", Path: "/admin/draft", Meta: &domain.Meta{Title: "草稿", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Posts.vue')", CreatedAt: time.Now()},
+		{ID: 11, Name: "AdminNew", Path: "/admin/edit", Meta: &domain.Meta{Title: "新建文章", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Edit.vue')", CreatedAt: time.Now()},
+		{ID: 12, Name: "AdminEdit", Path: "/admin/edit/:id", Meta: &domain.Meta{Title: "编辑文章", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Edit.vue')", CreatedAt: time.Now()},
+		{ID: 13, Name: "AdminTag", Path: "/admin/tag", Meta: &domain.Meta{Title: "标签管理", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Tags.vue')", CreatedAt: time.Now()},
+		{ID: 14, Name: "AdminUser", Path: "/admin/Users", Meta: &domain.Meta{Title: "用户管理", Layout: "admin", RequireAuth: true}, Component: "() => import('../views/admin/Users.vue')", CreatedAt: time.Now()},
+
+	}, 1000).Error; err != nil {
 		panic(err)
 	}
 }
