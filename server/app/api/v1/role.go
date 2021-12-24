@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"blog/app/api"
 	"blog/app/domain"
 	"blog/app/model/dto"
 	"blog/app/pager"
@@ -25,21 +26,23 @@ func NewRole() *Role {
 	}
 }
 
+// 获取角色信息
 func (r *Role) Get(c *gin.Context) (*response.Response, error) {
-	r.log.Infof("根据ID查询角色信息")
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
+	if !api.CheckPermission(c, "roles", "read") {
+		return nil, response.Forbidden.SetMsg("查询角色失败：没有权限. ")
+	}
+
 	role := &domain.Role{ID: id}
 
 	if err := r.roleService.SelectOne(role); err != nil {
-		r.log.Errorf("查询ID为【%d】的角色信息失败：%s",id, err)
 		return nil, response.InternalServerError.SetMsg("查询ID为【%d】的角色信息失败：%s",id, err)
 	}
 
-	r.log.Infof("根据ID查询角色成功: %s", role)
 	return response.Success(role), nil
 }
 
@@ -49,65 +52,49 @@ func (r *Role) List(c *gin.Context) (*response.Response, error) {
 		PageSize: request.GetPageSize(c),
 	}
 
-	if err := r.roleService.SelectAll(&p); err != nil {
-		r.log.Errorf("分页查询角色失败： %s", err)
-		return nil, err
+	if !api.CheckPermission(c, "roles", "list") {
+		return nil, response.Forbidden.SetMsg("查询角色失败：没有权限. ")
 	}
 
-	r.log.Infof("分页查询角色成功：%s", &p)
+	if err := r.roleService.SelectAll(&p); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
 	return response.Success(&p), nil
 }
 
 func (r *Role) Post(c *gin.Context) (*response.Response, error) {
-	r.log.Infof("新建角色")
-
 	role := &domain.Role{}
 	if err := c.ShouldBindJSON(&role); err != nil {
-		r.log.Errorf("参数绑定错误: %s", err)
 		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
 
-	if err := r.roleService.CreateOne(role); err != nil {
-		r.log.Errorf("新建角色失败：error: %s", err)
-		return nil, err
+	if !api.CheckPermission(c, "roles", "add") {
+		return nil, response.Forbidden.SetMsg("新建角色失败：没有权限. ")
 	}
 
-	r.log.Infof("新建角色成功")
+	if err := r.roleService.CreateOne(role); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
 	return response.Success(role), nil
 }
 
 func (r *Role) Delete(c *gin.Context) (*response.Response, error) {
-	r.log.Infof("删除路由")
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
+
+	if !api.CheckPermission(c, "roles", "delete") {
+		return nil, response.Forbidden.SetMsg("删除角色失败：没有权限. ")
+	}
+
 	role := &domain.Role{ID: id}
 	if err := r.roleService.DeleteOne(role); err != nil {
-		r.log.Errorf("删除出错： %s", err)
-		return nil, err
+		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
-	r.log.Infof("删除路由成功!")
 	return response.Success("删除成功"), nil
-}
-
-func (r *Role) Patch(c *gin.Context) (*response.Response, error) {
-	r.log.Infof("修改角色信息.")
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-	var role domain.Role
-	if err := c.ShouldBindJSON(&role); err != nil {
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-	role.ID = id
-	if err := r.roleService.UpdateOne(&role); err != nil {
-		return nil, err
-	}
-
-	r.log.Infof("修改角色信息成功.")
-	return  response.Success(role), err
 }
 
 func (r *Role) Put(c *gin.Context) (*response.Response, error) {
@@ -117,6 +104,10 @@ func (r *Role) Put(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
 
+	if !api.CheckPermission(c, "roles", "update") {
+		return nil, response.Forbidden.SetMsg("更新角色失败：没有权限. ")
+	}
+
 	var role domain.Role
 	if err := c.ShouldBindJSON(&role); err != nil {
 		return nil, response.InvalidParams.SetMsg("%s", err)
@@ -124,9 +115,9 @@ func (r *Role) Put(c *gin.Context) (*response.Response, error) {
 	role.ID = id
 
 	if err := r.roleService.UpdateOne(&role); err != nil {
-		return nil, err
+		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
-	r.log.Infof("修改角色信息成功.")
+
 	return response.Success(role), nil
 }
 

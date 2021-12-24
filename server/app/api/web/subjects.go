@@ -86,26 +86,3 @@ func (s Subject) Get(c *gin.Context) (*response.Response, error) {
 		return response.Success(vSubject), nil
 	}
 }
-
-func (s Subject) GetPosts(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		return nil, response.InvalidParams.SetMsg("ID is required. ")
-	}
-
-	params := dto.ListPosts{
-		PageNo:    request.GetPageNo(c),
-		PageSize:  request.GetPageSize(c),
-		SubjectId: id,
-		OrderBy:   0,
-		TagId:     0,
-		Search:    "",
-	}
-	p := pager.Pager{}
-
-	if err := s.postService.SelectAllWeb(c, &p, &params); err != nil {
-		return nil, err
-	}
-
-	return response.Success(&p), nil
-}

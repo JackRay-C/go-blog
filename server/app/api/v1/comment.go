@@ -32,7 +32,7 @@ func (c *Comment) Get(ctx *gin.Context) (*response.Response, error) {
 	comment := domain.Comment{ID: id}
 	if err := c.commentService.SelectOne(&comment); err != nil {
 		c.log.Errorf("根据ID查询评论失败： error: %s", err)
-		return nil, err
+		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 	return response.Success(&comment), nil
 }
