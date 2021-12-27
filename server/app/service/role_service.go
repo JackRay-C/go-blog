@@ -3,7 +3,6 @@ package service
 import (
 	"blog/app/domain"
 	"blog/app/pager"
-	"blog/app/response"
 	"blog/core/global"
 	"errors"
 	"gorm.io/gorm"
@@ -98,23 +97,21 @@ func (s *RoleService) UpdateOne(role *domain.Role) error {
 /*
 	查询角色菜单
 */
-func (s *RoleService) SelectMenus(page *pager.Pager, role *domain.Role) error {
+func (s *RoleService) SelectMenus(menus *[]*domain.Menu, role *domain.Role) error {
 	var r *domain.Role
-	if err := global.DB.Model(&domain.Role{}).Where("id=?", role.ID).First(&r).Error; err != nil || err == gorm.ErrRecordNotFound {
+	err := global.DB.Model(&domain.Role{}).Where("id=?", role.ID).First(&r).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("该角色不存在. ")
+	}
+
+	if err != nil {
 		return err
 	}
 
-	var menus []domain.Menu
+	err = global.DB.Table("menus").Joins("left join roles_menus on menus.id=roles_menus.menu_id ").Joins("left join roles on roles_menus.role_id=roles.id").Where("roles.id=?", r.ID).Find(&menus).Error
 
-	if err := role.MenusCount(&page.TotalRows); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
-	}
-
-	page.PageCount = int((page.TotalRows + int64(page.PageSize) - 1) / int64(page.PageSize))
-	page.List = &menus
-
-	if err := role.ListMenus(&menus, (page.PageNo-1)*page.PageSize, page.PageSize); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	if err != nil {
+		return err
 	}
 	return nil
 }

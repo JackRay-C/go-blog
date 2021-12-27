@@ -46,6 +46,7 @@ func (r *Role) Get(c *gin.Context) (*response.Response, error) {
 	return response.Success(role), nil
 }
 
+// 获取角色列表
 func (r *Role) List(c *gin.Context) (*response.Response, error) {
 	p := pager.Pager{
 		PageNo:   request.GetPageNo(c),
@@ -63,6 +64,7 @@ func (r *Role) List(c *gin.Context) (*response.Response, error) {
 	return response.Success(&p), nil
 }
 
+// 新建角色
 func (r *Role) Post(c *gin.Context) (*response.Response, error) {
 	role := &domain.Role{}
 	if err := c.ShouldBindJSON(&role); err != nil {
@@ -80,6 +82,7 @@ func (r *Role) Post(c *gin.Context) (*response.Response, error) {
 	return response.Success(role), nil
 }
 
+// 删除角色
 func (r *Role) Delete(c *gin.Context) (*response.Response, error) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
@@ -97,8 +100,8 @@ func (r *Role) Delete(c *gin.Context) (*response.Response, error) {
 	return response.Success("删除成功"), nil
 }
 
+// 修改角色
 func (r *Role) Put(c *gin.Context) (*response.Response, error) {
-	r.log.Infof("修改角色所有信息")
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return nil, response.InvalidParams.SetMsg("%s", err)
@@ -118,26 +121,9 @@ func (r *Role) Put(c *gin.Context) (*response.Response, error) {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 
-	return response.Success(role), nil
+	return response.Success(&role), nil
 }
 
-func (r *Role) GetMenus(c *gin.Context) (*response.Response, error)  {
-	p := pager.Pager{
-		PageNo:   request.GetPageNo(c),
-		PageSize: request.GetPageSize(c),
-	}
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	if err := r.roleService.SelectMenus(&p, &domain.Role{ID: id}); err != nil {
-		return nil, err
-	}
-
-	r.log.Infof("获取角色菜单地址成功.")
-	return response.Success(p), nil
-}
 
 func (r *Role) PostMenus(c *gin.Context) (*response.Response, error) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -147,7 +133,6 @@ func (r *Role) PostMenus(c *gin.Context) (*response.Response, error) {
 
 	var requestMenus dto.AddRoleMenus
 	if err := c.ShouldBindJSON(&requestMenus); err != nil {
-		r.log.Errorf("参数绑定错误：%s", err)
 		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
 
@@ -155,26 +140,8 @@ func (r *Role) PostMenus(c *gin.Context) (*response.Response, error) {
 		return nil, response.InternalServerError.SetMsg("授权ID为【%d】的角色菜单失败：%s", id, err)
 	}
 
-	r.log.Infof("为角色添加菜单成功")
 	return response.Success(requestMenus),nil
 }
-
-//func (r *Role) DeleteMenus(c *gin.Context) (*response.Response, error) {
-//	r.log.Infof("删除角色菜单")
-//	id, err := strconv.Atoi(c.Param("id"))
-//	if err != nil {
-//		return nil, response.InvalidParams.SetMsg("%s", err)
-//	}
-//	menuId, err := strconv.Atoi(c.Param("menu_id"))
-//	if err != nil {
-//		return nil, response.InvalidParams.SetMsg("%s", err)
-//	}
-//
-//	if err := r.roleService.DeleteRoleMenus(&domain.Role{ID: id}, &domain.Menu{ID: menuId}); err != nil {
-//		return nil, err
-//	}
-//	return response.Success("删除成功. "), nil
-//}
 
 func (r *Role) PutMenus(c *gin.Context) (*response.Response, error) {
 	r.log.Infof("修改角色菜单")
@@ -190,8 +157,9 @@ func (r *Role) PutMenus(c *gin.Context) (*response.Response, error) {
 	}
 
 	if err := r.roleService.UpdateMenus(&domain.Role{ID: id}, requestMenus.Menus); err != nil {
-		return nil, err
+		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
+
 	return response.Success(requestMenus), nil
 }
 
