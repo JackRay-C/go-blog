@@ -25,12 +25,16 @@ func NewFileService() *FileService {
 	return &FileService{log: global.Logger}
 }
 
-func (service *FileService) SelectOne(c *gin.Context, file *domain.File) error {
-	// 1、获取用户ID
-	currentUserId, _ := c.Get("current_user_id")
+func (service *FileService) SelectOne(file *domain.File) error {
+	// 查询文件是否存在
+	db := global.DB.Model(&domain.File{}).Where("id=?", file.ID)
 
-	// 2、根据用户ID查询文件
-	err := global.DB.Model(&domain.File{}).Where("user_id=? and id=?", currentUserId.(int), file.ID).First(&file).Error
+	if file.UserID != 0 {
+		db.Where("user_id=?", file.UserID)
+	}
+
+	err := db.First(&file).Error
+
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.New("该文件不存在. ")
 	}

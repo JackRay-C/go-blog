@@ -11,7 +11,6 @@ import (
 	"blog/core/logger"
 	"github.com/gin-gonic/gin"
 	"strconv"
-	"strings"
 )
 
 type File struct {
@@ -33,10 +32,12 @@ func (i *File) Get(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
+	// 2、获取用户ID
+	currentUserId, _ := c.Get("current_user_id")
 
 	// 3、根据用户ID和文件ID查询文件
-	file := domain.File{ID: id}
-	if err = i.fileService.SelectOne(c, &file); err != nil {
+	file := domain.File{ID: id, UserID: currentUserId.(int)}
+	if err = i.fileService.SelectOne(&file); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 	return response.Success(file), nil
@@ -74,19 +75,13 @@ func (i *File) Post(c *gin.Context) (*response.Response, error) {
 }
 
 func (i *File) Delete(c *gin.Context) (*response.Response, error) {
-	var ids []int
-	query := strings.Split(c.Query("ids"), ",")
-
-	for _, id := range query {
-		id, _ := strconv.Atoi(id)
-		ids = append(ids, id)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id == 0 {
+		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
-	if len(ids) <= 0 {
-		return nil, response.InvalidParams.SetMsg("ids is required. ")
-	}
 
-	if err := i.fileService.DeleteAll(ids); err != nil {
+	if err := i.fileService.DeleteOne(c, &domain.File{ID: id}); err != nil {
 		return nil, err
 	}
 

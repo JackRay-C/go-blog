@@ -2,6 +2,7 @@ package routes
 
 import (
 	v1 "blog/app/api/v1"
+	"blog/app/api/web"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,7 +20,7 @@ func InitFileRouter(group *gin.RouterGroup) {
 func InitPublicFileRouter(group *gin.RouterGroup) {
 	fileGroup := group.Group("files")
 	{
-		image := v1.NewFile()
+		image := web.NewFile()
 
 		fileGroup.GET("/:id", Wrapper(image.Get))
 
