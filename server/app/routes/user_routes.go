@@ -15,8 +15,9 @@ func InitUserRouter(group *gin.RouterGroup) {
 		userGroup.PUT("/:id", Wrapper(user.Put))
 		userGroup.DELETE("/:id", Wrapper(user.Delete))
 
-		userGroup.GET("/:id/roles", Wrapper(user.ListRole))
-		userGroup.PUT("/:id/roles", Wrapper(user.PutRole))
+		userRole := v1.NewUserRole()
+		userGroup.GET("/:id/roles", Wrapper(userRole.Get))
+		userGroup.PUT("/:id/roles", Wrapper(userRole.Put))
 	}
 }
 

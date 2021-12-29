@@ -25,8 +25,8 @@ func Permission() gin.HandlerFunc {
 
 		// 获取用户角色列表
 		userId, _ := c.Get("current_user_id")
-		if err := userRoleService.SelectRolesByUserId(userId.(int), &roles); err != nil {
-
+		if err := userRoleService.SelectUserRoles(&domain.User{ID: userId.(int)}, &roles); err != nil {
+			c.AbortWithStatusJSON(http.StatusOK, response.Forbidden)
 			return
 		}
 
