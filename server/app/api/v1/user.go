@@ -144,60 +144,60 @@ func (u *User) Delete(c *gin.Context) (*response.Response, error) {
 }
 
 
-
-func (u *User) ListRole(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		return nil, response.InvalidParams.SetMsg("ID is required. ")
-	}
-	u.log.Infof("根据ID查询用户角色: ID[%d]", id)
-
-	var roles []*domain.Role
-	if err := u.userService.SelectRoles(&domain.User{ID: id}, &roles); err != nil {
-		return nil, err
-	}
-	return response.Success(roles), nil
-}
-
-func (u *User) PostRole(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		u.log.Errorf("参数绑定错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	var requestRoles dto.AddUserRole
-	if err := c.ShouldBindJSON(&requestRoles); err != nil {
-		u.log.Errorf("参数绑定错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	u.log.Infof("给用户: %s 添加角色：%s", id, requestRoles.Roles)
-	if err := u.userService.InsertUserRoles(&domain.User{ID: id}, requestRoles.Roles); err != nil {
-		return nil, err
-	}
-
-	return response.Success(requestRoles), nil
-}
-
-func (u *User) PutRole(c *gin.Context) (*response.Response, error) {
-	// 修改用户角色
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil || id == 0 {
-		u.log.Errorf("参数绑定错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	var requestRoles dto.AddUserRole
-	if err := c.ShouldBindJSON(&requestRoles); err != nil {
-		u.log.Errorf("参数绑定错误： %s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	u.log.Infof("修改用户: %s 角色：%s", id, requestRoles.Roles)
-	if err := u.userService.UpdateUserRoles(&domain.User{ID: id}, requestRoles.Roles); err != nil {
-		return nil, err
-	}
-	return response.Success(requestRoles), nil
-}
+//
+//func (u *User) ListRole(c *gin.Context) (*response.Response, error) {
+//	id, err := strconv.Atoi(c.Param("id"))
+//	if err != nil || id == 0 {
+//		return nil, response.InvalidParams.SetMsg("ID is required. ")
+//	}
+//	u.log.Infof("根据ID查询用户角色: ID[%d]", id)
+//
+//	var roles []*domain.Role
+//	if err := u.userService.SelectRoles(&domain.User{ID: id}, &roles); err != nil {
+//		return nil, err
+//	}
+//	return response.Success(roles), nil
+//}
+//
+//func (u *User) PostRole(c *gin.Context) (*response.Response, error) {
+//	id, err := strconv.Atoi(c.Param("id"))
+//	if err != nil || id == 0 {
+//		u.log.Errorf("参数绑定错误： %s", err)
+//		return nil, response.InvalidParams.SetMsg("%s", err)
+//	}
+//
+//	var requestRoles dto.AddUserRole
+//	if err := c.ShouldBindJSON(&requestRoles); err != nil {
+//		u.log.Errorf("参数绑定错误： %s", err)
+//		return nil, response.InvalidParams.SetMsg("%s", err)
+//	}
+//
+//	u.log.Infof("给用户: %s 添加角色：%s", id, requestRoles.Roles)
+//	if err := u.userService.InsertUserRoles(&domain.User{ID: id}, requestRoles.Roles); err != nil {
+//		return nil, err
+//	}
+//
+//	return response.Success(requestRoles), nil
+//}
+//
+//func (u *User) PutRole(c *gin.Context) (*response.Response, error) {
+//	// 修改用户角色
+//	id, err := strconv.Atoi(c.Param("id"))
+//	if err != nil || id == 0 {
+//		u.log.Errorf("参数绑定错误： %s", err)
+//		return nil, response.InvalidParams.SetMsg("%s", err)
+//	}
+//
+//	var requestRoles dto.AddUserRole
+//	if err := c.ShouldBindJSON(&requestRoles); err != nil {
+//		u.log.Errorf("参数绑定错误： %s", err)
+//		return nil, response.InvalidParams.SetMsg("%s", err)
+//	}
+//
+//	u.log.Infof("修改用户: %s 角色：%s", id, requestRoles.Roles)
+//	if err := u.userService.UpdateUserRoles(&domain.User{ID: id}, requestRoles.Roles); err != nil {
+//		return nil, err
+//	}
+//	return response.Success(requestRoles), nil
+//}
 

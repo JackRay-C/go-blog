@@ -3,7 +3,6 @@ package v1
 import (
 	"blog/app/api"
 	"blog/app/domain"
-	"blog/app/model/dto"
 	"blog/app/pager"
 	"blog/app/request"
 	"blog/app/response"
@@ -123,43 +122,3 @@ func (r *Role) Put(c *gin.Context) (*response.Response, error) {
 
 	return response.Success(&role), nil
 }
-
-
-func (r *Role) PostMenus(c *gin.Context) (*response.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	var requestMenus dto.AddRoleMenus
-	if err := c.ShouldBindJSON(&requestMenus); err != nil {
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	if err := r.roleService.UpdateMenus(&domain.Role{ID: id}, requestMenus.Menus); err != nil {
-		return nil, response.InternalServerError.SetMsg("授权ID为【%d】的角色菜单失败：%s", id, err)
-	}
-
-	return response.Success(requestMenus),nil
-}
-
-func (r *Role) PutMenus(c *gin.Context) (*response.Response, error) {
-	r.log.Infof("修改角色菜单")
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	var requestMenus dto.AddRoleMenus
-	if err := c.ShouldBindJSON(&requestMenus); err != nil {
-		r.log.Errorf("参数绑定错误：%s", err)
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	if err := r.roleService.UpdateMenus(&domain.Role{ID: id}, requestMenus.Menus); err != nil {
-		return nil, response.InternalServerError.SetMsg("%s", err)
-	}
-
-	return response.Success(requestMenus), nil
-}
-

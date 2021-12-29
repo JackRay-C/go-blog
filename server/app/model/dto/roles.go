@@ -2,15 +2,17 @@ package dto
 
 import "blog/app/domain"
 
-type AddRoleMenus struct {
-	Menus []*domain.Menu `json:"menus"`
-}
 
-type AddUserRole struct {
+type PutUserRole struct {
 	Roles []*domain.Role `json:"roles"`
 }
 
 
-type AddRolePermission struct {
+type PutRolePermission struct {
 	Permissions []*domain.Permissions `json:"permissions"`
+}
+
+
+type PutRoleMenus struct {
+	Menus []*domain.Menu `json:"menus"`
 }

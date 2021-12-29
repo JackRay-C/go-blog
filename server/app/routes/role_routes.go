@@ -20,8 +20,8 @@ func InitRolesRouter(group *gin.RouterGroup) {
 		roleGroup.PUT("/:id/menus", Wrapper(roleMenu.Put))
 
 		rolePermission := v1.NewRolePermission()
-		roleGroup.GET("/:id/permission", Wrapper(rolePermission.Get))
-		roleGroup.PUT("/:id/permission", Wrapper(rolePermission.Put))
+		roleGroup.GET("/:id/permissions", Wrapper(rolePermission.Get))
+		roleGroup.PUT("/:id/permissions", Wrapper(rolePermission.Put))
 
 	}
 }

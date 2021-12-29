@@ -62,69 +62,6 @@ func (m *Menu) List(c *gin.Context) (*response.Response, error) {
 	return response.Success(&p), nil
 }
 
-//func (m *Menu) Get(c *gin.Context) (*response.Response, error) {
-//	id, err := strconv.Atoi(c.Param("id"))
-//	if err != nil || id == 0 {
-//		return nil, response.InvalidParams.SetMsg("ID is required. ")
-//	}
-//
-//	var menus []*domain.Menu
-//	roles, exists := c.Get("current_user_roles")
-//	if exists {
-//		r := roles.([]*domain.Role)
-//		// 获取角色的所有菜单
-//		if err := m.roleMenuService.SelectMenusByRoles(&menus, r...); err != nil {
-//			return nil, err
-//		}
-//	}
-//
-//	for _, menu := range menus {
-//		if menu.ID == id {
-//			return response.Success(menu), nil
-//		}
-//	}
-//
-//	return nil, response.RecordNotFound.SetMsg("查询菜单信息失败：没有该菜单. ")
-//}
-//
-//func (m *Menu) List(c *gin.Context) (*response.Response, error) {
-//	p := pager.Pager{
-//		PageNo:   request.GetPageNo(c),
-//		PageSize: request.GetPageSize(c),
-//	}
-//
-//	var menus []*domain.Menu
-//	roles, exists := c.Get("current_user_roles")
-//	if exists {
-//		r := roles.([]*domain.Role)
-//		// 获取角色的所有菜单
-//		if err := m.roleMenuService.SelectMenusByRoles(&menus, r...); err != nil {
-//			return nil, err
-//		}
-//	}
-//
-//	p.TotalRows = int64(len(menus))
-//	p.PageCount = int((p.TotalRows + int64(p.PageSize) - 1) / int64(p.PageSize))
-//
-//	var start,end int
-//
-//	if (p.PageNo-1)*p.PageSize > p.PageCount {
-//		start = (p.PageCount - 1) * p.PageSize
-//		p.PageNo = p.PageCount
-//	}  else {
-//		start = (p.PageNo-1)*p.PageSize
-//	}
-//
-//	if (start + p.PageSize) <= len(menus) {
-//		end = start + p.PageSize
-//	} else {
-//		end = len(menus)
-//	}
-//
-//	p.List = menus[start:end]
-//	return response.Success(&p), nil
-//}
-
 func (m *Menu) Post(c *gin.Context) (*response.Response, error) {
 	m.log.Infof("新建菜单")
 

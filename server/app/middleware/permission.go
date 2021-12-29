@@ -11,9 +11,9 @@ import (
 
 func Permission() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
 		userRoleService := service.NewUsersRolesService()
 		rolePermissionService := service.NewRolesPermissionService()
+
 		var roles []*domain.Role
 		var permissions []*domain.Permissions
 
@@ -35,6 +35,7 @@ func Permission() gin.HandlerFunc {
 		for _, role := range roles {
 			roleIds = append(roleIds, role.ID)
 		}
+
 		if err := rolePermissionService.SelectPermissionByRoleId(&permissions, roleIds...); err != nil {
 			c.AbortWithStatusJSON(http.StatusOK, response.InternalServerError)
 			return
