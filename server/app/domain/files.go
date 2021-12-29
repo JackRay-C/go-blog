@@ -1,11 +1,9 @@
 package domain
 
 import (
-	"blog/core/global"
 	"blog/core/storage"
 	"encoding/json"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"time"
 )
 
@@ -33,46 +31,4 @@ func (i *File) String() string {
 		return ""
 	}
 	return string(marshal)
-}
-
-func (i *File) Select() error {
-	return global.DB.Model(i).Where(i).First(i).Error
-}
-
-func (i *File) List(list *[]File, offset int, limit int) error {
-	return global.DB.Model(i).Where(i).Offset(offset).Limit(limit).Find(list).Error
-}
-
-func (i *File) Insert() error {
-	return global.DB.Model(i).Clauses(clause.OnConflict{DoNothing: true}).Create(i).Error
-}
-
-func (i *File) InsertAll(files []File) error {
-	return global.DB.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(files, 1000).Error
-}
-
-func (i *File) Save() error {
-	return global.DB.Save(i).Error
-}
-
-func (i *File) Update(condition map[string]interface{}) error {
-	if err := global.DB.Model(i).Where("ID=?", i.ID).First(i).Error; err != nil {
-		return err
-	}
-	return global.DB.Model(i).Updates(condition).Error
-}
-
-func (i *File) Delete() error {
-	if err := global.DB.Model(i).Where("ID=?", i.ID).First(i).Error; err != nil {
-		return err
-	}
-	return global.DB.Delete(i).Error
-}
-
-func (i *File) DeleteIds(ids []int) error {
-	return global.DB.Delete(i, ids).Error
-}
-
-func (i *File) Count(count *int64) error {
-	return global.DB.Model(i).Where(i).Count(count).Error
 }
