@@ -11,18 +11,22 @@ import (
 	"blog/core/global"
 	"blog/core/logger"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"strconv"
+	"time"
 )
 
 type Post struct {
 	log         logger.Logger
 	postService *service.PostService
+	commentService *service.CommentService
 }
 
 func NewPost() *Post {
 	return &Post{
 		log:         global.Logger,
 		postService: service.NewPostService(),
+		commentService: service.NewCommentService(),
 	}
 }
 
@@ -108,4 +112,65 @@ func (p *Post) Like(c *gin.Context) (*response.Response, error){
 	}
 
 	return response.Success("success"),nil
+}
+
+// 获取博客的所有评论
+func (p *Post) ListComment(c *gin.Context) (*response.Response, error) {
+	// 1、获取博客ID
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id == 0 {
+		return nil, response.InvalidParams.SetMsg("ID is required. ")
+	}
+
+	// 2、根据博客ID查询所有的评论
+	var comments []*domain.Comment
+	if err := p.postService.SelectPostComments(&domain.Post{ID: id}, &comments); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
+	return response.Success(&comments), nil
+}
+
+// 提交评论
+func (p *Post) PostComment(c *gin.Context) (*response.Response, error) {
+	// 1、获取博客ID
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id == 0 {
+		return nil, response.InvalidParams.SetMsg("ID is required. ")
+	}
+
+	// 2、绑定评论信息
+	var comment domain.Comment
+	if err := c.ShouldBindJSON(&comment); err != nil {
+		return nil, response.InvalidParams.SetMsg("%s", err)
+	}
+
+	// 3、判断是否登录，未登录需要填写邮箱和昵称
+	if !api.CheckLogin(c) {
+		if comment.Nickname == "" || comment.Email == "" {
+			return nil, response.InvalidParams.SetMsg("评论昵称或邮箱不能为空. ")
+		}
+	} else {
+		// 4、如果登录，获取当前用户的信息
+		currentUserId, _ := c.Get("current_user_id")
+		comment.UserID = currentUserId.(int)
+	}
+
+	if err := p.commentService.CreateOne(&comment); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+	return response.Success(&comment),nil
+}
+
+// 删除评论
+func (p *Post) DeleteComment(c *gin.Context) (*response.Response, error) {
+	// 1、获取博客ID
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil || id == 0 {
+		return nil, response.InvalidParams.SetMsg("ID is required. ")
+	}
+
+	// 2、判断是否登录
+
+	// 3、删除评论
 }

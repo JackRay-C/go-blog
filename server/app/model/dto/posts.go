@@ -84,3 +84,10 @@ func (l *PutPosts) String() string {
 type AddOneSubjectsAllPosts struct {
 	Posts []*domain.Post `json:"posts"`
 }
+
+type AddComment struct {
+	Email string `json:"email"`
+	Nickname string `json:"nickname"`
+	ParentId int `json:"parent_id"`
+	Comment string `json:"comment"`
+}

@@ -16,9 +16,6 @@ func InitPostRouter(group *gin.RouterGroup) {
 		postGroup.GET("/:id", Wrapper(post.Get))
 		postGroup.PUT("/:id", Wrapper(post.Put))
 		postGroup.DELETE("/:id", Wrapper(post.Delete))
-
-		postGroup.PUT("/:id/comments/:comment_id", Wrapper(post.PutComments))
-		postGroup.DELETE("/:id/comments/:comment_id", Wrapper(post.DeleteComments))
 	}
 }
 
@@ -30,6 +27,9 @@ func InitPublicPostRouter(group *gin.RouterGroup) {
 		routerGroup.GET("/:id", Wrapper(post.Get))
 		routerGroup.POST("/:id/like", Wrapper(post.Like))
 
+		routerGroup.GET("/:id/comments", Wrapper(post.ListComment))
+		routerGroup.POST("/:id/comments", Wrapper(post.PostComment))
+		routerGroup.DELETE("/:id/comments", Wrapper(post.DeleteComment))
 
 	}
 }
