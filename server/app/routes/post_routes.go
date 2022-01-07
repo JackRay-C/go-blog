@@ -1,8 +1,9 @@
 package routes
 
 import (
-	"blog/app/api/v1"
+	v1 "blog/app/api/v1"
 	"blog/app/api/web"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,9 +28,10 @@ func InitPublicPostRouter(group *gin.RouterGroup) {
 		routerGroup.GET("/:id", Wrapper(post.Get))
 		routerGroup.POST("/:id/like", Wrapper(post.Like))
 
-		routerGroup.GET("/:id/comments", Wrapper(post.ListComment))
-		routerGroup.POST("/:id/comments", Wrapper(post.PostComment))
-		routerGroup.DELETE("/:id/comments", Wrapper(post.DeleteComment))
+		comment := web.NewComment()
+		routerGroup.GET("/:id/comments", Wrapper(comment.List))
+		routerGroup.POST("/:id/comments", Wrapper(comment.Post))
+		routerGroup.DELETE("/:id/comments/:cid", Wrapper(comment.Delete))
 
 	}
 }

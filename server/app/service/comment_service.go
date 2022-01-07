@@ -6,11 +6,11 @@ import (
 	"blog/app/response"
 	"blog/core/global"
 	"errors"
+
 	"gorm.io/gorm"
 )
 
 type CommentService struct {
-	
 }
 
 func NewCommentService() *CommentService {
@@ -18,11 +18,26 @@ func NewCommentService() *CommentService {
 }
 
 func (c *CommentService) SelectOne(comment *domain.Comment) error {
-	if err := comment.Select(); err == gorm.ErrRecordNotFound {
-		return response.RecordNotFound
-	} else if err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	db := global.DB.Model(&domain.Comment{})
+	if comment.UserID != 0 {
+		db.Where("user_id=?", comment.UserID)
 	}
+	if comment.ID != 0 {
+		db.Where("id=?", comment.ID)
+	}
+	if comment.PostId != 0 {
+		db.Where("post_id=?", comment.PostId)
+	}
+
+	var nc *domain.Comment
+	err := db.First(&nc).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("该评论不存在. ")
+	}
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -44,14 +59,32 @@ func (c *CommentService) SelectAll(page *pager.Pager, comment *domain.Comment) e
 }
 
 func (c *CommentService) DeleteOne(comment *domain.Comment) error {
-	if err := comment.Select(); err == gorm.ErrRecordNotFound {
-		return response.RecordNotFound
-	} else if err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	db := global.DB.Model(&domain.Comment{})
+
+	if comment.UserID != 0 {
+		db.Where("user_id=?", comment.UserID)
 	}
-	if err := comment.Delete(); err != nil {
-		return response.DatabaseDeleteError.SetMsg("%s", err)
+	if comment.ID != 0 {
+		db.Where("id=?", comment.ID)
 	}
+	if comment.PostId != 0 {
+		db.Where("post_id=?", comment.PostId)
+	}
+
+	var nc *domain.Comment
+	err := db.First(&nc).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("该评论不存在. ")
+	}
+	if err != nil {
+		return err
+	}
+
+	err = db.Delete(&comment).Error
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -110,4 +143,3 @@ func (c *CommentService) SelectPostComments(p *domain.Post, comments *[]*domain.
 
 	return nil
 }
-

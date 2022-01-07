@@ -7,27 +7,27 @@ import (
 	"blog/app/service"
 	"blog/core/global"
 	"blog/core/logger"
-	"github.com/gin-gonic/gin"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Comment struct {
-	log         logger.Logger
-	postService *service.PostService
+	log            logger.Logger
+	postService    *service.PostService
 	commentService *service.CommentService
 }
 
-func NewComment() *Post {
-	return &Post{
-		log:         global.Logger,
-		postService: service.NewPostService(),
+func NewComment() *Comment {
+	return &Comment{
+		log:            global.Logger,
+		postService:    service.NewPostService(),
 		commentService: service.NewCommentService(),
 	}
 }
 
-
 // 根据post id 获取comment
-func (c *Comment) List(ctx *gin.Context) (*response.Response, error){
+func (c *Comment) List(ctx *gin.Context) (*response.Response, error) {
 	// 1、获取博客ID
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
@@ -40,12 +40,11 @@ func (c *Comment) List(ctx *gin.Context) (*response.Response, error){
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 
-
 	return response.Success(&comments), nil
 }
 
 // 提交评论
-func (c *Comment) PostComment(ctx *gin.Context) (*response.Response, error) {
+func (c *Comment) Post(ctx *gin.Context) (*response.Response, error) {
 	// 1、获取博客ID
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil || id == 0 {
@@ -72,18 +71,34 @@ func (c *Comment) PostComment(ctx *gin.Context) (*response.Response, error) {
 	if err := c.commentService.CreateOne(&comment); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
-	return response.Success(&comment),nil
+	return response.Success(&comment), nil
 }
 
 // 删除评论
-func (comment *Comment) DeleteComment(c *gin.Context) (*response.Response, error) {
-	// 1、获取博客ID
+func (comment *Comment) Delete(c *gin.Context) (*response.Response, error) {
+	// 1、获取评论ID
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
-	// 2、判断是否登录
+	cid, err := strconv.Atoi(c.Param("cid"))
+	if err != nil || cid == 0 {
+		return nil, response.InvalidParams.SetMsg("Comment ID is required. ")
+	}
 
-	// 3、删除评论
+	// 2、判断是否登录
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin.SetMsg("删除失败，未登录. ")
+	}
+
+	// 3、获取用户ID
+	currentUserId, _ := c.Get("current_user_id")
+
+	// 4、删除评论
+	if err := comment.commentService.DeleteOne(&domain.Comment{ID: cid, UserID: currentUserId.(int), PostId: id}); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
+	return response.Success("删除成功."), nil
 }
