@@ -4,6 +4,8 @@ import (
 	"blog/app/domain"
 	"blog/app/pager"
 	"blog/app/response"
+	"blog/core/global"
+	"errors"
 	"gorm.io/gorm"
 )
 
@@ -67,5 +69,45 @@ func (c *CommentService) UpdateOne() error {
 
 func (c *CommentService) SaveOne() error {
 	panic("implement me")
+}
+
+func (c *CommentService) SelectPostComments(p *domain.Post, comments *[]*domain.Comment) error {
+
+	//1、 查询post ID是否存在
+	var comment *domain.Comment
+	err := global.DB.Model(&domain.Post{}).Where("id=?", p.ID).First(&comment).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return errors.New("该博客不存在. ")
+	}
+	if err != nil {
+		return err
+	}
+
+	// 2、根据post id 查询所有评论
+
+	var all []*domain.Comment
+	if err := global.DB.Model(&domain.Comment{}).Where("post_id=?", p.ID).Find(&all).Error; err != nil {
+		return err
+	}
+
+	// 3、构造树形结构
+	m := make(map[int]*domain.Comment)
+
+	for _, comment := range all {
+		if comment.ParentID == 0 {
+			*comments = append(*comments, comment)
+		}
+		m[comment.ID] = comment
+	}
+
+	for _, comment := range all {
+		if comment.ParentID != 0 {
+			if com, ok := m[comment.ParentID]; ok {
+				com.Child = append(com.Child, comment)
+			}
+		}
+	}
+
+	return nil
 }
 
