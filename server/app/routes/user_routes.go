@@ -26,5 +26,7 @@ func InitPublicUserRouter(group *gin.RouterGroup)  {
 	{
 		user := web.NewUser()
 		userGroup.GET("/:id", Wrapper(user.Get))
+
+		userGroup.GET("/roles", Wrapper(user.GetRoles))
 	}
 }

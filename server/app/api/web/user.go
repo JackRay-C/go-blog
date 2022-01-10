@@ -42,3 +42,6 @@ func (u *User) Get(c *gin.Context) (*response.Response, error) {
 	}
 }
 
+func (u *User) GetRoles(c *gin.Context) (*response.Response, error)  {
+	return response.Success("success"),nil
+}

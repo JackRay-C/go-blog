@@ -88,21 +88,10 @@ func (c *CommentService) DeleteOne(comment *domain.Comment) error {
 	return nil
 }
 
-func (c *CommentService) DeleteAll(ids []int) error {
-	panic("implement me")
-}
-
 func (c *CommentService) CreateOne(comment *domain.Comment) error {
-	panic("implement me")
+	return global.DB.Model(&domain.Comment{}).Create(&comment).Error
 }
 
-func (c *CommentService) UpdateOne() error {
-	panic("implement me")
-}
-
-func (c *CommentService) SaveOne() error {
-	panic("implement me")
-}
 
 func (c *CommentService) SelectPostComments(p *domain.Post, comments *[]*domain.Comment) error {
 
