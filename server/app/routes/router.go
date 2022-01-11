@@ -47,6 +47,7 @@ func NewRouters(setting *setting.App) *gin.Engine {
 		InitPublicTagRouter(webGroup)
 		InitPublicFileRouter(webGroup)
 		InitPublicDictRouter(webGroup)
+		InitPublicCommentRouter(webGroup)
 	}
 
 	consoleGroup := r.Group("/api/v1/admin/")

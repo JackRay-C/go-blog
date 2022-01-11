@@ -28,10 +28,5 @@ func InitPublicPostRouter(group *gin.RouterGroup) {
 		routerGroup.GET("/:id", Wrapper(post.Get))
 		routerGroup.POST("/:id/like", Wrapper(post.Like))
 
-		comment := web.NewComment()
-		routerGroup.GET("/:id/comments", Wrapper(comment.List))
-		routerGroup.POST("/:id/comments", Wrapper(comment.Post))
-		routerGroup.DELETE("/:id/comments/:cid", Wrapper(comment.Delete))
-
 	}
 }
