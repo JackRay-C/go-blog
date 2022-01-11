@@ -26,7 +26,7 @@ func NewUser() *User {
 	}
 }
 
-// 根据ID获取用户信息
+// Get 根据ID获取用户信息
 func (u *User) Get(c *gin.Context) (*response.Response, error) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
