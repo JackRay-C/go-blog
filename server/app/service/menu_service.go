@@ -26,7 +26,7 @@ func (m *MenuService) SelectOne(menu *domain.Menu) error {
 }
 
 func (m *MenuService) SelectAll(page *pager.Pager, menu *domain.Menu) error {
-	var menus []*domain.Menu
+	menus := make([]*domain.Menu, 0)
 
 	db := global.DB.Model(&domain.Menu{})
 

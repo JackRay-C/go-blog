@@ -8,7 +8,6 @@ import (
 	"blog/app/service"
 	"blog/core/global"
 	"blog/core/logger"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
 )
@@ -46,7 +45,7 @@ func (d *Dict) List(c *gin.Context) (*response.Response, error) {
 
 	var dict *domain.Dict
 	name := c.Query("name")
-	fmt.Println(name)
+
 	if name ==  "" {
 		dict = &domain.Dict{}
 	} else {

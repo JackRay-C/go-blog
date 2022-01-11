@@ -11,6 +11,7 @@ func InitCommentRouter(group *gin.RouterGroup) {
 	{
 		comment := v1.NewComment()
 		commentGroup.GET("", Wrapper(comment.List))
+		commentGroup.POST("", Wrapper(comment.Post))
 		commentGroup.GET("/:id", Wrapper(comment.Get))
 		commentGroup.DELETE("/:id", Wrapper(comment.Delete))
 	}

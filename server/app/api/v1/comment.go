@@ -31,7 +31,6 @@ func (c *Comment) Get(ctx *gin.Context) (*response.Response, error) {
 	}
 	comment := domain.Comment{ID: id}
 	if err := c.commentService.SelectOne(&comment); err != nil {
-		c.log.Errorf("根据ID查询评论失败： error: %s", err)
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 	return response.Success(&comment), nil
@@ -54,37 +53,37 @@ func (c *Comment) List(ctx *gin.Context) (*response.Response, error) {
 	return response.Success(&page), nil
 }
 
-//func (c *Comment) Post(ctx *gin.Context) (*response.Response, error) {
-//	c.log.Infof("新增评论")
-//
-//	comment := &domain.Comment{}
-//	if err := ctx.ShouldBindJSON(&comment); err != nil {
-//		c.log.Errorf("参数绑定错误: %s", err)
-//		return nil, response.InvalidParams.SetMsg("%s", err)
-//	}
-//
-//	if comment.PostId == 0 {
-//		return nil, response.InvalidParams.SetMsg("评论博客的ID不能为空. ")
-//	}
-//
-//	// 判断是否登录，如果登录，设置userid，否则必须有昵称和邮箱
-//	if currentUserId, ok := ctx.Get("current_user_id"); ok {
-//		comment.UserID = currentUserId.(int)
-//	} else {
-//		c.log.Infof("%s", comment)
-//		if comment.Nickname == "" || comment.Email == "" {
-//			return nil, response.InvalidParams.SetMsg("昵称和邮箱是必须的.")
-//		}
-//	}
-//
-//	if err := c.commentService.CreateOne(comment); err != nil {
-//		c.log.Errorf("评论失败：error: %s", err)
-//		return nil, err
-//	}
-//
-//	c.log.Infof("评论成功")
-//	return response.Success(comment), nil
-//}
+func (c *Comment) Post(ctx *gin.Context) (*response.Response, error) {
+	c.log.Infof("新增评论")
+
+	comment := &domain.Comment{}
+	if err := ctx.ShouldBindJSON(&comment); err != nil {
+		c.log.Errorf("参数绑定错误: %s", err)
+		return nil, response.InvalidParams.SetMsg("%s", err)
+	}
+
+	if comment.PostId == 0 {
+		return nil, response.InvalidParams.SetMsg("评论博客的ID不能为空. ")
+	}
+
+	// 判断是否登录，如果登录，设置userid，否则必须有昵称和邮箱
+	if currentUserId, ok := ctx.Get("current_user_id"); ok {
+		comment.UserID = currentUserId.(int)
+	} else {
+		c.log.Infof("%s", comment)
+		if comment.Nickname == "" || comment.Email == "" {
+			return nil, response.InvalidParams.SetMsg("昵称和邮箱是必须的.")
+		}
+	}
+
+	if err := c.commentService.CreateOne(comment); err != nil {
+		c.log.Errorf("评论失败：error: %s", err)
+		return nil, err
+	}
+
+	c.log.Infof("评论成功")
+	return response.Success(comment), nil
+}
 
 // Delete 根据ID删除单条评论
 func (c *Comment) Delete(ctx *gin.Context) (*response.Response, error) {

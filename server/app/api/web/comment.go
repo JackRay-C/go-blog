@@ -31,18 +31,14 @@ func NewComment() *Comment {
 // List 根据post id 获取comment
 func (c *Comment) List(ctx *gin.Context) (*response.Response, error) {
 	// 1、绑定参数
-	var cm domain.Comment
-	if err := ctx.ShouldBindJSON(&cm); err != nil {
-		return nil, response.InvalidParams.SetMsg("%s", err)
-	}
-
-	if cm.PostId == 0 {
-		return nil, response.InvalidParams.SetMsg("博客ID不能为空. ")
+	post_id, err := strconv.Atoi(ctx.Query("post_id"))
+	if err != nil || post_id == 0 {
+		return nil, response.InvalidParams.SetMsg("post_id is required. ")
 	}
 
 	// 2、根据博客ID查询所有的评论
-	var comments []*domain.Comment
-	if err := c.commentService.SelectPostComments(&domain.Post{ID: cm.PostId}, &comments); err != nil {
+	comments := make([]*domain.Comment, 0)
+	if err := c.commentService.SelectPostComments(&domain.Post{ID: post_id}, &comments); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 

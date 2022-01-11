@@ -29,8 +29,7 @@ func (c *CommentService) SelectOne(comment *domain.Comment) error {
 		db.Where("post_id=?", comment.PostId)
 	}
 
-	var nc *domain.Comment
-	err := db.First(&nc).Error
+	err := db.First(&comment).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return errors.New("该评论不存在. ")
 	}
@@ -84,6 +83,7 @@ func (c *CommentService) DeleteOne(comment *domain.Comment) error {
 	return nil
 }
 
+// CreateOne 创建评论
 func (c *CommentService) CreateOne(comment *domain.Comment) error {
 	return global.DB.Model(&domain.Comment{}).Create(&comment).Error
 }

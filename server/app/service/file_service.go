@@ -44,7 +44,7 @@ func (service *FileService) SelectOne(file *domain.File) error {
 }
 
 func (service *FileService) SelectAll(c *gin.Context, page *pager.Pager, file *domain.File) error {
-	var files []domain.File
+	var files []*domain.File
 
 	// 1、获取用户ID
 	currentUserId, _ := c.Get("current_user_id")
