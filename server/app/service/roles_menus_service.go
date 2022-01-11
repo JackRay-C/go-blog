@@ -18,6 +18,7 @@ func NewRolesMenusService() *RolesMenusService {
 	}
 }
 
+// SelectMenusByRoles 根据所有角色查询菜单列表
 func (rm *RolesMenusService) SelectMenusByRoles(menus *[]*domain.Menu, roles... *domain.Role) error {
 	for _, role := range roles {
 		var ms []*domain.Menu
@@ -29,9 +30,7 @@ func (rm *RolesMenusService) SelectMenusByRoles(menus *[]*domain.Menu, roles... 
 	return nil
 }
 
-/*
-	查询角色菜单
-*/
+// SelectRoleMenus 根据角色查询菜单列表
 func (s *RolesMenusService) SelectRoleMenus(role *domain.Role, menus *[]*domain.Menu) error {
 	var r *domain.Role
 	err := global.DB.Model(&domain.Role{}).Where("id=?", role.ID).First(&r).Error

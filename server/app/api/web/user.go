@@ -14,20 +14,18 @@ import (
 type User struct {
 	log logger.Logger
 	userService *service.UserService
-	postService *service.PostService
-	subjectService *service.SubjectService
 	userRoleService *service.UsersRolesService
 	roleMenuService *service.RolesMenusService
+	rolePermissionService *service.RolesPermissionService
 }
 
 func NewUser() *User {
 	return &User{
 		log: global.Logger,
 		userService: service.NewUserService(),
-		postService: service.NewPostService(),
-		subjectService: service.NewSubjectService(),
 		userRoleService: service.NewUsersRolesService(),
 		roleMenuService: service.NewRolesMenusService(),
+		rolePermissionService: service.NewRolesPermissionService(),
 	}
 }
 
@@ -94,6 +92,28 @@ func (u *User) GetMenus(c *gin.Context) (*response.Response, error) {
 }
 
 func (u *User) GetPermissions(c *gin.Context) (*response.Response, error) {
+	// 1、判断是否登录
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin
+	}
 
-	return response.Success("success"), nil
+	// 2、获取当前用户ID
+	currentUserId, _ := c.Get("current_user_id")
+	roles := make([]*domain.Role, 0)
+	permissions := make([]*domain.Permissions, 0)
+
+
+	// 3、获取当前用户的角色
+	if err := u.userRoleService.SelectUserRoles(&domain.User{ID: currentUserId.(int)}, &roles); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
+	// 4、根据角色获取当前用户的权限列表
+	if len(roles) != 0 {
+		if err := u.rolePermissionService.SelectPermissionByRoles(&permissions, roles...); err != nil {
+			return nil, response.InternalServerError.SetMsg("%s", err)
+		}
+	}
+
+	return response.Success(&permissions), nil
 }

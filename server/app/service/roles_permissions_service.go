@@ -80,4 +80,15 @@ func (rps *RolesPermissionService) UpdateRolePermissions(role *domain.Role, perm
 	})
 }
 
+func (rps *RolesPermissionService) SelectPermissionByRoles(permissions *[]*domain.Permissions, roles ...*domain.Role) error {
+	for _, role := range roles {
+		var ms []*domain.Permissions
+		if err := global.DB.Table("permissions").Joins("left join roles_permissions as rm on permissions.id=rm.permission_id").Where("rm.role_id = ?", role.ID).Find(&ms).Error;err!=nil {
+			return err
+		}
+		*permissions = append(*permissions, ms...)
+	}
+	return nil
+}
+
 
