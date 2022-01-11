@@ -3,7 +3,6 @@ package service
 import (
 	"blog/app/domain"
 	"blog/app/pager"
-	"blog/app/response"
 	"blog/core/global"
 	"errors"
 
@@ -42,15 +41,17 @@ func (c *CommentService) SelectOne(comment *domain.Comment) error {
 func (c *CommentService) SelectAll(page *pager.Pager, comment *domain.Comment) error {
 	var comments []domain.Comment
 
-	if err := comment.Count(&page.TotalRows); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	db := global.DB.Model(&domain.Comment{}).Where(comment)
+
+	if err := db.Count(&page.TotalRows).Error; err != nil {
+		return err
 	}
 
 	page.PageCount = int((page.TotalRows + int64(page.PageSize) - 1) / int64(page.PageSize))
 	page.List = &comments
 
-	if err := comment.List(&comments, (page.PageNo-1)*page.PageSize, page.PageSize); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
+	if err := db.Offset((page.PageNo - 1) * page.PageSize).Limit(page.PageSize).Find(&comments).Error; err != nil {
+		return err
 	}
 
 	return nil

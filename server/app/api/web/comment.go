@@ -28,6 +28,19 @@ func NewComment() *Comment {
 	}
 }
 
+// Get 根据ID查询评论信息
+func (c *Comment) Get(ctx *gin.Context) (*response.Response, error) {
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil || id == 0 {
+		return nil, response.InvalidParams.SetMsg("ID is required. ")
+	}
+	comment := domain.Comment{ID: id}
+	if err := c.commentService.SelectOne(&comment); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+	return response.Success(&comment), nil
+}
+
 // List 根据post id 获取comment
 func (c *Comment) List(ctx *gin.Context) (*response.Response, error) {
 	// 1、绑定参数

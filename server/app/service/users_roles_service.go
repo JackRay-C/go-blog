@@ -19,7 +19,7 @@ func NewUsersRolesService() *UsersRolesService {
 }
 
 // 根据用户id获取所有角色
-func (urs UsersRolesService) SelectUserRoles(user *domain.User, roles *[]*domain.Role) error {
+func (urs *UsersRolesService) SelectUserRoles(user *domain.User, roles *[]*domain.Role) error {
 	// 1、查询用户是否存在
 	err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -32,7 +32,7 @@ func (urs UsersRolesService) SelectUserRoles(user *domain.User, roles *[]*domain
 }
 
 // 更新用户角色
-func (urs UsersRolesService) UpdateUserRoles(user *domain.User, roles []*domain.Role) error {
+func (urs *UsersRolesService) UpdateUserRoles(user *domain.User, roles []*domain.Role) error {
 	// 1、查询用户是否存在
 	err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {

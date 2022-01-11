@@ -26,8 +26,7 @@ func NewUserRole() *UserRole {
 	}
 }
 
-
-// 根据用户ID获取角色
+// Get 根据用户ID获取角色
 func (ur *UserRole) Get(c *gin.Context) (*response.Response, error)  {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
@@ -49,6 +48,7 @@ func (ur *UserRole) Get(c *gin.Context) (*response.Response, error)  {
 	return response.Success(&roles), nil
 }
 
+// Put 修改用户角色
 func (ur *UserRole) Put(c *gin.Context) (*response.Response, error)  {
 	// 获取用户ID
 	id, err := strconv.Atoi(c.Param("id"))

@@ -24,5 +24,6 @@ func InitPublicCommentRouter(group *gin.RouterGroup)  {
 		commentGroup.POST("", Wrapper(comment.Post))
 		commentGroup.GET("", Wrapper(comment.List))
 		commentGroup.DELETE("/:id", Wrapper(comment.Delete))
+		commentGroup.GET("/:id", Wrapper(comment.Get))
 	}
 }

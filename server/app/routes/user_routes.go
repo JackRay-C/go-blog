@@ -28,5 +28,8 @@ func InitPublicUserRouter(group *gin.RouterGroup)  {
 		userGroup.GET("/:id", Wrapper(user.Get))
 
 		userGroup.GET("/roles", Wrapper(user.GetRoles))
+		userGroup.GET("/menus", Wrapper(user.GetMenus))
+		userGroup.GET("/permissions", Wrapper(user.GetPermissions))
+
 	}
 }

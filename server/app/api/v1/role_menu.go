@@ -26,7 +26,7 @@ func NewRoleMenu() *RoleMenu {
 	}
 }
 
-// 根据角色获取菜单
+// Get 根据角色获取菜单
 func (r *RoleMenu) Get(c *gin.Context) (*response.Response, error)  {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil || id == 0 {
@@ -48,7 +48,7 @@ func (r *RoleMenu) Get(c *gin.Context) (*response.Response, error)  {
 	return response.Success(&menus), nil
 }
 
-// 更新角色的菜单
+// Put 更新角色的菜单
 func (r *RoleMenu) Put(c *gin.Context) (*response.Response, error) {
 	// 1、获取角色ID
 	id, err := strconv.Atoi(c.Param("id"))

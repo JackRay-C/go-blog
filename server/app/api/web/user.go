@@ -1,6 +1,7 @@
 package web
 
 import (
+	"blog/app/api"
 	"blog/app/domain"
 	"blog/app/response"
 	"blog/app/service"
@@ -15,6 +16,8 @@ type User struct {
 	userService *service.UserService
 	postService *service.PostService
 	subjectService *service.SubjectService
+	userRoleService *service.UsersRolesService
+	roleMenuService *service.RolesMenusService
 }
 
 func NewUser() *User {
@@ -23,6 +26,8 @@ func NewUser() *User {
 		userService: service.NewUserService(),
 		postService: service.NewPostService(),
 		subjectService: service.NewSubjectService(),
+		userRoleService: service.NewUsersRolesService(),
+		roleMenuService: service.NewRolesMenusService(),
 	}
 }
 
@@ -42,6 +47,53 @@ func (u *User) Get(c *gin.Context) (*response.Response, error) {
 	}
 }
 
+// GetRoles 获取当前用户的角色
 func (u *User) GetRoles(c *gin.Context) (*response.Response, error)  {
-	return response.Success("success"),nil
+	// 1、判断是否登录
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin
+	}
+
+	// 2、获取当前用户ID
+	currentUserId, _ := c.Get("current_user_id")
+	roles := make([]*domain.Role, 0)
+
+	// 3、根据当前用户ID查询所有角色
+	if err := u.userRoleService.SelectUserRoles(&domain.User{ID: currentUserId.(int)}, &roles); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
+	return response.Success(&roles),nil
+}
+
+// GetMenus 获取当前用户的菜单
+func (u *User) GetMenus(c *gin.Context) (*response.Response, error) {
+	// 1、判断是否登录
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin
+	}
+
+	// 2、获取当前用户ID
+	currentUserId, _ := c.Get("current_user_id")
+	roles := make([]*domain.Role, 0)
+	menus := make([]*domain.Menu, 0)
+
+	// 3、获取当前用户的角色
+	if err := u.userRoleService.SelectUserRoles(&domain.User{ID: currentUserId.(int)}, &roles); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+
+	// 4、根据角色获取菜单
+	if len(roles) != 0 {
+		if err := u.roleMenuService.SelectMenusByRoles(&menus, roles...); err != nil {
+			return nil, response.InternalServerError.SetMsg("%s", err)
+		}
+	}
+
+	return response.Success(&menus), nil
+}
+
+func (u *User) GetPermissions(c *gin.Context) (*response.Response, error) {
+
+	return response.Success("success"), nil
 }

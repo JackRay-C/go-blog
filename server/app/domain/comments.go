@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"blog/core/global"
 	"encoding/json"
 	"gorm.io/gorm"
 	"time"
@@ -31,40 +30,4 @@ func (c *Comment) String() string {
 
 func (c *Comment) TableName() string {
 	return "comments"
-}
-
-func (c *Comment) Select() error {
-	return global.DB.Model(c).Where(c).First(c).Error
-}
-
-func (c *Comment) List(list *[]Comment, offset int, limit int) error {
-	return global.DB.Model(c).Offset(offset).Limit(limit).Find(list).Error
-}
-
-func (c *Comment) Insert() error {
-	return global.DB.Create(c).Error
-}
-
-func (c *Comment) Save() error {
-	return global.DB.Save(c).Error
-}
-
-func (c *Comment) Update() error {
-	return global.DB.Debug().Model(c).Select("comment").Omit("*").Where("ID=?", c.ID).Updates(c).Error
-}
-
-func (c *Comment) Delete() error {
-	return global.DB.Delete(c).Where(c).Error
-}
-
-func (c *Comment) DeleteIds(ids []int) error {
-	return global.DB.Delete(c, ids).Error
-}
-
-func (c *Comment) Count(count *int64) error {
-	return global.DB.Model(c).Count(count).Error
-}
-
-func (c *Comment) SelectAll(comments1 *[]*Comment) error {
-	return global.DB.Model(c).Where(c).Order("created_at").Find(comments1).Error
 }

@@ -203,81 +203,78 @@ func (u *UserService) UpdateOne(param *dto.PutUser) (*vo.VUser, error) {
 	return u.SelectOne(&domain.User{ID: user.ID})
 }
 
-func (u *UserService) SelectRoles(user *domain.User, roles *[]*domain.Role) error {
-	if err := user.ListRoles(roles); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (u *UserService) InsertUserRoles(user *domain.User, roles []*domain.Role) error {
-	if err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
-		return err
-	}
-
-	var usersRoles []*domain.UsersRoles
-	for _, role := range roles {
-		usersRoles = append(usersRoles, &domain.UsersRoles{UserId: user.ID, RoleId: role.ID})
-	}
-	if err := global.DB.Model(&domain.UsersRoles{}).CreateInBatches(usersRoles, 1000).Error; err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *UserService) UpdateUserRoles(user *domain.User, roles []*domain.Role) error {
-	if err := global.DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
-			return err
-		}
-
-		// 删除用户的角色
-		if err := tx.Model(&domain.UsersRoles{}).Where("user_id=?", user.ID).Delete(&domain.UsersRoles{UserId: user.ID}).Error; err != nil {
-			return err
-		}
-
-		var usersRoles []*domain.UsersRoles
-		for _, role := range roles {
-			usersRoles = append(usersRoles, &domain.UsersRoles{UserId: user.ID, RoleId: role.ID})
-		}
-
-		// 重新添加
-		if err := tx.Model(&domain.UsersRoles{}).Create(usersRoles).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *UserService) SelectMenus(p *pager.Pager, user *domain.User) error {
-	var menus []*domain.Menu
-
-	if err := user.CountMenus(&p.TotalRows); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
-	}
-
-	p.PageCount = int((p.TotalRows + int64(p.PageSize) - 1) / int64(p.PageSize))
-	p.List = &menus
-	if err := user.ListMenus(&menus, (p.PageNo-1)*p.PageSize, p.PageSize); err != nil {
-		return response.DatabaseSelectError.SetMsg("%s", err)
-	}
-
-	return nil
-}
-
-func (u *UserService) SelectPosts(p *pager.Pager, user *domain.User) error {
-	return nil
-}
-
-func (u *UserService) SelectFiles(p *pager.Pager, user *domain.User) error {
-	return nil
-}
+//func (u *UserService) SelectUserRoles(user *domain.User, roles *[]*domain.Role) error {
+//	return global.DB.Table("roles").Joins("left join users_roles as ur on ur.role_id=roles.id").Joins("left join users as u on ur.user_id=u.id").Where("u.id=?", user.ID).Find(roles).Error
+//}
+//
+//func (u *UserService) InsertUserRoles(user *domain.User, roles []*domain.Role) error {
+//	if err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
+//		return err
+//	}
+//
+//	var usersRoles []*domain.UsersRoles
+//	for _, role := range roles {
+//		usersRoles = append(usersRoles, &domain.UsersRoles{UserId: user.ID, RoleId: role.ID})
+//	}
+//	if err := global.DB.Model(&domain.UsersRoles{}).CreateInBatches(usersRoles, 1000).Error; err != nil {
+//		return err
+//	}
+//
+//	return nil
+//}
+//
+//func (u *UserService) UpdateUserRoles(user *domain.User, roles []*domain.Role) error {
+//	if err := global.DB.Transaction(func(tx *gorm.DB) error {
+//		if err := tx.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
+//			return err
+//		}
+//
+//		// 删除用户的角色
+//		if err := tx.Model(&domain.UsersRoles{}).Where("user_id=?", user.ID).Delete(&domain.UsersRoles{UserId: user.ID}).Error; err != nil {
+//			return err
+//		}
+//
+//		var usersRoles []*domain.UsersRoles
+//		for _, role := range roles {
+//			usersRoles = append(usersRoles, &domain.UsersRoles{UserId: user.ID, RoleId: role.ID})
+//		}
+//
+//		// 重新添加
+//		if err := tx.Model(&domain.UsersRoles{}).Create(usersRoles).Error; err != nil {
+//			return err
+//		}
+//
+//		return nil
+//	}); err != nil {
+//		return err
+//	}
+//
+//	return nil
+//}
+//
+//func (u *UserService) SelectMenus(p *pager.Pager, user *domain.User) error {
+//	var menus []*domain.Menu
+//
+//	if err := user.CountMenus(&p.TotalRows); err != nil {
+//		return response.DatabaseSelectError.SetMsg("%s", err)
+//	}
+//
+//	p.PageCount = int((p.TotalRows + int64(p.PageSize) - 1) / int64(p.PageSize))
+//	p.List = &menus
+//	if err := user.ListMenus(&menus, (p.PageNo-1)*p.PageSize, p.PageSize); err != nil {
+//		return response.DatabaseSelectError.SetMsg("%s", err)
+//	}
+//
+//	return nil
+//}
+//
+//func (u *UserService) SelectPosts(p *pager.Pager, user *domain.User) error {
+//	return nil
+//}
+//
+//func (u *UserService) SelectFiles(p *pager.Pager, user *domain.User) error {
+//	return nil
+//}
 
 func sendActiveEmail(done chan int) {
 	//token, err := jwt.GenerateToken(user.ID, user.Username)
