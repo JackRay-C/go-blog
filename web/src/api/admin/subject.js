@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import api from '@/api/admin/admin'
+import api from './api'
 
 export function listSubjects(params) {
     return request({

@@ -20,25 +20,30 @@ router.beforeEach(async (to, from, next) => {
   let token = localStorage.getItem("token");
   if (token) {
     const hasRoles = store.getters.roles && store.getters.roles.length > 0;
-    console.log(hasRoles)
     if (hasRoles) {
       next();
       NProgress.done();
     } else {
-      const { roles } = await store.dispatch("DispatchInfo");
+      try {
+        const { roles } = await store.dispatch("DispatchInfo");
 
-      const accessRoutes = await store.dispatch(
-        "DispatchGenerateRoutes",
-        roles
-      );
-
-      accessRoutes.forEach((route) => {
-        router.addRoute(route);
-      });
-
-      console.log(to);
-      next();
-      NProgress.done();
+        const accessRoutes = await store.dispatch(
+          "DispatchGenerateRoutes",
+          roles
+        );
+  
+        accessRoutes.forEach((route) => {
+          router.addRoute(route);
+        });
+  
+        next({...to, replace: true});
+        NProgress.done();
+      } catch (error) {
+        await store.dispatch('DispatchLogout')
+        Message.error(error || 'Error')
+        next(`login?redirect=${to.path}`)
+        NProgress.done()
+      }
     }
   } else {
     // 没有token判断是否需要认证

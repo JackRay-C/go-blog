@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import {getSubjectPostCount} from "@/api/subject.js"
-import {getFileById} from "@/api/file.js";
+import {getSubjectPostCount} from "@/api/web/subject.js"
+import {getFileById} from "@/api/web/file.js";
 export default {
   name: "ArticleBox",
   props:[

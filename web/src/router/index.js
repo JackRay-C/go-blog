@@ -161,7 +161,7 @@ export const asyncRoutes = [
             layout: 'admin',
             requireAuth: true,
             sidebar: false,
-            roles: ['Admin']
+            roles: ["Admin"]
         },
         component: () => import('../views/admin/Dicts.vue')
     },
@@ -173,7 +173,7 @@ export const asyncRoutes = [
             layout: 'admin',
             requireAuth: true,
             sidebar: true,
-            roles: ['Admin', 'Editor']
+            roles: ["Admin", "Editor"]
         },
         component: () => import('../views/admin/Subjects.vue')
     },
@@ -185,7 +185,7 @@ export const asyncRoutes = [
             layout: 'admin',
             requireAuth: true,
             sidebar: false,
-            roles: ['Admin', 'Editor']
+            roles: ["Admin", "Editor"]
         },
         component: () => import('../views/admin/NewSubject.vue')
     },
@@ -208,7 +208,7 @@ export const asyncRoutes = [
             layout: 'admin',
             requireAuth: true,
             sidebar: false,
-            roles: ['Admin', 'Editor']
+            roles: ["Admin", "Editor"]
         },
         component: () => import('../views/admin/NewSubject.vue')
     },
@@ -220,7 +220,7 @@ export const asyncRoutes = [
             layout: 'admin',
             sidebar: true,
             requireAuth: true,
-            roles: ['Admin', 'Editor']
+            roles: ["Admin", "Editor"]
         },
         component: () => import('../views/admin/Posts.vue')
     },
@@ -231,7 +231,7 @@ export const asyncRoutes = [
             title: '新建文章',
             requireAuth: true,
             sidebar: false,
-            roles: ['Admin', 'Editor']
+            roles: ["Admin", "Editor"]
         },
         component: () => import('../views/admin/Edit.vue')
     },
@@ -242,7 +242,7 @@ export const asyncRoutes = [
             title: '编辑文章',
             requireAuth: true,
             sidebar: false,
-            roles: ['Admin', 'Editor']
+            roles: ["Admin", "Editor"]
         },
         component: () => import('../views/admin/Edit.vue')
     },
@@ -254,7 +254,7 @@ export const asyncRoutes = [
             layout: 'admin',
             sidebar: true,
             requireAuth: true,
-            roles: ['Admin', 'Editor']
+            roles: ["Admin", "Editor"]
         },
         component: () => import('../views/admin/Tags.vue')
     },
@@ -266,7 +266,7 @@ export const asyncRoutes = [
             layout: 'admin',
             sidebar: true,
             requireAuth: true,
-            roles: ['Admin']
+            roles: ["Admin"]
         },
         component: () => import('../views/admin/Users.vue')
     },
@@ -300,7 +300,7 @@ export function resetRouter() {
 // 判断路由是否有权限
 export function hasRouter(roles, route) {
     if (route.meta && route.meta.roles) {
-        return roles.some(role => route.meta.roles.includes(role))
+        return roles.some(role => route.meta.roles.includes(role.name) )
     } else {
         return true
     }
@@ -316,6 +316,7 @@ export function filterRouter(routes, roles) {
             accessRoutes.push(route)
         }
     })
+    console.log(accessRoutes)
     return accessRoutes
 }
 
