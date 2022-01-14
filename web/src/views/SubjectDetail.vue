@@ -75,7 +75,7 @@
 <script>
 import PostCard from "@/components/PostCard.vue";
 import Pagination from "@/components/Pagination.vue";
-import { getSubjectById, getPostBySubjectId } from "@/api/subject.js";
+import { getSubjectById, getPostBySubjectId } from "@/api/web/subject.js";
 
 export default {
   components: {

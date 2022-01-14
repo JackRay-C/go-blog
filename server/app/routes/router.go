@@ -59,7 +59,6 @@ func NewRouters(setting *setting.App) *gin.Engine {
 		InitSubjectRouter(consoleGroup)
 		InitFileRouter(consoleGroup)
 		InitRolesRouter(consoleGroup)
-		InitMenuRouter(consoleGroup)
 		InitDictRouter(consoleGroup)
 		InitCommentRouter(consoleGroup)
 		InitPermissionRouter(consoleGroup)

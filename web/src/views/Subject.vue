@@ -14,7 +14,7 @@
 <script>
 import SubjectCard from "@/components/SubjectCard.vue";
 import Pagination from "@/components/Pagination.vue";
-import {getSubjects} from "@/api/subject.js";
+import {getSubjects} from "@/api/web/subject.js";
 
 export default {
   name: "Subject",

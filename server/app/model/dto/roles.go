@@ -12,7 +12,3 @@ type PutRolePermission struct {
 	Permissions []*domain.Permissions `json:"permissions"`
 }
 
-
-type PutRoleMenus struct {
-	Menus []*domain.Menu `json:"menus"`
-}

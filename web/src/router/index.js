@@ -1,25 +1,30 @@
+
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import Tag from "../views/Tag.vue"
+import TagDetail from "../views/TagDetail.vue"
 
 
 
 Vue.use(VueRouter)
 
-//---------- 解决重复跳转当前路由报错的问题 -------------------
+// 解决重复跳转当前路由报错的问题
 const originalPush = VueRouter.prototype.push
 
 VueRouter.prototype.push = function push(location) {
     return originalPush.call(this, location).catch(err => err)
 }
-//-------------------------------------------------------
 
-const routes = [{
+
+export const webRoutes = [
+    {
         path: '/',
         name: 'Index',
         meta: {
             title: '主页',
-            layout: 'default'
+            layout: 'default',
+            sidebar: false,
         },
         component: Home
     },
@@ -28,25 +33,28 @@ const routes = [{
         name: 'Tag',
         meta: {
             title: '标签页面',
-            layout: 'default'
+            layout: 'default',
+            sidebar: false,
         },
-        component: () => import('../views/Tag.vue')
+        component: Tag
     },
     {
         path: '/tag/:id',
         name: 'TagDetail',
         meta: {
             title: '标签详情',
-            layout: 'default'
+            layout: 'default',
+            sidebar: false,
         },
-        component: () => import('../views/TagDetail.vue')
+        component: TagDetail
     },
     {
         path: '/subject',
         name: 'Subject',
         meta: {
             title: '专题',
-            layout: 'default'
+            layout: 'default',
+            sidebar: false,
         },
         component: () => import('../views/Subject.vue')
     },
@@ -55,7 +63,8 @@ const routes = [{
         name: 'About',
         meta: {
             title: '关于我',
-            layout: 'default'
+            layout: 'default',
+            sidebar: false,
         },
         component: () => import('../views/About.vue')
     },
@@ -64,26 +73,50 @@ const routes = [{
         name: 'Detail',
         meta: {
             title: '文章详情',
-            layout: 'default'
+            layout: 'default',
+            sidebar: false,
         },
-        component: () => import('../views/Detail1.vue')
+        component: () => import('../views/Detail.vue')
     },
     {
         path: '/subject/:id',
         name: 'SubjectDetail',
         meta: {
             title: '专题文章',
-            layout: 'default'
+            layout: 'default',
+            sidebar: false,
         },
         component: () => import('../views/SubjectDetail.vue')
     },
+    {
+        path: '/login',
+        name: 'Login',
+        meta: {
+            title: '登录',
+            layout: 'default',
+            sidebar: false,
+        },
+        component: () => import('../views/Login.vue')
+    },
+    {
+        path: '/404',
+        name: '404',
+        meta: {
+            title: '404 Not Found'
+        },
+        component: () => import('../views/404.vue')
+    },
+]
+
+export const asyncRoutes = [
     {
         path: '/admin/dashboard',
         name: 'AdminDashBoard',
         meta: {
             title: '管理台',
             layout: 'admin',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: true,
         },
         component: () => import('../views/admin/Dashboard.vue')
     },
@@ -93,7 +126,8 @@ const routes = [{
         meta: {
             title: '所有博客',
             layout: 'admin',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: true,
         },
         component: () => import('../views/admin/Posts.vue')
     },
@@ -103,7 +137,8 @@ const routes = [{
         meta: {
             title: '页面管理',
             layout: 'admin',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: true,
         },
         component: () => import('../views/admin/Pages.vue')
     },
@@ -113,7 +148,8 @@ const routes = [{
         meta: {
             title: '设置',
             layout: 'admin',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: false,
         },
         component: () => import('../views/admin/Settings.vue')
     },
@@ -123,7 +159,9 @@ const routes = [{
         meta: {
             title: '设置',
             layout: 'admin',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: false,
+            roles: ['Admin']
         },
         component: () => import('../views/admin/Dicts.vue')
     },
@@ -133,7 +171,9 @@ const routes = [{
         meta: {
             title: '专题',
             layout: 'admin',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: true,
+            roles: ['Admin', 'Editor']
         },
         component: () => import('../views/admin/Subjects.vue')
     },
@@ -143,7 +183,9 @@ const routes = [{
         meta: {
             title: '专题设置',
             layout: 'admin',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: false,
+            roles: ['Admin', 'Editor']
         },
         component: () => import('../views/admin/NewSubject.vue')
     },
@@ -153,7 +195,8 @@ const routes = [{
         meta: {
             title: '专题文章',
             layout: 'admin',
-            requireAuth: true
+            sidebar: false,
+            requireAuth: true,
         },
         component: () => import('../views/admin/Posts.vue')
     },
@@ -163,7 +206,9 @@ const routes = [{
         meta: {
             title: '新建专题',
             layout: 'admin',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: false,
+            roles: ['Admin', 'Editor']
         },
         component: () => import('../views/admin/NewSubject.vue')
     },
@@ -171,9 +216,11 @@ const routes = [{
         path: '/admin/draft',
         name: 'AdminDraft',
         meta: {
-            title: '专题',
+            title: '草稿',
             layout: 'admin',
-            requireAuth: true
+            sidebar: true,
+            requireAuth: true,
+            roles: ['Admin', 'Editor']
         },
         component: () => import('../views/admin/Posts.vue')
     },
@@ -182,7 +229,9 @@ const routes = [{
         name: 'AdminNew',
         meta: {
             title: '新建文章',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: false,
+            roles: ['Admin', 'Editor']
         },
         component: () => import('../views/admin/Edit.vue')
     },
@@ -191,7 +240,9 @@ const routes = [{
         name: 'AdminEdit',
         meta: {
             title: '编辑文章',
-            requireAuth: true
+            requireAuth: true,
+            sidebar: false,
+            roles: ['Admin', 'Editor']
         },
         component: () => import('../views/admin/Edit.vue')
     },
@@ -201,7 +252,9 @@ const routes = [{
         meta: {
             title: '标签管理',
             layout: 'admin',
-            requireAuth: true
+            sidebar: true,
+            requireAuth: true,
+            roles: ['Admin', 'Editor']
         },
         component: () => import('../views/admin/Tags.vue')
     },
@@ -211,31 +264,16 @@ const routes = [{
         meta: {
             title: '用户管理',
             layout: 'admin',
-            requireAuth: true
+            sidebar: true,
+            requireAuth: true,
+            roles: ['Admin']
         },
         component: () => import('../views/admin/Users.vue')
     },
-    {
-        path: '/login',
-        name: 'Login',
-        meta: {
-            title: '登录',
-            layout: 'default'
-        },
-        component: () => import('../views/Login.vue')
-    },
-
-    {
-        path: '/*',
-        name: '404',
-        meta: {
-            title: '404 Not Found'
-        },
-        component: () => import('../views/404.vue')
-    },
+    { path: '*', redirect: '/404', hidden: true }
 ]
 
-const router = new VueRouter({
+const createRouter = () => new VueRouter({
     mode: 'history',
     linkExactActiveClass: 'active',
     base: process.env.BASE_URL,
@@ -248,43 +286,38 @@ const router = new VueRouter({
             y: 0
         }
     },
-    routes
+    routes: webRoutes
 })
 
-router.beforeEach((to, from, next) => {
-    // 根据路由的title 设置每个页面的标题
-    if (to.meta.title) {
-        document.title = to.meta.title
-    }
+const router = createRouter()
 
-    // 如果下一个路由是login，放行
-    if (to.path === '/login') {
-        next()
+export function resetRouter() {
+    const newRouter = createRouter()
+    router.matcher = newRouter.matcher
+}
+
+
+// 判断路由是否有权限
+export function hasRouter(roles, route) {
+    if (route.meta && route.meta.roles) {
+        return roles.some(role => route.meta.roles.includes(role))
     } else {
-        // 否则判断路由元数据有没有requireAuth 属性
-        if (to.meta.requireAuth) {
-            // 如果有该属性，但是localStorage里面没有发现token缓存，则跳转到登陆界面
-            let token = localStorage.getItem('token')
-            if (token === null || token === '' || token === undefined) {
-                next({
-                    path: '/login',
-                    query: {
-                        redirect: to.fullPath
-                    }
-                })
-            } else {
-                // 否则token存在，放行
-                next()
-
-            }
-        } else {
-            // 如果路由没有该属性，直接放行
-            next()
-        }
+        return true
     }
-})
+}
 
 
+// 过滤出角色拥有的路由
+export function filterRouter(routes, roles) {
+    const accessRoutes = []
+
+    routes.forEach(route => {
+        if (hasRouter(roles, route)) {
+            accessRoutes.push(route)
+        }
+    })
+    return accessRoutes
+}
 
 
 export default router

@@ -1,90 +1,154 @@
 <template>
   <div class="detail fadeInUp">
-    <div class="post-title">
-      <span class="post-title-text">
-        <h1>{{ post.title }}</h1>
-      </span>
-    </div>
-    <div class="post-info">
-      <span class="post-created" v-if="post.updated_at"
-        >更新于:
-        {{ post.updated_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
-        &nbsp;&nbsp;</span
-      >
-      <span class="post-created" v-else
-        >发表于:
-        {{ post.created_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
-        &nbsp;&nbsp;</span
-      >
-      <div class="devider"></div>
+    <el-skeleton
+      style="width: 100%"
+      :loading="loading"
+      animated
+      :throttle="500"
+    >
+      <template slot="template" v-if="loading">
+        <el-skeleton-item variant="h1" style="width: 40%" />
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-item: space-between;
+            margin-top: 16px;
+            height: 16px;
+          "
+        >
+          <el-skeleton-item
+            variant="text"
+            style="width: 80px; margin-right: 16px; height: 30px"
+          />
 
-      <div class="post-tag"><i class="el-icon-view"> </i> {{ post.views }}</div>
-      <div class="post-tag">
-        <i class="el-icon-star-off"> </i> {{ post.likes }}
-      </div>
+          <el-skeleton-item
+            variant="text"
+            style="width: 80px; margin-right: 16px; height: 30px"
+          />
 
-      <div class="devider"></div>
-      <div
-        v-for="tag in tags"
-        :key="tag.id"
-        class="post-tag"
-        @click="goTag(tag.id)"
-      >
-        {{ tag.name }}
-      </div>
-    </div>
-    <div
-      class="post-content markdown-body"
-      v-highlight
-      v-html="post.html_content"
-    ></div>
+          <el-skeleton-item
+            variant="text"
+            style="width: 80px; margin-right: 16px; height: 30px"
+          />
+        </div>
+        <el-skeleton-item variant="text" style="100%" />
+        <el-skeleton-item variant="text" style="100%" />
+        <el-skeleton-item variant="text" style="100%" />
+        <el-skeleton-item variant="text" style="100%" />
+        <el-skeleton-item variant="text" style="100%" />
+        <el-skeleton-item variant="text" style="100%" />
+      </template>
+      <template v-if="!loading">
+        <div class="post-title">
+          <span class="post-title-text">
+            <h1>{{ post.title }}</h1>
+          </span>
+        </div>
+        <div class="post-info">
+          <span class="post-created" v-if="post.updated_at"
+            >更新于:
+            {{ post.updated_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+            &nbsp;&nbsp;</span
+          >
+          <span class="post-created" v-else
+            >发表于:
+            {{ post.created_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+            &nbsp;&nbsp;</span
+          >
+          <div class="devider"></div>
+          <div
+            v-for="tag in tags"
+            :key="tag.id"
+            class="post-tag"
+            @click="goTag(tag.id)"
+          >
+            {{ tag.name }}
+          </div>
+          <div class="devider"></div>
+          <div class="post-tag">阅读量： {{ post.views }}</div>
+        </div>
+        <!-- <div
+          class="post-content markdown-body"
+          v-highlight
+          v-html="post.html_content"
+        ></div> -->
+        <div id="post-content" class="post-content markdown-body"></div>
+      </template>
+    </el-skeleton>
   </div>
 </template>
 
 <script>
-import { getPost, listPostTags } from "@/api/post.js";
-// import "mavon-editor/dist/css/index.css";
-// import "github-markdown-css/github-markdown.css";
-// import "katex/dist/katex.min.css";
+import VditorPreview from "vditor/dist/method.min";
+import "@/views/admin/vditor/index.scss";
+import { getPost } from "@/api/web/post.js";
 
 export default {
   name: "Detail",
   data() {
     return {
       id: "",
-      post: "",
+      post: {
+        title: "",
+        markdown_content: "",
+        html_content: "",
+        created_at: "",
+        updated_at: "",
+        views: 0,
+        likes: 0,
+      },
       tags: [],
+      loading: true,
     };
   },
-  beforeRouteUpdate(to, from, next) {
-    this.id = to.params.id;
-    this.fetchPost();
-    this.fetchTags();
-    next();
+  // created() {
+  //   this.fetchPost();
+  // },
+  watch: {
+    $route: "fetchPost",
+    loading: "preview"
   },
   mounted() {
-    this.id = this.$route.params.id;
     this.fetchPost();
-    this.fetchTags();
-    window.addEventListener("scroll", this.scrollTop);
   },
   methods: {
     fetchPost() {
-      getPost(this.id).then((res) => {
-        if (res.code === 200 && res.data) {
-          this.post = res.data;
-        }
-      });
-    },
-    fetchTags() {
-      listPostTags(this.id)
+      this.post = null;
+      this.loading = true;
+      getPost(this.$route.params.id)
         .then((res) => {
           console.log(res);
-          this.tags = res.data;
+          if (res.code === 200 && res.data) {
+            this.post = res.data;
+            this.loading = false;
+            console.log("获取数据完成");
+          }
         })
         .catch((err) => {
           console.log(err);
         });
+    },
+    preview() {
+      console.log(document)
+      console.log()
+      console.log(document.getElementById("post-content"));
+      VditorPreview.preview(
+        document.getElementById("post-content"),
+        this.post.markdown_content,
+        {
+          mode: "light",
+          anchor: 0,
+          hljs: {
+            enable: true,
+            lineNumber: true,
+            style: "monokai",
+          },
+          speech: {
+            enable: false,
+          },
+        }
+      );
     },
     goTag(id) {
       this.$router.push(`/tag/${id}`);
@@ -95,13 +159,11 @@ export default {
 
 <style lang="scss" scoped>
 .detail {
-  margin: 0;
-  padding: 0;
   font-weight: 400;
   font-size: 16px;
   width: 60%;
   min-height: 573px;
-  margin: 60px auto 110px;
+  margin: 70px auto 110px;
   padding-left: 32px;
   box-sizing: border-box;
 }
@@ -131,13 +193,12 @@ export default {
     // background: #f6f7fa;
     color: #888888;
     border-radius: 4px;
-    margin-right: 8px;
-    padding: 0px 10px;
+    margin: 0 9px 0 0;
+    padding: 0px 10px 0 0;
     line-height: 30px;
     font-size: 13px;
     cursor: pointer;
     box-sizing: border-box;
-    // border: 1px solid #888888;
   }
 }
 .post-info .post-tag {
@@ -151,14 +212,17 @@ export default {
   font-size: 13px;
   cursor: pointer;
   box-sizing: border-box;
-  // border: 1px solid #888888;
+
+  &:hover {
+    color: #0c64e9;
+    text-decoration: #171d26;
+  }
 }
 .devider {
   display: inline-block;
   width: 1px;
   height: 12px;
   background-color: #c3c6cb;
-  margin: 0 8px;
 }
 
 .fadeInUp {
@@ -184,13 +248,20 @@ export default {
 
 <style lang="scss">
 .markdown-body {
-  padding-top: 30px;
+  // padding-top: 30px;
   color: #606c80 !important;
   font-size: 16px !important;
   line-height: 2em !important;
   box-sizing: border-box;
   font-weight: 400;
   margin: 8px 0 !important;
+
+  img {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+  }
 
   h1,
   h2,
@@ -199,7 +270,10 @@ export default {
   h5,
   h6 {
     color: #171d26 !important;
-    margin-top: 24px;
+
+    &:not(first-child) {
+      margin-top: 24px;
+    }
   }
 
   h1 {
@@ -214,13 +288,14 @@ export default {
   }
 
   p {
-    line-height: 2em;
+    line-height: 2;
     white-space: pre-wrap;
+    color: #171d26;
     word-break: break-all;
     font-size: 16px;
     box-sizing: border-box;
     font-weight: 400;
-    margin: 16px 0;
+    margin: 24px 0;
 
     strong {
       color: #464952;

@@ -8,5 +8,4 @@ const api =  {
     dict:'/api/v1/dicts'
 }
 
-
 export default api

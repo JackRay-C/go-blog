@@ -58,7 +58,7 @@
 import PostCard from "@/components/PostCard.vue";
 import Pagination from "@/components/Pagination.vue";
 import FixedHeader from "@/components/FixedHeader.vue";
-import { listPosts } from "@/api/post.js";
+import { listPosts } from "@/api/web/post.js";
 
 export default {
   name: "Home",

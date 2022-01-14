@@ -25,7 +25,7 @@
 <script>
 import Pagination from "@/components/Pagination.vue";
 
-import { getTags } from "@/api/tag.js";
+import { getTags } from "@/api/web/tag.js";
 
 export default {
   name: "Tag",

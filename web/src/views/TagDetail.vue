@@ -33,8 +33,8 @@
 </template>
 
 <script>
-import { getPostByTagId, getTagsById } from "@/api/tag";
-import {getFileById} from "@/api/file.js";
+import { getPostByTagId, getTagsById } from "@/api/web/tag";
+import {getFileById} from "@/api/web/file.js";
 import PostCard from "@/components/PostCard.vue";
 import Pagination from "@/components/Pagination.vue";
 

@@ -28,13 +28,13 @@
         <input
           type="text"
           class="input"
-          v-bind:class="{'error': uError}"
+          v-bind:class="{ error: uError }"
           v-model="username"
           placeholder="用户名或密码"
         />
         <div class="username-input-suffix"></div>
         <div class="error-text" v-if="uError">
-          <p>{{uError}}</p>
+          <p>{{ uError }}</p>
         </div>
       </div>
       <!-- 密码 -->
@@ -62,7 +62,7 @@
           type="password"
           class="input"
           v-model="password"
-          v-bind:class="{'error': pError}"
+          v-bind:class="{ error: pError }"
           placeholder="密码"
         />
         <div class="password-input-suffix"></div>
@@ -92,32 +92,35 @@ export default {
       username: "",
       uError: "",
       password: "",
-      pError: ""
+      pError: "",
     };
   },
   methods: {
     login() {
       // 登录
-      this.$store.dispatch('DispatchLogin', {username: this.username, password: this.password}).then(res => {
-        console.log(res)
-        if(res.code === 200) {
+      this.$store
+        .dispatch("DispatchLogin", {
+          username: this.username,
+          password: this.password,
+        })
+        .then(async (res) => {
+          if (res.code !== 200) {
+            this.$notify.error({ title: "失败", message: res.message });
+          }
+
+          await this.$store.dispatch("DispatchInfo");
+         
           this.$router.push("/admin/dashboard");
-        } else {
+        })
+        .catch((err) => {
+          console.log(err);
           this.$notify.error({
-          title: '失败',
-          message: res.message,
+            title: "失败",
+            message: err.message,
+          });
         });
-        }
-      }).catch(err => {
-        console.log(err)
-        this.$notify.error({
-          title: '失败',
-          message: err.message
-        });
-      })
-      
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -133,10 +136,14 @@ export default {
   padding: 32px 24px;
   box-shadow: 0 6px 28px 0 rgba(24, 52, 117, 0.2);
   border-top: 2px solid #4e6ef2;
-  border-image: linear-gradient(to right, #4e6ef2,
-          #4e6ef2 10%, #0ae678 90%,
-          #0ae678) 1;
-
+  border-image: linear-gradient(
+      to right,
+      #4e6ef2,
+      #4e6ef2 10%,
+      #0ae678 90%,
+      #0ae678
+    )
+    1;
 }
 
 .login-form {

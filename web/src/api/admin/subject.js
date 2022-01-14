@@ -3,7 +3,7 @@ import api from '@/api/admin/admin'
 
 export function listSubjects(params) {
     return request({
-        url: api.subject,
+        url: api.subjects,
         method: 'GET',
         params: {
             ...params
@@ -13,21 +13,21 @@ export function listSubjects(params) {
 
 export function getSubjectById(id) {
     return request({
-        url: api.subject + `/${id}`,
+        url: api.subjects + `/${id}`,
         method: "GET"
     })
 }
 
 export function getSubjectPostCount(id) {
     return request({
-        url: api.subject + `/${id}/posts`,
+        url: api.subjects + `/${id}/posts`,
         method: "GET"
     })
 }
 
 export function getPostBySubjectId(id, pageNo, pageSize) {
     return request({
-        url: api.subject + `/${id}/posts`,
+        url: api.subjects + `/${id}/posts`,
         method: "GET",
         params: {
             pageNo,
