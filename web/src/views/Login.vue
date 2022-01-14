@@ -85,6 +85,7 @@
 </template>
 
 <script>
+
 export default {
   name: "Login",
   data() {
@@ -94,6 +95,18 @@ export default {
       password: "",
       pError: "",
     };
+  },
+  watch: {
+    $route: {
+      handler: function(route) {
+        const query = route.query
+        if (query) {
+          this.redirect = query.redirect
+          this.otherQuery = this.getOtherQuery(query)
+        }
+      },
+      immediate: true
+    }
   },
   methods: {
     login() {
@@ -108,9 +121,7 @@ export default {
             this.$notify.error({ title: "失败", message: res.message });
           }
 
-          await this.$store.dispatch("DispatchInfo");
-         
-          this.$router.push("/admin/dashboard");
+          this.$router.push({ path: this.redirect || '/admin/dashboard', query: this.otherQuery })
         })
         .catch((err) => {
           console.log(err);
@@ -120,6 +131,14 @@ export default {
           });
         });
     },
+    getOtherQuery(query) {
+      return Object.keys(query).reduce((acc, cur) => {
+        if (cur !== 'redirect') {
+          acc[cur] = query[cur]
+        }
+        return acc
+      }, {})
+    }
   },
 };
 </script>

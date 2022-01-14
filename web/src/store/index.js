@@ -114,7 +114,13 @@ export default new Vuex.Store({
   modules: {},
   getters: {
     token: state => state.token || localStorage.getItem("token"),
-    username: state=> state.username
+    username: state=> state.username,
+    nickname: state => state.nickname,
+    avatar: state => state.avatar,
+    roles: state => state.roles,
+    permissions: state => state.permissions,
+    routes: state => state.routes,
+    addRoutes: state => state.addRoutes,
   }
 })
 

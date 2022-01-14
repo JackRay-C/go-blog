@@ -1,71 +1,56 @@
-import router from './router'
-import store from './store'
-import {
-    Message
-} from 'element-ui'
-import NProgress from 'nprogress'
-import 'nprogress/nprogress.css'
+import router from "./router";
+import store from "./store";
+import { Message } from "element-ui";
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";
 
 NProgress.configure({
-    showSpinner: false
-})
+  showSpinner: false,
+});
 
 router.beforeEach(async (to, from, next) => {
-    NProgress.start()
+  NProgress.start();
 
+  // 根据路由的title 设置每个页面的标题
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
 
-    // 根据路由的title 设置每个页面的标题
-    if (to.meta.title) {
-        document.title = to.meta.title
-    }
-
-    // 判断To是否需要认证 
-    let token = localStorage.getItem('token')
-    if (token) {
-        const hasRoles = store.getters.roles && store.getters.roles.length > 0
-        if (hasRoles) {
-            next()
-            NProgress.done()
-        } else {
-            try {
-                const {
-                    roles
-                } = await store.dispatch('DispatchInfo')
-
-                const accessRoutes = await store.dispatch('DispatchGenerateRoutes', roles)
-
-                accessRoutes.forEach(route => {
-                    router.addRoute(route)
-                });
-
-                next()
-                NProgress.done()
-            } catch (error) {
-                await store.dispatch('DispatchLogout')
-                console.log(error)
-                Message.error(error || 'Error')
-                next({
-                    path: '/login',
-                    query: {
-                        redirect: to.fullPath
-                    }
-                })
-                NProgress.done()
-            }
-        }
-
+  // 判断To是否需要认证
+  let token = localStorage.getItem("token");
+  if (token) {
+    const hasRoles = store.getters.roles && store.getters.roles.length > 0;
+    console.log(hasRoles)
+    if (hasRoles) {
+      next();
+      NProgress.done();
     } else {
-        // 没有token判断是否需要认证
-        if (to.meta && to.meta.requireAuth === true) {
-            next(`/login?redirect=${to.path}`)
-            NProgress.done()
-        }
-        next()
-        NProgress.done()
-    }
-})
+      const { roles } = await store.dispatch("DispatchInfo");
 
+      const accessRoutes = await store.dispatch(
+        "DispatchGenerateRoutes",
+        roles
+      );
+
+      accessRoutes.forEach((route) => {
+        router.addRoute(route);
+      });
+
+      console.log(to);
+      next();
+      NProgress.done();
+    }
+  } else {
+    // 没有token判断是否需要认证
+    if (to.meta && to.meta.requireAuth === true) {
+      next(`/login?redirect=${to.path}`);
+      NProgress.done();
+    }
+    next();
+    NProgress.done();
+  }
+});
 
 router.afterEach(() => {
-    NProgress.done()
-})
+  NProgress.done();
+});
