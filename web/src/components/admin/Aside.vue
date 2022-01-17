@@ -16,16 +16,7 @@
         <ul class="nav-list nav-main">
           <li>
             <router-link to="/admin/dashboard" active-class="active">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M22.272 23.247a.981.981 0 00.978-.978V9.747a1.181 1.181 0 00-.377-.8L12 .747l-10.873 8.2a1.181 1.181 0 00-.377.8v12.522a.981.981 0 00.978.978z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                ></path>
-              </svg>
+            <svg-icon icon-class="dashboard" />
               Dashboard
             </router-link>
           </li>
@@ -34,25 +25,7 @@
         <ul class="nav-list nav-manage">
           <li class="nav-list-new">
             <router-link to="/admin/posts" active-class="active">
-              <svg
-                t="1636681531011"
-                class="icon"
-                viewBox="0 0 1024 1024"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                p-id="1190"
-                width="200"
-                height="200"
-              >
-                <path
-                  d="M1006.592 925.39392c0 54.311936-44.859392 98.60608-100.196352 98.60608H100.196352C45.207552 1024 0 979.994624 0 925.710336V235.505664C0 181.192704 45.125632 137.216 100.79232 137.216h539.76576v49.265664H100.79232c-27.92448 0-50.46272 21.972992-50.46272 49.024v690.204672c0 26.954752 22.550528 49.024 49.866752 49.024h806.199296c27.416576 0 49.866752-22.116352 49.866752-49.340416v-626.944H1006.592v626.944z m0 0c0 54.311936-44.859392 98.60608-100.196352 98.60608H100.196352C45.207552 1024 0 979.994624 0 925.710336V235.505664C0 181.192704 45.125632 137.216 100.79232 137.216h539.76576v49.265664H100.79232c-27.92448 0-50.46272 21.972992-50.46272 49.024v690.204672c0 26.954752 22.550528 49.024 49.866752 49.024h806.199296c27.416576 0 49.866752-22.116352 49.866752-49.340416v-626.944H1006.592v626.944z"
-                  p-id="1191"
-                ></path>
-                <path
-                  d="M516.465664 517.764096c19.206144-6.542336 50.36032-24.948736 64.864256-38.288384l378.635264-348.248064c19.523584-17.956864 19.503104-47.152128-0.088064-65.272832l-5.225472-4.83328c-20.186112-18.670592-52.790272-18.783232-72.92928-0.260096L503.044096 409.147392c-13.686784 12.589056-31.880192 40.728576-37.430272 57.837568l-24.835072 76.560384 75.685888-25.781248zM989.96224 27.654144l5.225472 4.83328c39.458816 36.49536 39.602176 95.865856-0.011264 132.3008L616.539136 513.03424c-19.570688 18.000896-56.854528 40.067072-82.895872 48.93696l-123.001856 41.897984c-26.315776 8.964096-40.638464-4.017152-32.60416-28.78464l39.502848-121.772032c7.969792-24.57088 30.553088-59.567104 50.295808-77.725696L846.512128 27.301888c39.836672-36.63872 103.842816-36.28032 143.449088 0.352256z"
-                  p-id="1192"
-                ></path>
-              </svg>
+            <svg-icon icon-class="edit" />
               Posts
             </router-link>
             <router-link
@@ -61,15 +34,7 @@
               active-class="active"
             >
               <span>
-                <svg viewBox="0 0 24 24">
-                  <path
-                    d="M12 1v22m11-11H1"
-                    fill="none"
-                    stroke="#000"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></path>
-                </svg>
+                <svg-icon icon-class="plus" class-name="page_svg__a" />
               </span>
             </router-link>
             <div class="nav-post-container">
@@ -93,111 +58,43 @@
               </div>
             </div>
           </li>
-          <li>
+
+          <li v-for="route in routes" :key="route.path">
+            <router-link :to="route.path" active-class="active" v-if="route.meta && route.meta.sidebar && route.name!== 'Posts' && route.name!= 'Dashboard'">
+              <svg-icon :icon-class="route.meta.icon" :class-name="route.meta.iconClass" />
+              {{route.name}}
+            </router-link>
+          </li>
+          <!-- <li>
             <router-link to="/admin/pages" active-class="active">
-              <svg viewBox="0 0 24 24">
-                <path
-                  class="page_svg__a"
-                  d="M16.5 21.513a1.5 1.5 0 01-1.9 1.446L4.1 20.042A1.5 1.5 0 013 18.6V2.487a1.5 1.5 0 011.9-1.446l10.5 3.391a1.5 1.5 0 011.1 1.445z"
-                ></path>
-                <path
-                  class="page_svg__a"
-                  d="M4.5.987h15a1.5 1.5 0 011.5 1.5v15.75a1.5 1.5 0 01-1.5 1.5h-3"
-                ></path>
-              </svg>
+            <svg-icon icon-class="pages" class-name="page_svg__a" />
               Pages
             </router-link>
           </li>
           <li>
             <router-link to="/admin/tag" active-class="active">
-              <svg viewBox="0 0 24 24">
-                <path
-                  d="M1.061 2.56v6.257a3 3 0 00.878 2.121L13.5 22.5a1.5 1.5 0 002.121 0l6.879-6.88a1.5 1.5 0 000-2.121L10.939 1.938a3 3 0 00-2.121-.878H2.561a1.5 1.5 0 00-1.5 1.5z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                ></path>
-              </svg>
+              <svg-icon icon-class="tags"/>
               Tags
             </router-link>
           </li>
           <li>
             <router-link to="/admin/subject" active-class="active">
-              <svg
-                t="1636704534949"
-                class="icon"
-                viewBox="0 0 1024 1024"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                p-id="16114"
-                width="200"
-                height="200"
-              >
-                <path
-                  d="M95.744 1008.128c-17.408 0-31.744-13.824-32.256-31.744V49.152c0.512-18.432 15.36-33.28 34.304-33.28h829.44c8.704 0 17.408 3.584 23.552 10.24 6.144 6.656 9.728 14.848 9.728 24.064v925.696c0 3.584-0.512 7.168-2.048 11.776-4.608 12.288-16.384 19.968-30.208 19.968-4.096 0-8.192-0.512-11.776-2.048l-356.864-137.728c-14.848-5.632-31.232-8.704-47.104-8.704-16.384 0-32.256 3.072-47.104 8.704l-357.376 137.728H107.52c-3.072 1.536-7.168 2.56-10.752 2.56h-1.024z m44.544-941.056c-13.824 0-24.576 10.752-24.576 24.576v845.824L482.816 803.84c9.728-3.584 19.968-5.632 29.696-5.632 10.24 0 19.968 2.048 29.696 5.632l367.104 133.632V92.16c0-13.824-10.752-24.576-24.576-24.576H140.288z"
-                  p-id="16115"
-                ></path>
-                <path
-                  d="M305.152 510.976c0-15.872 12.8-28.16 28.16-28.16h356.864c15.872 0 28.16 12.8 28.16 28.16 0 15.872-12.8 28.16-28.16 28.16H333.824c-15.872 0.512-28.672-12.288-28.672-28.16z m0-206.848c0-15.872 12.8-28.16 28.16-28.16h356.864c15.872 0 28.16 12.8 28.16 28.16 0 15.872-12.8 28.16-28.16 28.16H333.824c-15.872 0-28.672-12.288-28.672-28.16z"
-                  p-id="16116"
-                ></path>
-              </svg>
+              <svg-icon icon-class="subjects"/>
               Subjects
             </router-link>
           </li>
           <li>
             <router-link to="/admin/dicts" active-class="active">
-              <svg
-                t="1636705394328"
-                class="icon"
-                viewBox="0 0 1024 1024"
-                version="1.1"
-                xmlns="http://www.w3.org/2000/svg"
-                p-id="17857"
-                width="200"
-                height="200"
-              >
-                <path
-                  d="M917.344 50.464h-491.84c-88.992 0-288.16-35.728-331.04 82.48-20.288 55.888 30.224 153.808 93.744 153.808h729.152l-24-24v594.752c0 14.944 1.072 57.232 0.24 60.704-11.632 47.264-59.184 36.464-93.696 36.464H170.112c-57.84 0-34.08-124.8-34.08-160.112V168v-3.808c0-30.96-48-30.96-48 0v590.8c0 63.008-14.192 143.744 6.416 204.512 19.84 58.496 114.8 43.152 160.064 43.152h605.76c76.112 0 81.104-82.432 81.104-135.536V513.312 262.736c0-13.088-10.928-24-24-24H192.8c-36.4 0-70.608-69.168-46.144-100.464 30.224-38.672 66.384-39.824 103.2-39.824H917.36c30.944 0.016 30.944-47.984-0.016-47.984z"
-                  p-id="17858"
-                ></path>
-                <path
-                  d="M190.656 185.264H914.4c30.96 0 30.96-48 0-48H190.656c-30.96 0-30.96 48 0 48zM222.56 262.752h48v709.312h-48z"
-                  p-id="17859"
-                ></path>
-              </svg>
+              <svg-icon icon-class="dicts"/>
               Dicts
             </router-link>
           </li>
           <li>
             <router-link to="/admin/users" active-class="active">
-              <svg id="members_svg__Regular" viewBox="0 0 24 24">
-                <circle
-                  class="members_svg__cls-1"
-                  cx="7.5"
-                  cy="7.875"
-                  r="4.125"
-                ></circle>
-                <path
-                  class="members_svg__cls-1"
-                  d="M.75 20.25a6.75 6.75 0 0113.5 0"
-                ></path>
-                <circle
-                  class="members_svg__cls-1"
-                  cx="17.727"
-                  cy="10.125"
-                  r="3.375"
-                ></circle>
-                <path
-                  class="members_svg__cls-1"
-                  d="M15.813 15.068a5.526 5.526 0 017.437 5.182"
-                ></path>
-              </svg>
+              <svg-icon icon-class="members" class-name="members_svg__cls-1" />
               Accounts
             </router-link>
-          </li>
+          </li> -->
         </ul>
 
         <ul class="nav-list"></ul>
@@ -211,14 +108,9 @@
                 <div class="nav-trigger-flex" @click="dropdown1 = !dropdown1">
                   <div
                     class="user-avatar"
-                    :style="'background-image: url(' + avatar + ')'"
+                    :style="'background-image: url(' + avatar.host +'' + avatar.access_url + ')'"
                   ></div>
-                  <svg viewBox="0 0 26 24" class="w3 mr1 fill-darkgrey">
-                    <path
-                      clip-rule="evenodd"
-                      d="M1.043 6.604a1 1 0 011.414 0L13 17.146 23.543 6.604a1 1 0 011.414 1.414l-10.72 10.719a1.75 1.75 0 01-2.474 0L1.042 8.018a1 1 0 010-1.414zm11.78 10.72v-.001zm.355 0v-.001z"
-                    ></path>
-                  </svg>
+                  <svg-icon icon-class="dropdown" class-name="w3 mr1 fill-darkgrey" />
                 </div>
                 <div class="nav-dropdown-content" v-if="dropdown1">
                   <ul class="dropdown-menu">
@@ -226,7 +118,7 @@
                       <div class="account-menu-header">
                         <div
                           class="user-avatar"
-                          :style="'background-image: url(' + avatar + ')'"
+                          :style="'background-image: url(' + avatar.host +'' + avatar.access_url + ')'"
                         ></div>
                         <div class="user-info">
                           <h4 class="user-name">任浩杰</h4>
@@ -251,18 +143,7 @@
             </div>
             <div class="nav-bottom-right">
               <router-link to="/admin/setting" active-class="active">
-                <svg viewBox="0 0 24 24">
-                  <path
-                    class="settings_svg__a"
-                    d="M10.546 2.438a1.957 1.957 0 002.908 0L14.4 1.4a1.959 1.959 0 013.41 1.413l-.071 1.4a1.958 1.958 0 002.051 2.054l1.4-.071a1.959 1.959 0 011.41 3.41l-1.042.94a1.96 1.96 0 000 2.909l1.042.94a1.959 1.959 0 01-1.413 3.41l-1.4-.071a1.958 1.958 0 00-2.056 2.056l.071 1.4A1.959 1.959 0 0114.4 22.6l-.941-1.041a1.959 1.959 0 00-2.908 0L9.606 22.6A1.959 1.959 0 016.2 21.192l.072-1.4a1.958 1.958 0 00-2.056-2.056l-1.4.071A1.958 1.958 0 011.4 14.4l1.041-.94a1.96 1.96 0 000-2.909L1.4 9.606A1.958 1.958 0 012.809 6.2l1.4.071a1.958 1.958 0 002.058-2.06L6.2 2.81A1.959 1.959 0 019.606 1.4z"
-                  ></path>
-                  <circle
-                    class="settings_svg__a"
-                    cx="12"
-                    cy="12.001"
-                    r="4.5"
-                  ></circle>
-                </svg>
+                <svg-icon icon-class="settings" class-name="settings_svg__a" />
               </router-link>
             </div>
           </div>
@@ -273,13 +154,30 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import SvgIcon from "@/components/SvgIcon"
+
 export default {
+  components: {
+    SvgIcon
+  },
+  computed: {
+    ...mapGetters([
+      'routes',
+      'username',
+      'nickname',
+      'avatar',
+    ])
+  },
+  mounted() {
+    console.log(this.avatar)
+  },
   data() {
     return {
       logo:
         "http://localhost:8000/static/uploads/image/37e58b4d0a32bca8c2f3858a678855b1.png",
-      avatar:
-        "http://localhost:8000/static/uploads/image/3cc5519ea30e020ddf20c082e3149d66.png",
+      // avatar:
+      //   "http://localhost:8000/static/uploads/image/3cc5519ea30e020ddf20c082e3149d66.png",
       dropdown1: false,
     };
   },
@@ -498,7 +396,8 @@ export default {
             }
 
             .w3 {
-              width: 1.2rem;
+              width: 1.3rem;
+              height: 2em;
             }
             .mr1 {
               margin-right: 0.4rem;

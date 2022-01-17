@@ -93,7 +93,6 @@ export const webRoutes = [
         name: 'Login',
         meta: {
             title: '登录',
-            layout: 'default',
             sidebar: false,
         },
         component: () => import('../views/Login.vue')
@@ -106,15 +105,22 @@ export const webRoutes = [
         },
         component: () => import('../views/404.vue')
     },
-]
-
-export const asyncRoutes = [
+    {
+        path: '/403',
+        name: '403',
+        meta: {
+            title: '403 Forbidden'
+        },
+        component: () => import('../views/403.vue')
+    },
     {
         path: '/admin/dashboard',
-        name: 'AdminDashBoard',
+        name: 'Dashboard',
         meta: {
             title: '管理台',
             layout: 'admin',
+            icon: 'dashboard',
+            iconClass: '',
             requireAuth: true,
             sidebar: true,
         },
@@ -122,10 +128,12 @@ export const asyncRoutes = [
     },
     {
         path: '/admin/posts',
-        name: 'AdminPosts',
+        name: 'Posts',
         meta: {
             title: '所有博客',
             layout: 'admin',
+            icon: 'edit',
+            iconClass: '',
             requireAuth: true,
             sidebar: true,
         },
@@ -133,10 +141,12 @@ export const asyncRoutes = [
     },
     {
         path: '/admin/pages',
-        name: 'AdminPages',
+        name: 'Pages',
         meta: {
             title: '页面管理',
             layout: 'admin',
+            icon: 'pages',
+            iconClass: 'page_svg__a',
             requireAuth: true,
             sidebar: true,
         },
@@ -144,10 +154,12 @@ export const asyncRoutes = [
     },
     {
         path: '/admin/setting',
-        name: 'AdminSetting',
+        name: 'Settings',
         meta: {
             title: '设置',
             layout: 'admin',
+            icon: 'settings',
+            iconClass: '',
             requireAuth: true,
             sidebar: false,
         },
@@ -155,11 +167,13 @@ export const asyncRoutes = [
     },
     {
         path: '/admin/dicts',
-        name: 'AdminDicts',
+        name: 'Dicts',
         meta: {
             title: '设置',
             layout: 'admin',
             requireAuth: true,
+            icon: 'dicts',
+            iconClass: '',
             sidebar: false,
             roles: ["Admin"]
         },
@@ -167,10 +181,12 @@ export const asyncRoutes = [
     },
     {
         path: '/admin/subject',
-        name: 'AdminSubject',
+        name: 'Subjects',
         meta: {
             title: '专题',
             layout: 'admin',
+            icon: 'subjects',
+            iconClass: '',
             requireAuth: true,
             sidebar: true,
             roles: ["Admin", "Editor"]
@@ -218,7 +234,7 @@ export const asyncRoutes = [
         meta: {
             title: '草稿',
             layout: 'admin',
-            sidebar: true,
+            sidebar: false,
             requireAuth: true,
             roles: ["Admin", "Editor"]
         },
@@ -248,10 +264,12 @@ export const asyncRoutes = [
     },
     {
         path: '/admin/tag',
-        name: 'AdminTag',
+        name: 'Tags',
         meta: {
             title: '标签管理',
             layout: 'admin',
+            icon: 'tags',
+            iconClass: '',
             sidebar: true,
             requireAuth: true,
             roles: ["Admin", "Editor"]
@@ -259,11 +277,24 @@ export const asyncRoutes = [
         component: () => import('../views/admin/Tags.vue')
     },
     {
+        path: '/admin/profile',
+        name: 'Profile',
+        meta: {
+            title: '个人设置',
+            layout: 'admin',
+            sidebar: false,
+            requireAuth: true
+        },
+        component: () => import('../views/admin/Profile.vue')
+    },
+    {
         path: '/admin/users',
-        name: 'AdminUser',
+        name: 'Accounts',
         meta: {
             title: '用户管理',
             layout: 'admin',
+            icon: 'members',
+            iconClass: 'members_svg__cls-1',
             sidebar: true,
             requireAuth: true,
             roles: ["Admin"]
@@ -273,7 +304,7 @@ export const asyncRoutes = [
     { path: '*', redirect: '/404', hidden: true }
 ]
 
-const createRouter = () => new VueRouter({
+const router = new VueRouter({
     mode: 'history',
     linkExactActiveClass: 'active',
     base: process.env.BASE_URL,
@@ -288,37 +319,6 @@ const createRouter = () => new VueRouter({
     },
     routes: webRoutes
 })
-
-const router = createRouter()
-
-export function resetRouter() {
-    const newRouter = createRouter()
-    router.matcher = newRouter.matcher
-}
-
-
-// 判断路由是否有权限
-export function hasRouter(roles, route) {
-    if (route.meta && route.meta.roles) {
-        return roles.some(role => route.meta.roles.includes(role.name) )
-    } else {
-        return true
-    }
-}
-
-
-// 过滤出角色拥有的路由
-export function filterRouter(routes, roles) {
-    const accessRoutes = []
-
-    routes.forEach(route => {
-        if (hasRouter(roles, route)) {
-            accessRoutes.push(route)
-        }
-    })
-    console.log(accessRoutes)
-    return accessRoutes
-}
 
 
 export default router

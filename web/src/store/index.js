@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { login, getUserInfo } from '../api/web/login'
-import {webRoutes, asyncRoutes, filterRouter} from '../router'
+import {webRoutes} from '../router'
 
 Vue.use(Vuex)
 
@@ -13,8 +13,7 @@ export default new Vuex.Store({
     avatar: '',
     roles: [],
     permissions: [],
-    routes: [],
-    addRoutes: [],
+    routes: []
   },
   mutations: {
     SET_TOKEN: (state, token) => {
@@ -39,8 +38,7 @@ export default new Vuex.Store({
       state.permissions = permissions
     },
     SET_ROUTES: (state, routes) => {
-      state.addRoutes = routes
-      state.routes = webRoutes.concat(routes)
+      state.routes = routes
     }
   },
   actions: {
@@ -80,26 +78,13 @@ export default new Vuex.Store({
           commit('SET_EMAIL', email)
           commit('SET_ROLES', roles)
           commit('SET_PERMISSIONS', permissions)
+          commit('SET_ROUTES', webRoutes)
 
           resovle(data)
 
         }).catch(error => {
           reject(error)
         })
-      })
-    },
-    DispatchGenerateRoutes({commit}, roles) {
-      return new Promise(resolve => {
-        let accessedRoutes
-        roles.forEach(role => {
-          if(role.name === 'Admin') {
-            accessedRoutes = asyncRoutes || []
-          } else {
-            accessedRoutes = filterRouter(asyncRoutes, roles)
-          }
-        });
-        commit('SET_ROUTES', accessedRoutes)
-        resolve(accessedRoutes)
       })
     },
     DispatchLogout({commit}) {
@@ -113,14 +98,13 @@ export default new Vuex.Store({
   },
   modules: {},
   getters: {
-    token: state => state.token || localStorage.getItem("token"),
+    token: state => state.token,
     username: state=> state.username,
     nickname: state => state.nickname,
     avatar: state => state.avatar,
     roles: state => state.roles,
     permissions: state => state.permissions,
     routes: state => state.routes,
-    addRoutes: state => state.addRoutes,
   }
 })
 
