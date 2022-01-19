@@ -9,7 +9,6 @@ import AdminLayout from './layout/Admin.vue'
 import EmptyLayout from './layout/Empty.vue'
 import ElementUI from 'element-ui';
 
-
 import 'element-ui/lib/theme-chalk/index.css';
 
 import './permission'
@@ -23,7 +22,6 @@ Vue.component('admin-layout', AdminLayout)
 Vue.component('empty-layout', EmptyLayout)
 Vue.use(Highlight)
 Vue.use(ElementUI);
-
 
 Object.keys(filter).forEach(key => Vue.filter(key, filter[key]))
 
