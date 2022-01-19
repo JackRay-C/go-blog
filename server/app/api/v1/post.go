@@ -26,6 +26,7 @@ func NewPost() *Post {
 	}
 }
 
+// Get 查询单条博客
 func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 	// 1、获取参数
 	id, err := strconv.Atoi(c.Param("id"))
@@ -54,7 +55,7 @@ func (p *Post) Get(c *gin.Context) (*response.Response, error) {
 	return response.Success(v), nil
 }
 
-// 查询当前用户的博客、包括已发布、草稿、公开、私有的
+// List 查询当前用户的博客、包括已发布、草稿、公开、私有的
 func (p *Post) List(c *gin.Context) (*response.Response, error) {
 	// 1、获取参数
 	post := dto.ListPosts{}
@@ -63,24 +64,21 @@ func (p *Post) List(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
 
-	// 2、检查权限，如果有posts-list权限，则查询所有博客，否则只查询当前用户的所有博客
+	// 2、检查是否登录
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin.SetMsg("未登录. ")
+	}
+
+	// 2、检查权限，是否有post-list的权限
+	if !api.CheckPermission(c,"posts", "list") {
+		return nil, response.Forbidden.SetMsg("没有权限. ")
+	}
+
+	// 3、检查权限，如果有posts-list权限，则查询所有博客，否则只查询当前用户的所有博客
 	userId, _ := c.Get("current_user_id")
-	if post.UserId == 0 {
-		if api.CheckAdmin(c) || api.CheckPermission(c, "posts", "list") {
-			post.UserId = 0
-		} else {
-			post.UserId = userId.(int)
-		}
-	}
+	post.UserId = userId.(int)
 
-	if post.UserId != userId {
-		if !api.CheckAdmin(c) || !api.CheckPermission(c, "posts", "list") {
-			// 判断是否是管理员，不是管理员，判断是否有posts-list权限，没有的话，返回错误
-			return nil, response.Forbidden.SetMsg("查询博客失败：没有权限. ")
-		}
-	}
-
-	// 3、查询博客
+	// 4、查询博客
 	page := pager.Pager{
 		PageNo:   request.GetPageNo(c),
 		PageSize: request.GetPageSize(c),
@@ -90,7 +88,7 @@ func (p *Post) List(c *gin.Context) (*response.Response, error) {
 		return nil, response.InternalServerError.SetMsg("分页查询博客失败：%s", err)
 	}
 
-	// 4、返回查询结果
+	// 5、返回查询结果
 	p.log.Infof("分页查询博客成功: [第 %d 页，总页数：%d, 总行数：%d]", page.PageNo, page.PageCount, page.TotalRows)
 	return response.Success(&page), nil
 }
