@@ -9,7 +9,7 @@
       <!-- 用户名 -->
       <div class="input-block">
         <div class="input-prefix">
-          <svg
+          <!-- <svg
             viewBox="0 0 1024 1024"
             class
             width="1.1em"
@@ -23,7 +23,8 @@
               p-id="3188"
               fill="#555555"
             />
-          </svg>
+          </svg> -->
+          <svg-icon icon-class="username" class-name="" />
         </div>
         <input
           type="text"
@@ -41,21 +42,7 @@
       <div class="input-block">
         <div class="input-prefix">
           <i aria-label="图标：password" class="search-icon">
-            <svg
-              viewBox="0 0 1024 1024"
-              class
-              width="1.1em"
-              height="1.1em"
-              fill="currentColor"
-              aria-hidden="true"
-              focusable="false"
-            >
-              <path
-                d="M850.297332 392.945362v-34.263448A349.573909 349.573909 0 0 0 512 0a349.573909 349.573909 0 0 0-338.297332 358.681914v34.263448H78.285472v631.054638h867.429056V392.945362zM256.542143 358.681914A264.565862 264.565862 0 0 1 512 86.742906a264.565862 264.565862 0 0 1 255.457857 271.939008v34.263448H256.542143z m294.925879 467.977976a39.468022 39.468022 0 1 1-78.936044 0v-236.374418a39.468022 39.468022 0 0 1 78.936044 0z"
-                fill="#333333"
-                p-id="2308"
-              />
-            </svg>
+            <svg-icon icon-class="lock" class-name="" />
           </i>
         </div>
         <input
@@ -86,7 +73,12 @@
 
 <script>
 
+import SvgIcon from '@/components/SvgIcon'
+
 export default {
+  components: {
+    SvgIcon
+  },
   name: "Login",
   data() {
     return {
@@ -138,6 +130,9 @@ export default {
         }
         return acc
       }, {})
+    },
+    goHome() {
+      this.$route.push("/")
     }
   },
 };
@@ -147,7 +142,7 @@ export default {
 .login {
   font-weight: 400;
   font-size: 16px;
-  height: 573px;
+  min-height: 573px;
   box-sizing: border-box;
   margin: 120px auto;
   background: #ffffff;

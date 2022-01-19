@@ -1,87 +1,57 @@
 <template>
   <div class="detail fadeInUp">
-    <el-skeleton
-      style="width: 100%"
-      :loading="loading"
-      animated
-      :throttle="500"
-    >
-      <template slot="template" v-if="loading">
-        <el-skeleton-item variant="h1" style="width: 40%" />
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-item: space-between;
-            margin-top: 16px;
-            height: 16px;
-          "
+    <div v-if="!loading">
+      <div class="post-title">
+        <span class="post-title-text">
+          <h1>{{ post.title }}</h1>
+        </span>
+      </div>
+      <div class="post-info">
+        <span class="post-created" v-if="post.updated_at"
+          >更新于:
+          {{ post.updated_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+          &nbsp;&nbsp;</span
         >
-          <el-skeleton-item
-            variant="text"
-            style="width: 80px; margin-right: 16px; height: 30px"
-          />
-
-          <el-skeleton-item
-            variant="text"
-            style="width: 80px; margin-right: 16px; height: 30px"
-          />
-
-          <el-skeleton-item
-            variant="text"
-            style="width: 80px; margin-right: 16px; height: 30px"
-          />
+        <span class="post-created" v-else
+          >发表于:
+          {{ post.created_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+          &nbsp;&nbsp;</span
+        >
+        <div class="devider"></div>
+        <div
+          v-for="tag in tags"
+          :key="tag.id"
+          class="post-tag"
+          @click="goTag(tag.id)"
+        >
+          {{ tag.name }}
         </div>
-        <el-skeleton-item variant="text" style="100%" />
-        <el-skeleton-item variant="text" style="100%" />
-        <el-skeleton-item variant="text" style="100%" />
-        <el-skeleton-item variant="text" style="100%" />
-        <el-skeleton-item variant="text" style="100%" />
-        <el-skeleton-item variant="text" style="100%" />
-      </template>
-      <template v-if="!loading">
-        <div class="post-title">
-          <span class="post-title-text">
-            <h1>{{ post.title }}</h1>
-          </span>
-        </div>
-        <div class="post-info">
-          <span class="post-created" v-if="post.updated_at"
-            >更新于:
-            {{ post.updated_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
-            &nbsp;&nbsp;</span
-          >
-          <span class="post-created" v-else
-            >发表于:
-            {{ post.created_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
-            &nbsp;&nbsp;</span
-          >
-          <div class="devider"></div>
-          <div
-            v-for="tag in tags"
-            :key="tag.id"
-            class="post-tag"
-            @click="goTag(tag.id)"
-          >
-            {{ tag.name }}
-          </div>
-          <div class="devider"></div>
-          <div class="post-tag">阅读量： {{ post.views }}</div>
-        </div>
-        <!-- <div
+        <div class="devider"></div>
+        <div class="post-tag">阅读量： {{ post.views }}</div>
+      </div>
+      <!-- <div
           class="post-content markdown-body"
           v-highlight
           v-html="post.html_content"
         ></div> -->
-        <div id="post-content" class="post-content markdown-body"></div>
-      </template>
-    </el-skeleton>
+      <div
+        id="post-content"
+        v-html="html"
+      ></div>
+    </div>
   </div>
 </template>
 
 <script>
-import VditorPreview from "vditor/dist/method.min";
-import "@/views/admin/vditor/index.scss";
+// import VditorPreview from "vditor/dist/method.min";
+import "@/components/Vditor/css/index.scss";
+// import "github-markdown-css/github-markdown.css";
+import "katex/dist/katex.min.css";
+import 'highlight.js/styles/monokai-sublime.css';
+
+import MarkdownIt from 'markdown-it'
+import hljs from 'markdown-it-highlightjs'
+import latex from 'markdown-it-katex'
 import { getPost } from "@/api/web/post.js";
 
 export default {
@@ -99,56 +69,42 @@ export default {
         likes: 0,
       },
       tags: [],
-      loading: true,
+      loading: false,
     };
   },
-  // created() {
-  //   this.fetchPost();
-  // },
+  created() {
+    this.md = new MarkdownIt()
+    this.md.use(hljs).use(latex)
+  },
   watch: {
     $route: "fetchPost",
-    loading: "preview"
   },
   mounted() {
     this.fetchPost();
+  },
+  computed: {
+    html: function() {
+      let res = this.md.render(this.post.markdown_content)
+
+      return '<div class="markdown-body">' + res + '</div>'
+    }
   },
   methods: {
     fetchPost() {
       this.post = null;
       this.loading = true;
+      this.load = this.$loading();
       getPost(this.$route.params.id)
         .then((res) => {
-          console.log(res);
           if (res.code === 200 && res.data) {
             this.post = res.data;
             this.loading = false;
-            console.log("获取数据完成");
+            this.load.close()
           }
         })
         .catch((err) => {
           console.log(err);
         });
-    },
-    preview() {
-      console.log(document)
-      console.log()
-      console.log(document.getElementById("post-content"));
-      VditorPreview.preview(
-        document.getElementById("post-content"),
-        this.post.markdown_content,
-        {
-          mode: "light",
-          anchor: 0,
-          hljs: {
-            enable: true,
-            lineNumber: true,
-            style: "monokai",
-          },
-          speech: {
-            enable: false,
-          },
-        }
-      );
     },
     goTag(id) {
       this.$router.push(`/tag/${id}`);
@@ -228,22 +184,6 @@ export default {
 .fadeInUp {
   animation: fadeInUp 0.5s cubic-bezier(0.075, 0.82, 0.165, 1);
 }
-
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translate(0, 15%, 0);
-    -webkit-transform: translate3d(0, 15%, 0);
-    -ms-transform: translate3d(0, 15%, 0);
-  }
-
-  100% {
-    opacity: 1;
-    -ms-transform: none;
-    -webkit-transform: none;
-    transform: none;
-  }
-}
 </style>
 
 <style lang="scss">
@@ -255,6 +195,14 @@ export default {
   box-sizing: border-box;
   font-weight: 400;
   margin: 8px 0 !important;
+
+  // .katex .vlist>span {
+  //   top: -1.263em !important;
+  // }
+  // .katex .vlist>span>span {
+  //   font-size: 0.8em;
+  // }
+
 
   img {
     width: 100%;
@@ -329,4 +277,5 @@ export default {
 .hljs {
   padding: 15px 15px;
 }
+
 </style>

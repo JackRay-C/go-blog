@@ -12,7 +12,7 @@ export default {
 
 <style scoped>
 #home {
-  background: #f6f7fa;
+  /* background: #f6f7fa; */
   width: 100vw;
   height: 100vh;
 }

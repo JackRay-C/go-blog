@@ -128,12 +128,12 @@
                     </li>
                     <li class="divider"></li>
                     <li>
-                      <router-link to="/admin/profile" class="dropdown-item"
+                      <router-link to="/admin/profile" @click="dropdown1 = !dropdown1" class="dropdown-item"
                         >Your profile</router-link
                       >
                     </li>
                     <li>
-                      <router-link to="/admin/profile" class="dropdown-item"
+                      <router-link to="/admin/logout" @click="logout" class="dropdown-item"
                         >Sign out</router-link
                       >
                     </li>
@@ -181,6 +181,15 @@ export default {
       dropdown1: false,
     };
   },
+  methods: {
+    logout() {
+      this.dropdown1 = !this.dropdown1
+      this.$sotre.dispatch('DispatchLogout').then(res=> {
+        console.log(res)
+        this.$route.push("/login")
+      })
+    }
+  }
 };
 </script>
 
