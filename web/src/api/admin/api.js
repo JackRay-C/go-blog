@@ -4,7 +4,8 @@ const api = {
     tags: '/api/v1/admin/tags',
     subjects: '/api/v1/admin/comments',
     files: '/api/v1/admin/files',
-    dicts: 'api/v1/admin/dicts'
+    dicts: '/api/v1/admin/dicts',
+    drafts: '/api/v1/admin/drafts'
 }
 
 
