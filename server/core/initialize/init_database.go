@@ -46,6 +46,9 @@ func initTable() {
 		&domain.Dict{},
 		&domain.Permissions{},
 		&domain.RolesPermissions{},
+		&domain.Repository{},
+		&domain.History{},
+		&domain.Head{},
 	)
 	if err != nil {
 		panic(fmt.Sprintf("初始化数据库表错误： %s\n", err))

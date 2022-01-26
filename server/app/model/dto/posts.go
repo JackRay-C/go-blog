@@ -80,14 +80,11 @@ func (l *PutPosts) String() string {
 }
 
 
-// 为某个专题添加posts
-type AddOneSubjectsAllPosts struct {
-	Posts []*domain.Post `json:"posts"`
-}
 
-type AddComment struct {
-	Email string `json:"email"`
-	Nickname string `json:"nickname"`
-	ParentId int `json:"parent_id"`
-	Comment string `json:"comment"`
+type Query struct {
+	Status     int    `form:"status"`
+	Visibility int    `form:"visibility"`
+	SubjectID  int    `form:"subject_id"`
+	UserId     int    `form:"user_id"`
+	Search     string `form:"search"`
 }

@@ -29,44 +29,50 @@ func (p *PostService) SelectOne(post *domain.Post) (*vo.VPosts, error) {
 		return nil, db.Error
 	}
 
-	// 2、根据ID查询tags
+
 	var tags []*domain.Tag
+	var user *domain.User
+	var postCoverImage *domain.File
+	var userAvatar *domain.File
+	var subject *domain.Subject
+	var subjectAvatar *domain.File
+	var subjectCoverImage *domain.File
+
+	// 2、根据ID查询tags
 	if err := global.DB.Table("tags").Joins("left join posts_tags on tags.id=posts_tags.tag_id").Where("posts_tags.post_id=?", post.ID).Find(&tags).Error; err != nil {
 		return nil, err
 	}
 
-	// 3、根据ID查询subject
-	var subject *domain.Subject
-	if post.SubjectId != 0 {
-		if err := global.DB.Model(&domain.Subject{}).Where("id=?", post.SubjectId).First(&subject).Error; err != nil {
-			return nil, err
-		}
-	}
-
-	// 4、根据ID查询user
-	var user *domain.User
+	// 3、查询用户信息
 	if err := global.DB.Model(&domain.User{}).Where("id=?", post.UserId).First(&user).Error; err != nil {
 		return nil, err
 	}
 
 	// 根据id查询封面图片
-	var postCoverImage *domain.File
-	if err := global.DB.Model(&domain.File{}).Where("id=?", post.CoverImageId).First(&postCoverImage).Error; err != nil {
-		return nil, err
+	if post.CoverImageId != 0 {
+		if err := global.DB.Model(&domain.File{}).Where("id=?", post.CoverImageId).First(&postCoverImage).Error; err != nil {
+			return nil, err
+		}
 	}
 
-	var userAvatar *domain.File
-	if err := global.DB.Model(&domain.File{}).Where("id=?", post.CoverImageId).First(&userAvatar).Error; err != nil {
-		return nil, err
+	// 查询用户头像
+	if user != nil {
+		if err := global.DB.Model(&domain.File{}).Where("id=?", user.Avatar).First(&userAvatar).Error; err != nil {
+			return nil, err
+		}
 	}
 
-	var subjectAvatar *domain.File
-	var subjectCoverImage *domain.File
-	if err := global.DB.Model(&domain.File{}).Where("id=?", post.CoverImageId).First(&subjectAvatar).Error; err != nil {
-		return nil, err
-	}
-	if err := global.DB.Model(&domain.File{}).Where("id=?", post.CoverImageId).First(&subjectCoverImage).Error; err != nil {
-		return nil, err
+	// 查询专题信息
+	if post.SubjectId != 0 {
+		if err := global.DB.Model(&domain.Subject{}).Where("id=?", post.SubjectId).First(&subject).Error; err != nil {
+			return nil, err
+		}
+		if err := global.DB.Model(&domain.File{}).Where("id=?", subject.Avatar).First(&subjectAvatar).Error; err != nil {
+			return nil, err
+		}
+		if err := global.DB.Model(&domain.File{}).Where("id=?", subject.CoverImage).First(&subjectCoverImage).Error; err != nil {
+			return nil, err
+		}
 	}
 
 	getPosts := &vo.VPosts{

@@ -36,3 +36,4 @@ func (l *VPosts) string() string {
 	}
 	return string(marshal)
 }
+

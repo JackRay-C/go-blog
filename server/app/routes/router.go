@@ -64,5 +64,10 @@ func NewRouters(setting *setting.App) *gin.Engine {
 		InitPermissionRouter(consoleGroup)
 	}
 
+	consoleGroupV2 := r.Group("/api/v2/admin")
+	consoleGroupV2.Use(middleware.Permission())
+	{
+		InitV2PostRouter(consoleGroupV2)
+	}
 	return r
 }
