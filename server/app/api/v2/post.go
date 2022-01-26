@@ -194,21 +194,16 @@ func (p *Post) Pull(c *gin.Context) (*response.Response, error) {
 
 	// 4、根据id查询history
 	histories := make([]*domain.History, 0)
-	if err := p.historyService.SelectAllByID(&domain.History{HeadID: id}, histories); err != nil {
-		return nil, response.InternalServerError.SetMsg("%s", err)
-	}
+
 
 	// 5、根据head查询当前repository
-	repository := &domain.Repository{ID: head.RepositoryID}
-	if err := p.repositoryService.SelectOne(repository); err != nil {
-		return nil, response.InternalServerError.SetMsg("%s", err)
-	}
+
 
 	// 6、组装数据返回
 	post := &vo.Posts{
 		Head:       head,
 		History:    histories,
-		Repository: repository,
+		Repository: nil,
 	}
 
 	return response.Success(post), nil

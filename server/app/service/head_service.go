@@ -23,6 +23,8 @@ func (s *HeadService) CreateOne(head *domain.Head) error {
 	return global.DB.Model(&domain.Head{}).Create(head).Error
 }
 
+
+// SelectOne
 func (s *HeadService) SelectOne(head *domain.Head) error {
 	db := global.DB.Model(&domain.Head{}).Where("id=?", head.ID)
 	if head.UserID != 0 {

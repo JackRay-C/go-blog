@@ -7,7 +7,6 @@ import (
 )
 
 type HistoryService struct {
-
 }
 
 // NewHistoryService constructor function
@@ -24,12 +23,22 @@ func (s *HistoryService) CreateOne(history *domain.History) error {
 	if err := checkRepositoryId(history); err != nil {
 		return err
 	}
+
+	// 查询是否存在headId并且已经发布的版本，如果存在则设置prev为已发布的版本?
+	var head *domain.Head
+	if err := global.DB.Model(&domain.Head{}).Where("id=?", history.HeadID).First(&head).Error; err != nil {
+		return err
+	}
+	if head.Status == 3 {
+		history.PrevRepositoryID = head.RepositoryID
+	}
+
 	return global.DB.Model(&domain.History{}).Create(history).Error
 }
 
 // SelectOne select one history from database filter by param history
 // sql: select * from history where head_id=? and repository_id=?
-func (s *HistoryService) SelectOne(history *domain.History) error  {
+func (s *HistoryService) SelectOne(history *domain.History) error {
 	if err := checkHeadId(history); err != nil {
 		return err
 	}
@@ -49,12 +58,16 @@ func (s *HistoryService) SelectList(history *domain.History, histories *[]*domai
 	return global.DB.Model(&domain.History{}).Where("head_id=?", history.HeadID).Find(&histories).Error
 }
 
-func (s *HistoryService)   {
-
+// UpdateOne update one history (exp: staged、commit、publish)
+func (s *HistoryService) UpdateOne(history *domain.History) error {
+	if err := checkHeadId(history); err != nil {
+		return err
+	}
+	if err := checkRepositoryId(history); err != nil {
+		return err
+	}
+	return global.DB.Model(&domain.History{}).Where("head_id=? and repository_id=?", history.HeadID, history.RepositoryID).Updates(history).Error
 }
-
-
-
 
 func checkRepositoryId(history *domain.History) error {
 	if history.RepositoryID == 0 {
@@ -62,7 +75,7 @@ func checkRepositoryId(history *domain.History) error {
 	}
 	return nil
 }
-func checkHeadId(history *domain.History) error  {
+func checkHeadId(history *domain.History) error {
 	if history.HeadID == 0 {
 		return errors.New("history's head_id is not nil. ")
 	}

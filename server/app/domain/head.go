@@ -13,9 +13,11 @@ type Head struct {
 	Status       int            `json:"status"`                                                               // 博客状态 1、已暂存 2、已提交 3、已发布
 	SubjectID    int            `json:"subject_id" gorm:"type:int;index:idx_subject_id"`                      // 专题ID
 	CoverImageId int            `json:"cover_image_id"`                                                       // 封面图片ID
+	Likes        int            `json:"like"`                                                                 // 点赞
+	Views        int            `json:"views"`                                                                // 阅读量
 	UserID       int            `json:"user_id" gorm:"type:int;index:idx_user_id"`                            // 用户ID
-	CreatedAt    time.Time     `json:"created_at" time_format:"2006-01-02T15:04:05.999999999Z07:00"`         // 创建时间
-	UpdatedAt    time.Time     `json:"updated_at" time_format:"2006-01-02T15:04:05.999999999Z07:00"`         // 更新时间
+	CreatedAt    time.Time      `json:"created_at" time_format:"2006-01-02T15:04:05.999999999Z07:00"`         // 创建时间
+	UpdatedAt    time.Time      `json:"updated_at" time_format:"2006-01-02T15:04:05.999999999Z07:00"`         // 更新时间
 	DeletedAt    gorm.DeletedAt `json:"deleted_at" time_format:"2006-01-02T15:04:05.999999999Z07:00"`         // 删除
 }
 

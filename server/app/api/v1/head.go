@@ -71,10 +71,12 @@ func (h *Head) List(c *gin.Context) (*response.Response, error) {
 	} else {
 		query.UserId = userId.(int)
 	}
+
 	page := pager.Pager{
 		PageNo:   request.GetPageNo(c),
 		PageSize: request.GetPageSize(c),
 	}
+
 	// 3、查询博客列表
 	if err := h.headService.SelectList(&page, query); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)

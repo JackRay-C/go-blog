@@ -87,7 +87,7 @@
                 <span class="meta">
                   by
                   <span class="meta-author">
-                    {{ post.user_id }}
+                    {{ post.user.username }}
                   </span>
                   •
                   <span class="meta-date">
