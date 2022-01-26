@@ -76,12 +76,12 @@
 
 <script>
 import Vditor from "vditor";
-import "@/views/admin/vditor/index.scss";
+import "@/components/Vditor/css/index.scss";
 import debounce from "lodash.debounce";
 import { getPost, addPost, putPost } from "@/api/admin/post";
 import api from "@/api/admin/api";
 
-export default {
+export default {  
   name: "editor",
   data() {
     return {
@@ -290,7 +290,6 @@ export default {
       });
     },
     fetchPost() {
-      this.loading = true;
       if (this.$route.params.id && /^\d+$/.test(this.$route.params.id)) {
         this.pullPost();
       } else {
@@ -328,6 +327,7 @@ export default {
     },
     initPost() {
       // 初始化博客
+      this.$loading()
       this.post = {
         title: "新建博客",
         markdown_content: "",
@@ -341,6 +341,7 @@ export default {
           console.log(res);
           if (res.code === 200) {
             this.post.id = res.data.id;
+            this.$loading.close()
             this.$router.push("/admin/edit/" + res.data.id);
           } else {
             this.$notify({
@@ -355,6 +356,7 @@ export default {
     },
     pullPost() {
       // 请求博客
+      this.loading = true
       getPost(this.$route.params.id).then((res) => {
         this.loading = false;
         if (res.code === 200) {
