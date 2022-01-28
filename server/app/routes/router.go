@@ -2,6 +2,8 @@ package routes
 
 import (
 	"blog/app/middleware"
+	"blog/app/routes/v1"
+	"blog/app/routes/v2"
 	"blog/core/setting"
 	_ "embed"
 	"github.com/gin-contrib/pprof"
@@ -40,34 +42,34 @@ func NewRouters(setting *setting.App) *gin.Engine {
 
 	webGroup := r.Group("/api/v1")
 	{
-		InitAuthRouter(webGroup)
-		InitPublicPostRouter(webGroup)
-		InitPublicSubjectRouter(webGroup)
-		InitPublicUserRouter(webGroup)
-		InitPublicTagRouter(webGroup)
-		InitPublicFileRouter(webGroup)
-		InitPublicDictRouter(webGroup)
-		InitPublicCommentRouter(webGroup)
+		v1.InitAuthRouter(webGroup)
+		v1.InitPublicPostRouter(webGroup)
+		v1.InitPublicSubjectRouter(webGroup)
+		v1.InitPublicUserRouter(webGroup)
+		v1.InitPublicTagRouter(webGroup)
+		v1.InitPublicFileRouter(webGroup)
+		v1.InitPublicDictRouter(webGroup)
+		v1.InitPublicCommentRouter(webGroup)
 	}
 
 	consoleGroup := r.Group("/api/v1/admin/")
 	consoleGroup.Use(middleware.Permission()) // 认证及鉴权中间件
 	{
-		InitUserRouter(consoleGroup)
-		InitPostRouter(consoleGroup)
-		InitTagRouter(consoleGroup)
-		InitSubjectRouter(consoleGroup)
-		InitFileRouter(consoleGroup)
-		InitRolesRouter(consoleGroup)
-		InitDictRouter(consoleGroup)
-		InitCommentRouter(consoleGroup)
-		InitPermissionRouter(consoleGroup)
+		v1.InitUserRouter(consoleGroup)
+		v1.InitPostRouter(consoleGroup)
+		v1.InitTagRouter(consoleGroup)
+		v1.InitSubjectRouter(consoleGroup)
+		v1.InitFileRouter(consoleGroup)
+		v1.InitRolesRouter(consoleGroup)
+		v1.InitDictRouter(consoleGroup)
+		v1.InitCommentRouter(consoleGroup)
+		v1.InitPermissionRouter(consoleGroup)
 	}
 
 	consoleGroupV2 := r.Group("/api/v2/admin")
 	consoleGroupV2.Use(middleware.Permission())
 	{
-		InitV2PostRouter(consoleGroupV2)
+		v2.InitV2PostRouter(consoleGroupV2)
 	}
 	return r
 }

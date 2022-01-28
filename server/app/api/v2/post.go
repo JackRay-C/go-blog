@@ -3,7 +3,7 @@ package v2
 import (
 	"blog/app/api"
 	"blog/app/domain"
-	"blog/app/model/v2/vo"
+	"blog/app/model/vo"
 	"blog/app/response"
 	"blog/app/service"
 	"blog/core/global"
@@ -128,10 +128,8 @@ func (p *Post) Initialize(c *gin.Context) (*response.Response, error) {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 
-	posts := &vo.Posts{
-		Head:       head,
-		History:    []*domain.History{history},
-		Repository: repository,
+	posts := &vo.VPosts{
+
 	}
 
 	return response.Success(posts), nil
@@ -193,17 +191,15 @@ func (p *Post) Pull(c *gin.Context) (*response.Response, error) {
 	}
 
 	// 4、根据id查询history
-	histories := make([]*domain.History, 0)
+	//histories := make([]*domain.History, 0)
 
 
 	// 5、根据head查询当前repository
 
 
 	// 6、组装数据返回
-	post := &vo.Posts{
-		Head:       head,
-		History:    histories,
-		Repository: nil,
+	post := &vo.VPost{
+
 	}
 
 	return response.Success(post), nil

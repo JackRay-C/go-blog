@@ -1,4 +1,4 @@
-package routes
+package wrapper
 
 import (
 	"blog/app/response"

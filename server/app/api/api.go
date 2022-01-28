@@ -28,6 +28,7 @@ func CheckPermission(c *gin.Context, objectType string, actionType string) bool 
 	return false
 }
 
+// CheckLogin 判断是否登录
 func CheckLogin(c *gin.Context) bool  {
 	isLogin, exists := c.Get("is_login")
 	if !exists || !isLogin.(bool) {
@@ -36,7 +37,7 @@ func CheckLogin(c *gin.Context) bool  {
 	return true
 }
 
-// 判断是否是管理员
+// CheckAdmin 判断是否是管理员
 func CheckAdmin(c *gin.Context) bool  {
 	roles, exists := c.Get("current_user_roles")
 	if exists {

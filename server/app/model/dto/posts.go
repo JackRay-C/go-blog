@@ -85,6 +85,6 @@ type Query struct {
 	Status     int    `form:"status"`
 	Visibility int    `form:"visibility"`
 	SubjectID  int    `form:"subject_id"`
-	UserId     int    `form:"user_id"`
+	UserID     int    `form:"user_id"`
 	Search     string `form:"search"`
 }

@@ -38,8 +38,19 @@ func (h *Head) Get(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
 
-	// 3、查询head
+
 	head := &domain.Head{ID: id}
+	// 3、获取当前用户ID，判断是否是管理员
+	userId, _ := c.Get("current_user_id")
+	if api.CheckAdmin(c) {
+		// 如果是管理员的话，查询所有博客
+		head.UserID = 0
+	} else {
+		// 否则，只查询当前用户的博客
+		head.UserID = userId.(int)
+	}
+
+	// 4、查询head
 	if err := h.headService.SelectOne(head); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
@@ -65,11 +76,14 @@ func (h *Head) List(c *gin.Context) (*response.Response, error) {
 		return nil, response.InvalidParams.SetMsg("%s", err)
 	}
 
+	// 3、获取当前用户ID，判断是否是管理员
 	userId, _ := c.Get("current_user_id")
-	if !api.CheckAdmin(c) {
-		query.UserId = 0
+	if api.CheckAdmin(c) {
+		// 如果是管理员的话，查询所有博客
+		query.UserID = 0
 	} else {
-		query.UserId = userId.(int)
+		// 否则，只查询当前用户的博客
+		query.UserID = userId.(int)
 	}
 
 	page := pager.Pager{

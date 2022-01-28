@@ -1,7 +1,8 @@
-package routes
+package v1
 
 import (
 	v1 "blog/app/api/v1"
+	"blog/app/utils/wrapper"
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,9 +11,9 @@ func InitDictRouter(group *gin.RouterGroup) {
 	{
 		dict := v1.NewDict()
 
-		dictGroup.POST("", Wrapper(dict.Post))
-		dictGroup.DELETE("/:id", Wrapper(dict.Delete))
-		dictGroup.PUT("/:id", Wrapper(dict.Put))
+		dictGroup.POST("", wrapper.Wrapper(dict.Post))
+		dictGroup.DELETE("/:id", wrapper.Wrapper(dict.Delete))
+		dictGroup.PUT("/:id", wrapper.Wrapper(dict.Put))
 	}
 }
 
@@ -20,8 +21,8 @@ func InitPublicDictRouter(group *gin.RouterGroup) {
 	dictGroup := group.Group("dicts")
 	{
 		dict := v1.NewDict()
-		dictGroup.GET("", Wrapper(dict.List))
-		dictGroup.GET("/:id", Wrapper(dict.Get))
+		dictGroup.GET("", wrapper.Wrapper(dict.List))
+		dictGroup.GET("/:id", wrapper.Wrapper(dict.Get))
 
 	}
 }
