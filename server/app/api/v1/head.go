@@ -66,7 +66,7 @@ func (h *Head) List(c *gin.Context) (*response.Response, error) {
 	if !api.CheckLogin(c) {
 		return nil, response.NotLogin.SetMsg("未登录. ")
 	}
-	if !api.CheckPermission(c, "posts", "lists") {
+	if !api.CheckPermission(c, "posts", "list") {
 		return nil, response.Forbidden.SetMsg("没有列表权限. ")
 	}
 
@@ -97,4 +97,59 @@ func (h *Head) List(c *gin.Context) (*response.Response, error) {
 	}
 
 	return response.Success(&page), nil
+}
+
+// Post 增加一个head
+func (h *Head) Post(c *gin.Context) (*response.Response, error) {
+	// 1、检查是否登录
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin
+	}
+
+	// 2、检查是否有权限
+	if !api.CheckPermission(c, "posts", "add") {
+		return nil, response.Forbidden
+	}
+
+	// 3、获取参数并结构化
+	var head *domain.Head
+	userID, _ := c.Get("current_user_id")
+	if err := c.ShouldBindJSON(&head); err != nil {
+		return nil, response.InvalidParams.SetMsg("%s", err)
+	}
+	head.UserID = userID.(int)
+
+	// 4、新增
+	if err := h.headService.CreateOne(head); err != nil {
+		return nil, response.InternalServerError.SetMsg("%s", err)
+	}
+	return response.Success(""),nil
+}
+
+// Put 修改head信息
+func (h *Head) Put(c *gin.Context) (*response.Response, error) {
+	// 1、检查是否登录
+	if !api.CheckLogin(c) {
+		return nil, response.NotLogin
+	}
+	// 2、检查是否有更新权限
+	if !api.CheckPermission(c, "posts", "update") {
+		return nil, response.Forbidden
+	}
+
+	// 3、获取信息
+	var head *domain.Head
+	userID, _ := c.Get("current_user_id")
+	if err := c.ShouldBindJSON(&head); err != nil {
+		return nil, response.InvalidParams.SetMsg("%s", err)
+	}
+	head.UserID = userID.(int)
+
+	// 4、更新
+
+	return response.Success(""),nil
+}
+
+func (h *Head) Delete(c *gin.Context) (*response.Response, error) {
+	return response.Success(""),nil
 }

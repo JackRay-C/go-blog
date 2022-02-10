@@ -64,6 +64,7 @@ func NewRouters(setting *setting.App) *gin.Engine {
 		v1.InitDictRouter(consoleGroup)
 		v1.InitCommentRouter(consoleGroup)
 		v1.InitPermissionRouter(consoleGroup)
+		v1.InitHeadsRouter(consoleGroup)
 	}
 
 	consoleGroupV2 := r.Group("/api/v2/admin")
