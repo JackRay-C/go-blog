@@ -33,7 +33,7 @@ var (
 	GitCommit    = ""
 	BuildVersion = "v1.0.0"
 	Compiler     = "gc"
-	GitVersion   = ""
+	GitVersion   = "v1.321.1"
 	Platform     = runtime.GOOS + "/" + runtime.GOARCH
 )
 
