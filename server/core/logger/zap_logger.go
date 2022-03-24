@@ -29,6 +29,13 @@ func NewZapLogger(zapSetting *setting.Zap) (logger *ZapLogger) {
 		logger = &ZapLogger{newLogger: zap.New(getZapEncoderCore(zapSetting))}
 	}
 
+	defer func(newLogger *zap.Logger) {
+		err := newLogger.Sync()
+		if err != nil {
+			return
+		}
+	}(logger.newLogger)
+
 	if zapSetting.ShowLine {
 		logger.newLogger.WithOptions(zap.AddCaller())
 	}
@@ -61,7 +68,7 @@ func getZapEncoderConfig(zapSetting *setting.Zap) (config zapcore.EncoderConfig)
 		MessageKey:     "message",
 		LevelKey:       "level",
 		TimeKey:        "time",
-		NameKey:        "logger",
+		NameKey:        "logs",
 		CallerKey:      "caller",
 		StacktraceKey:  zapSetting.StacktraceKey,
 		LineEnding:     zapcore.DefaultLineEnding,

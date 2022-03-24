@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"blog/app/domain"
+	"blog/app/model/po"
 	"encoding/json"
 )
 
@@ -52,5 +52,5 @@ type PutUser struct {
 }
 
 type PostUserRoles struct {
-	Roles []*domain.Role `json:"roles"`
+	Roles []*po.Role `json:"roles"`
 }

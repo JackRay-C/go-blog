@@ -1,8 +1,8 @@
 package service
 
 import (
-	"blog/app/domain"
 	"blog/app/model/dto"
+	"blog/app/model/po"
 	"blog/app/model/vo"
 	"blog/app/pager"
 	"blog/core/global"
@@ -28,23 +28,23 @@ func NewSubjectService() *SubjectService {
 
 
 func (s *SubjectService) SelectOneById(id int) (*vo.VSubject, error) {
-	var subject *domain.Subject
-	if err := global.DB.Model(&domain.Subject{}).Where("id=?", id).First(&subject).Error; err != nil {
+	var subject *po.Subject
+	if err := global.DB.Model(&po.Subject{}).Where("id=?", id).First(&subject).Error; err != nil {
 		return nil, err
 	}
 
-	var avatar *domain.File
-	if err := global.DB.Model(&domain.File{}).Where("id=?", subject.Avatar).First(&avatar).Error; err != nil {
+	var avatar *po.File
+	if err := global.DB.Model(&po.File{}).Where("id=?", subject.Avatar).First(&avatar).Error; err != nil {
 		return nil, err
 	}
 
-	var coverImage *domain.File
-	if err := global.DB.Model(&domain.File{}).Where("id=?", subject.CoverImage).First(&coverImage).Error; err != nil {
+	var coverImage *po.File
+	if err := global.DB.Model(&po.File{}).Where("id=?", subject.CoverImage).First(&coverImage).Error; err != nil {
 		return nil, err
 	}
 
 	service := NewUserService()
-	if user, err := service.SelectOne(&domain.User{ID: subject.UserID}); err != nil {
+	if user, err := service.SelectOne(&po.User{ID: subject.UserID}); err != nil {
 		return nil, err
 	} else {
 		return &vo.VSubject{
@@ -63,14 +63,14 @@ func (s *SubjectService) SelectOneById(id int) (*vo.VSubject, error) {
 }
 
 func (s *SubjectService) SelectAllWeb(c *gin.Context, page *pager.Pager, filter *dto.ListSubjects) error {
-	var subjects []*domain.Subject
+	var subjects []*po.Subject
 	var vSubjects []*vo.VSubject
 
 	offset := (page.PageNo - 1) * page.PageSize
 	limit := page.PageSize
 	var count int64
 
-	db := global.DB.Model(&domain.Subject{})
+	db := global.DB.Model(&po.Subject{})
 
 	// 判断是否登录
 	isLogin, exists := c.Get("is_login")
@@ -123,7 +123,7 @@ func (s *SubjectService) SelectAllWeb(c *gin.Context, page *pager.Pager, filter 
 }
 
 func (s *SubjectService) SelectAll(c *gin.Context,page *pager.Pager, filter *dto.ListSubjects) error {
-	var subjects []*domain.Subject
+	var subjects []*po.Subject
 	var vSubjects []*vo.VSubject
 
 	offset := (page.PageNo - 1) * page.PageSize
@@ -131,7 +131,7 @@ func (s *SubjectService) SelectAll(c *gin.Context,page *pager.Pager, filter *dto
 	var count int64
 
 	userId, _ := c.Get("current_user_id")
-	db := global.DB.Model(&domain.Subject{}).Where("user_id=?", userId)
+	db := global.DB.Model(&po.Subject{}).Where("user_id=?", userId)
 
 	if filter.Visibility != 0 {
 		db.Where("visibility=?", filter.Visibility)
@@ -167,11 +167,11 @@ func (s *SubjectService) SelectAll(c *gin.Context,page *pager.Pager, filter *dto
 
 
 func (s *SubjectService) DeleteOne(c *gin.Context, subjectId int) error {
-	var subject *domain.Subject
+	var subject *po.Subject
 
 	// 1、获取user_id
 	userId, _ := c.Get("current_user_id")
-	db := global.DB.Model(&domain.Subject{})
+	db := global.DB.Model(&po.Subject{})
 
 	// 2、根据user_id和subject_id查询专题
 	if err := db.Where("user_id=? and id=?", userId, subjectId).First(&subject).Error; err  != nil {
@@ -186,20 +186,20 @@ func (s *SubjectService) DeleteOne(c *gin.Context, subjectId int) error {
 	return nil
 }
 
-func (s *SubjectService) CreateOne(c *gin.Context, param *dto.AddSubjects) (*domain.Subject, error) {
+func (s *SubjectService) CreateOne(c *gin.Context, param *dto.AddSubjects) (*po.Subject, error) {
 	// 1、获取当前用户
 	userId, _ := c.Get("current_user_id")
 
 	// 2、查询是否存在同名专题
-	db := global.DB.Model(&domain.Subject{})
+	db := global.DB.Model(&po.Subject{})
 
-	var subject *domain.Subject
+	var subject *po.Subject
 	if err := db.Where("title=?", param.Title).First(&subject).Error; err != gorm.ErrRecordNotFound {
 		return nil, errors.New("该专题已存在. ")
 	}
 
 	// 3、创建专题
-	subject = &domain.Subject{
+	subject = &po.Subject{
 		Title:       param.Title,
 		Avatar:      param.AvatarId,
 		CoverImage:  param.CoverImageId,
@@ -215,12 +215,12 @@ func (s *SubjectService) CreateOne(c *gin.Context, param *dto.AddSubjects) (*dom
 	return subject, nil
 }
 
-func (s *SubjectService) SaveOne(c *gin.Context, param *dto.PutSubjects) (*domain.Subject, error) {
+func (s *SubjectService) SaveOne(c *gin.Context, param *dto.PutSubjects) (*po.Subject, error) {
 	// 1、获取当前用户
 	userId, _ := c.Get("current_user_id")
 
-	db := global.DB.Model(&domain.Subject{})
-	var subject *domain.Subject
+	db := global.DB.Model(&po.Subject{})
+	var subject *po.Subject
 
 	// 2、查询是否存在同名专题
 	if err := db.Where("title=?", param.Title).First(&subject).Error; err != gorm.ErrRecordNotFound {
@@ -249,9 +249,9 @@ func (s *SubjectService) SaveOne(c *gin.Context, param *dto.PutSubjects) (*domai
 }
 
 func (s *SubjectService) IncrementViews(id int) error  {
-	return global.DB.Model(&domain.Subject{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views + 1")).Error
+	return global.DB.Model(&po.Subject{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views + 1")).Error
 }
 
 func (s *SubjectService) DecrementViews(id int) error   {
-	return global.DB.Model(&domain.Subject{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views - 1")).Error
+	return global.DB.Model(&po.Subject{}).Omit("updated_at").Where("id=?", id).Update("views", gorm.Expr("views - 1")).Error
 }

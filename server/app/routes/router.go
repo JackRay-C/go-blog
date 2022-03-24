@@ -2,6 +2,7 @@ package routes
 
 import (
 	"blog/app/middleware"
+	v12 "blog/app/routes/console/v1"
 	"blog/app/routes/v1"
 	"blog/app/routes/v2"
 	"blog/core/setting"
@@ -42,7 +43,6 @@ func NewRouters(setting *setting.App) *gin.Engine {
 
 	webGroup := r.Group("/api/v1")
 	{
-		v1.InitAuthRouter(webGroup)
 		v1.InitPublicPostRouter(webGroup)
 		v1.InitPublicSubjectRouter(webGroup)
 		v1.InitPublicUserRouter(webGroup)
@@ -50,6 +50,7 @@ func NewRouters(setting *setting.App) *gin.Engine {
 		v1.InitPublicFileRouter(webGroup)
 		v1.InitPublicDictRouter(webGroup)
 		v1.InitPublicCommentRouter(webGroup)
+		v12.InitAuthRouter(webGroup)
 	}
 
 	consoleGroup := r.Group("/api/v1/admin/")
@@ -65,6 +66,8 @@ func NewRouters(setting *setting.App) *gin.Engine {
 		v1.InitCommentRouter(consoleGroup)
 		v1.InitPermissionRouter(consoleGroup)
 		v1.InitHeadsRouter(consoleGroup)
+		v1.InitRepositoryRouter(consoleGroup)
+		v1.InitHistoryRouter(consoleGroup)
 	}
 
 	consoleGroupV2 := r.Group("/api/v2/admin")

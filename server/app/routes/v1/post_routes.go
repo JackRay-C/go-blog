@@ -1,8 +1,8 @@
 package v1
 
 import (
-	v1 "blog/app/api/v1"
-	"blog/app/api/web"
+	console "blog/app/api/console/v1"
+	web "blog/app/api/web/v1"
 	"blog/app/utils/wrapper"
 
 	"github.com/gin-gonic/gin"
@@ -11,7 +11,7 @@ import (
 func InitPostRouter(group *gin.RouterGroup) {
 	postGroup := group.Group("posts")
 	{
-		post := v1.NewPost()
+		post := console.NewPost()
 
 		postGroup.GET("", wrapper.Wrapper(post.List))
 		postGroup.POST("", wrapper.Wrapper(post.Post))
@@ -27,7 +27,7 @@ func InitPublicPostRouter(group *gin.RouterGroup) {
 		post := web.NewPost()
 		routerGroup.GET("", wrapper.Wrapper(post.List))
 		routerGroup.GET("/:id", wrapper.Wrapper(post.Get))
-		routerGroup.POST("/:id/like", wrapper.Wrapper(post.Like))
+
 
 	}
 }

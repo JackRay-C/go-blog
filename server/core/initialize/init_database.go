@@ -1,8 +1,8 @@
 package initialize
 
 import (
-	"blog/app/domain"
 	"blog/app/encrypt"
+	"blog/app/model/po"
 	"blog/core/database/mysql"
 	"blog/core/global"
 	"fmt"
@@ -34,21 +34,21 @@ func SetupDatabase() {
 
 func initTable() {
 	err := global.DB.AutoMigrate(
-		&domain.User{},
-		&domain.Subject{},
-		&domain.Post{},
-		&domain.Comment{},
-		&domain.Tag{},
-		&domain.Role{},
-		&domain.File{},
-		&domain.PostsTags{},
-		&domain.UsersRoles{},
-		&domain.Dict{},
-		&domain.Permissions{},
-		&domain.RolesPermissions{},
-		&domain.Repository{},
-		&domain.History{},
-		&domain.Head{},
+		&po.User{},
+		&po.Subject{},
+		&po.Post{},
+		&po.Comment{},
+		&po.Tag{},
+		&po.Role{},
+		&po.File{},
+		&po.HeadsTags{},
+		&po.UsersRoles{},
+		&po.Dict{},
+		&po.Permissions{},
+		&po.RolesPermissions{},
+		&po.Repository{},
+		&po.History{},
+		&po.Head{},
 	)
 	if err != nil {
 		panic(fmt.Sprintf("初始化数据库表错误： %s\n", err))
@@ -57,8 +57,7 @@ func initTable() {
 }
 
 func initDictData() {
-	d := &domain.Dict{}
-	if err := d.InsertAll([]domain.Dict{
+	if err :=global.DB.Model(&po.Dict{}).CreateInBatches([]po.Dict{
 		{ID: 1, Name: "active", Code: 1, Value: "active", Description: "激活"},
 		{ID: 2, Name: "active", Code: 2, Value: "lock", Description: "锁定"},
 
@@ -71,14 +70,14 @@ func initDictData() {
 		{ID: 9, Name: "order_by", Code: 1, Value: "updated_at desc", Description: "根据更新时间倒序排列"},
 		{ID: 10, Name: "order_by", Code: 2, Value: "updated_at asc", Description: "根据更新时间正序排列"},
 		{ID: 11, Name: "order_by", Code: 1, Value: "published_at desc", Description: "根据发布时间倒序排列"},
-		{ID: 12, Name: "order_by", Code: 2, Value: "published_at asc", Description: "根据发布时间正序排列"},
-	}); err != nil {
+		{ID: 12, Name: "order_by", Code: 2, Value: "published_at asc", Description: "根据发布时间正序排列"},}, 100).Error; err != nil {
 		panic(err)
 	}
+
 }
 
 func initUserData() {
-	u := &domain.User{
+	u := &po.User{
 		ID:       1,
 		Username: "admin",
 		Nickname: "管理员",
@@ -87,13 +86,13 @@ func initUserData() {
 		Email:    "18435175817@163.com",
 		Avatar:   1,
 	}
-	if err := global.DB.Model(&domain.User{}).Clauses(clause.OnConflict{DoNothing: true}).Create(u).Error; err != nil {
+	if err := global.DB.Model(&po.User{}).Clauses(clause.OnConflict{DoNothing: true}).Create(u).Error; err != nil {
 		panic(err)
 	}
 }
 
 func initRoleData() {
-	if err := global.DB.Model(&domain.Role{}).Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches([]*domain.Role{
+	if err := global.DB.Model(&po.Role{}).Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches([]*po.Role{
 		{ID: 1, Name: "Admin", Description: "管理员"},
 		{ID: 2, Name: "Editor", Description: "编辑"},
 		{ID: 3, Name: "Viewer", Description: "浏览"},
@@ -103,7 +102,7 @@ func initRoleData() {
 }
 
 func initPermissionData() {
-	if err := global.DB.Model(&domain.Permissions{}).Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches([]*domain.Permissions{
+	if err := global.DB.Model(&po.Permissions{}).Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches([]*po.Permissions{
 		{ID: 1, Name: "Add posts", ObjectType: "posts", ActionType: "add", Description: "add posts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		{ID: 2, Name: "Update posts", ObjectType: "posts", ActionType: "update", Description: "update posts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		{ID: 3, Name: "Delete posts", ObjectType: "posts", ActionType: "delete", Description: "delete posts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
@@ -160,32 +159,32 @@ func initPermissionData() {
 		panic(err)
 	}
 
-	var permissions []*domain.RolesPermissions
+	var permissions []*po.RolesPermissions
 	for i := 0; i < 42; i++ {
-		permissions = append(permissions, &domain.RolesPermissions{RoleId: 1, PermissionId: i + 1})
+		permissions = append(permissions, &po.RolesPermissions{RoleId: 1, PermissionId: i + 1})
 	}
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 1})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 2})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 3})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 4})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 5})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 6})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 1})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 2})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 3})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 4})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 5})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 6})
 
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 11})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 12})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 13})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 14})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 15})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 16})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 17})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 18})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 19})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 2, PermissionId: 20})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 11})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 12})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 13})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 14})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 15})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 16})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 17})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 18})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 19})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 20})
 
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 3, PermissionId: 4})
-	permissions = append(permissions, &domain.RolesPermissions{RoleId: 3, PermissionId: 5})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 3, PermissionId: 4})
+	permissions = append(permissions, &po.RolesPermissions{RoleId: 3, PermissionId: 5})
 
-	if err := global.DB.Model(&domain.RolesPermissions{}).Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(permissions, 1000).Error; err != nil {
+	if err := global.DB.Model(&po.RolesPermissions{}).Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(permissions, 1000).Error; err != nil {
 		panic(err)
 	}
 

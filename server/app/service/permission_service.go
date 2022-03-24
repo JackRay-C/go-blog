@@ -1,7 +1,7 @@
 package service
 
 import (
-	"blog/app/domain"
+	"blog/app/model/po"
 	"blog/app/pager"
 	"blog/core/global"
 	"blog/core/logger"
@@ -19,16 +19,16 @@ func NewPermissionService() *PermissionService {
 	}
 }
 
-func (s *PermissionService) SelectOne(permission *domain.Permissions) error {
-	return global.DB.Model(&domain.Permissions{}).Where("id=?", permission.ID).First(&permission).Error
+func (s *PermissionService) SelectOne(permission *po.Permissions) error {
+	return global.DB.Model(&po.Permissions{}).Where("id=?", permission.ID).First(&permission).Error
 }
 
-func (s *PermissionService) CreateOne(permission *domain.Permissions) error {
+func (s *PermissionService) CreateOne(permission *po.Permissions) error {
 	// 查询是否存在相同的权限
-	err := global.DB.Model(&domain.Permissions{}).Where("object_type=? and action_type=?", permission.ObjectType, permission.ActionType).First(&permission).Error
+	err := global.DB.Model(&po.Permissions{}).Where("object_type=? and action_type=?", permission.ObjectType, permission.ActionType).First(&permission).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return global.DB.Model(&domain.Permissions{}).Create(permission).Error
+		return global.DB.Model(&po.Permissions{}).Create(permission).Error
 	}
 
 	if err != nil {
@@ -40,9 +40,9 @@ func (s *PermissionService) CreateOne(permission *domain.Permissions) error {
 func (s *PermissionService) SelectAll(p *pager.Pager) error {
 	offset := (p.PageNo - 1) * p.PageSize
 	limit := p.PageSize
-	db := global.DB.Model(&domain.Permissions{})
+	db := global.DB.Model(&po.Permissions{})
 
-	var permissions []*domain.Permissions
+	var permissions []*po.Permissions
 	var count int64
 
 	if err := db.Count(&count).Error; err != nil {
@@ -65,24 +65,24 @@ func (s *PermissionService) SelectAll(p *pager.Pager) error {
 	return nil
 }
 
-func (s *PermissionService) DeleteOne(p *domain.Permissions) error {
-	return global.DB.Model(&domain.Permissions{}).Where("id=?", p.ID).Delete(p).Error
+func (s *PermissionService) DeleteOne(p *po.Permissions) error {
+	return global.DB.Model(&po.Permissions{}).Where("id=?", p.ID).Delete(p).Error
 }
 
-func (s *PermissionService) UpdateOne(permission *domain.Permissions) error {
+func (s *PermissionService) UpdateOne(permission *po.Permissions) error {
 	// 1、查询是否存在
-	var newPermission *domain.Permissions
-	if err := global.DB.Model(&domain.Permissions{}).Where("id=?", permission.ID).First(&newPermission).Error; err != nil {
+	var newPermission *po.Permissions
+	if err := global.DB.Model(&po.Permissions{}).Where("id=?", permission.ID).First(&newPermission).Error; err != nil {
 		return err
 	}
 
 	// 2、判断更新的权限是否存在
 	newPermission = nil
-	err := global.DB.Model(&domain.Permissions{}).Where("object_type=? and action_type=? and id!=?", permission.ObjectType, permission.ActionType, permission.ID).First(&newPermission).Error
+	err := global.DB.Model(&po.Permissions{}).Where("object_type=? and action_type=? and id!=?", permission.ObjectType, permission.ActionType, permission.ID).First(&newPermission).Error
 
 	if err == gorm.ErrRecordNotFound {
 		// 3、如果不存在的话，更新新权限
-		if err := global.DB.Model(&domain.Permissions{}).Where("id=?", permission.ID).Updates(permission).Error; err != nil {
+		if err := global.DB.Model(&po.Permissions{}).Where("id=?", permission.ID).Updates(permission).Error; err != nil {
 			return err
 		}
 	}

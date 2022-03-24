@@ -1,8 +1,8 @@
 package v1
 
 import (
-	v1 "blog/app/api/v1"
-	"blog/app/api/web"
+	v1 "blog/app/api/console/v1"
+	v12 "blog/app/api/web/v1"
 	"blog/app/utils/wrapper"
 	"github.com/gin-gonic/gin"
 )
@@ -25,7 +25,7 @@ func InitUserRouter(group *gin.RouterGroup) {
 func InitPublicUserRouter(group *gin.RouterGroup)  {
 	userGroup := group.Group("users")
 	{
-		user := web.NewUser()
+		user := v12.NewUser()
 		userGroup.GET("/:id", wrapper.Wrapper(user.Get))
 		userGroup.GET("/info", wrapper.Wrapper(user.GetUserInfo))
 

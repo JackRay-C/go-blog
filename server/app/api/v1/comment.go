@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"blog/app/domain"
-	"blog/app/pager"
+	"blog/app/model/po"
+	"blog/app/model/vo"
 	"blog/app/request"
 	"blog/app/response"
 	"blog/app/service"
@@ -14,12 +14,13 @@ import (
 
 type Comment struct {
 	log logger.Logger
-	commentService *service.CommentService
+	commentService service.CommentService
 }
 
 func NewComment() *Comment {
 	return &Comment{
 		log: global.Logger,
+		commentService: service.NewCommentService(),
 	}
 }
 
@@ -29,8 +30,8 @@ func (c *Comment) Get(ctx *gin.Context) (*response.Response, error) {
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
-	comment := domain.Comment{ID: id}
-	if err := c.commentService.SelectOne(&comment); err != nil {
+	comment := po.Comment{ID: id}
+	if err := c.commentService.ISelectOne(ctx, &comment); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 	return response.Success(&comment), nil
@@ -39,13 +40,13 @@ func (c *Comment) Get(ctx *gin.Context) (*response.Response, error) {
 // List 分页所有评论信息
 func (c *Comment) List(ctx *gin.Context) (*response.Response, error) {
 	// 1、获取分页参数
-	page := pager.Pager{
+	page := vo.Pager{
 		PageNo:   request.GetPageNo(ctx),
 		PageSize: request.GetPageSize(ctx),
 	}
 
 	// 2、查询所有博客
-	if err := c.commentService.SelectAll(&page, &domain.Comment{}); err != nil {
+	if err := c.commentService.ISelectAll(ctx, &page, &po.Comment{}); err != nil {
 		return nil, response.InternalServerError.SetMsg("%s", err)
 	}
 
@@ -56,7 +57,7 @@ func (c *Comment) List(ctx *gin.Context) (*response.Response, error) {
 func (c *Comment) Post(ctx *gin.Context) (*response.Response, error) {
 	c.log.Infof("新增评论")
 
-	comment := &domain.Comment{}
+	comment := &po.Comment{}
 	if err := ctx.ShouldBindJSON(&comment); err != nil {
 		c.log.Errorf("参数绑定错误: %s", err)
 		return nil, response.InvalidParams.SetMsg("%s", err)
@@ -76,7 +77,7 @@ func (c *Comment) Post(ctx *gin.Context) (*response.Response, error) {
 		}
 	}
 
-	if err := c.commentService.CreateOne(comment); err != nil {
+	if err := c.commentService.ICreate(ctx, comment); err != nil {
 		c.log.Errorf("评论失败：error: %s", err)
 		return nil, err
 	}
@@ -92,8 +93,8 @@ func (c *Comment) Delete(ctx *gin.Context) (*response.Response, error) {
 	if err != nil || id == 0 {
 		return nil, response.InvalidParams.SetMsg("ID is required. ")
 	}
-	comment := &domain.Comment{ID: id}
-	if err := c.commentService.DeleteOne(comment); err != nil {
+	comment := &po.Comment{ID: id}
+	if err := c.commentService.IDelete(ctx, comment); err != nil {
 		return nil, err
 	}
 	c.log.Infof("删除成功.")

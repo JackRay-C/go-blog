@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"blog/app/domain"
+	"blog/app/model/po"
 	"blog/app/response"
 	"blog/app/service"
 	"github.com/gin-gonic/gin"
@@ -14,8 +14,8 @@ func Permission() gin.HandlerFunc {
 		userRoleService := service.NewUsersRolesService()
 		rolePermissionService := service.NewRolesPermissionService()
 
-		var roles []*domain.Role
-		var permissions []*domain.Permissions
+		var roles []*po.Role
+		var permissions []*po.Permissions
 
 		isLogin, exists := c.Get("is_login")
 		if !exists || !isLogin.(bool) {
@@ -25,7 +25,7 @@ func Permission() gin.HandlerFunc {
 
 		// 获取用户角色列表
 		userId, _ := c.Get("current_user_id")
-		if err := userRoleService.SelectUserRoles(&domain.User{ID: userId.(int)}, &roles); err != nil {
+		if err := userRoleService.SelectUserRoles(&po.User{ID: userId.(int)}, &roles); err != nil {
 			c.AbortWithStatusJSON(http.StatusOK, response.Forbidden)
 			return
 		}

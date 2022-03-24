@@ -6,6 +6,8 @@ import (
 	"blog/core/setting"
 	"blog/core/snowflake"
 	"blog/core/storage"
+	"github.com/JackRay-C/go-mapcache"
+
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 )
@@ -18,4 +20,5 @@ var (
 	Snowflake *snowflake.Snowflake
 	Storage   storage.Storage
 	Email     *mail.Email
+	Cache     mapcache.Cache
 )

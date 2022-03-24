@@ -60,12 +60,6 @@ func (e Error) SetMsg(format string, args ...interface{}) Error {
 	return e
 }
 
-var codes = map[int]string{}
-
 func NewError(code int, msg string) Error {
-	if _, ok := codes[code]; ok {
-		panic(fmt.Sprintf("Error code %d  has existed, please change one!", code))
-	}
-	codes[code] = msg
 	return Error{Code: code, Message: msg}
 }

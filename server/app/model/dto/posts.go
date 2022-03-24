@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"blog/app/domain"
+	"blog/app/model/po"
 	"encoding/json"
 	"time"
 )
@@ -38,7 +38,7 @@ type AddPosts struct {
 	Status          int          `json:"status" binding:"oneof=1 2"`                                    // 1、草稿 2、发布
 	SubjectId       int          `json:"subject_id"`                                                    // 专题ID
 	ImageIds        string       `json:"image_ids"`                                                     // 所有图片的列表
-	Tags            []domain.Tag `json:"tags"`                                                          // 所有标签的列表
+	Tags            []po.Tag `json:"tags"`                                                          // 所有标签的列表
 	UserId          int          `binding:"-"`                                                          // 用户ID
 	CreatedAt       time.Time    `json:"created_at" time_format:"2006-01-02T15:04:05.999999999Z07:00" ` // 创建时间
 }
@@ -63,7 +63,7 @@ type PutPosts struct {
 	Status          int           `json:"status" binding:"required,oneof=1 2"`                            // 1、草稿 2、发布
 	SubjectId       int           `json:"subject_id"`                                                     // 专题ID
 	ImageIds        string        `json:"image_ids"`                                                      // 所有图片的列表
-	Tags            []*domain.Tag `json:"tags"`                                                           // 所有标签的列表
+	Tags            []*po.Tag `json:"tags"`                                                           // 所有标签的列表
 	Likes           int           `json:"likes"`                                                          // 点赞
 	Views           int           `json:"views"`                                                          // 阅读量
 	UserId          int           `binding:"-"`                                                           // 用户ID，不允许前端传，后端根据session生成

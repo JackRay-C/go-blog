@@ -1,7 +1,7 @@
 package service
 
 import (
-	"blog/app/domain"
+	"blog/app/model/po"
 	"blog/app/pager"
 	"blog/core/global"
 	"errors"
@@ -16,17 +16,17 @@ func NewRoleService() *RoleService {
 	return &RoleService{}
 }
 
-func (s *RoleService) SelectOne(role *domain.Role) error {
-	if err := global.DB.Model(&domain.Role{}).Where("id=?", role.ID).First(&role).Error; err != nil || err == gorm.ErrRecordNotFound {
+func (s *RoleService) SelectOne(role *po.Role) error {
+	if err := global.DB.Model(&po.Role{}).Where("id=?", role.ID).First(&role).Error; err != nil || err == gorm.ErrRecordNotFound {
 		return err
 	}
 	return nil
 }
 
 func (s *RoleService) SelectAll(page *pager.Pager) error {
-	var roles []domain.Role
+	var roles []po.Role
 
-	db := global.DB.Model(&domain.Role{})
+	db := global.DB.Model(&po.Role{})
 
 	if err := db.Count(&page.TotalRows).Error; err != nil {
 		return err
@@ -42,8 +42,8 @@ func (s *RoleService) SelectAll(page *pager.Pager) error {
 	return nil
 }
 
-func (s *RoleService) DeleteOne(role *domain.Role) error {
-	db := global.DB.Model(&domain.Role{}).Where("id=?", role.ID)
+func (s *RoleService) DeleteOne(role *po.Role) error {
+	db := global.DB.Model(&po.Role{}).Where("id=?", role.ID)
 	// 查询是否存在
 	if err := db.First(&role).Error; err != nil || err == gorm.ErrRecordNotFound {
 		return err
@@ -56,10 +56,10 @@ func (s *RoleService) DeleteOne(role *domain.Role) error {
 }
 
 
-func (s *RoleService) CreateOne(role *domain.Role) error {
-	db := global.DB.Model(&domain.Role{})
+func (s *RoleService) CreateOne(role *po.Role) error {
+	db := global.DB.Model(&po.Role{})
 	// 查询是否存在该角色
-	var r *domain.Role
+	var r *po.Role
 	if err := db.Where("name=?", role.Name).First(&r).Error; err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (s *RoleService) CreateOne(role *domain.Role) error {
 	if r != nil {
 		return errors.New("该角色已存在。 ")
 	}
-	if err := db.Create(&domain.Role{
+	if err := db.Create(&po.Role{
 		Name:        role.Name,
 		Description: role.Description,
 		CreatedAt:   time.Now(),
@@ -79,9 +79,9 @@ func (s *RoleService) CreateOne(role *domain.Role) error {
 	return nil
 }
 
-func (s *RoleService) UpdateOne(role *domain.Role) error {
-	db := global.DB.Model(&domain.Role{})
-	var r *domain.Role
+func (s *RoleService) UpdateOne(role *po.Role) error {
+	db := global.DB.Model(&po.Role{})
+	var r *po.Role
 	if err := db.Where("id=?", role.ID).First(&r).Error; err != nil || err == gorm.ErrRecordNotFound{
 		return err
 	}

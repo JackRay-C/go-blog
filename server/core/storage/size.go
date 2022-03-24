@@ -9,6 +9,15 @@ import (
 
 type Size int64
 
+func (s *Size) Set(s2 string) error {
+	*s = ParseSize(s2)
+	return nil
+}
+
+func (s Size) Type() string {
+	return "storagesize"
+}
+
 const (
 	KB      = 1<< 10
 	MB      = KB << 10

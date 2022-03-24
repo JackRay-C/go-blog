@@ -11,7 +11,7 @@ server:
 # app configuration
 app:
   # 应用名称
-  name: blog
+  name: go-blog
   # 应用版本
   version: v1.0.0
   # 运行模式： debug/release
@@ -66,22 +66,26 @@ app:
     - .py
     - .go
     - .sh
-    - .log
+    - .logs
     - .yaml
     - .yml
     - .ini
     - .xmind
     - .json
     - .txt
+  # accessToken过期时间10分钟
+  access-token-expire: 60*10
+  # refreshToken过期时间 7天
+  refresh-token-expire: 60*7*24
 
 # 雪花算法初始化的参数
 snowflake:
   work-id: 1
   data-center-id: 1
 
-# zap logger configuration
+# zap logs configuration
 zap:
-  # logger level  default: info
+  # logs level  default: info
   level: 'info'
   # 日志输出格式，可选： `json` 和 `console`
   format: 'console'

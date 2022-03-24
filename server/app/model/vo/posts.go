@@ -1,7 +1,7 @@
 package vo
 
 import (
-	"blog/app/domain"
+	"blog/app/model/po"
 	"encoding/json"
 	"gorm.io/gorm"
 	"time"
@@ -13,14 +13,14 @@ type VPosts struct {
 	MarkdownContent string        `json:"markdown_content" `                                              // markdown
 	HtmlContent     string        `json:"html_content" `                                                  // html
 	CoverImageId    int           `json:"cover_image_id"`                                                 // 封面图片id
-	CoverImage      *domain.File  `json:"cover_image"`                                                    // 封面图片
+	CoverImage      *po.File  `json:"cover_image"`                                                    // 封面图片
 	Description     string        `json:"description"`                                                    // 描述
 	Visibility      int           `json:"visibility"`                                                     // 1、私有 2、公开
 	Status          int           `json:"status"`                                                         // 1、草稿 2、发布
 	SubjectId       int           `json:"subject_id"`                                                     // 专题ID
 	Subject         *VSubject     `json:"subject"`                                                        // 专题
 	ImageIds        string        `json:"image_ids"`                                                      // 所有图片的列表
-	Tags            []*domain.Tag `json:"tags"`                                                           // 所有标签的列表
+	Tags            []*po.Tag `json:"tags"`                                                           // 所有标签的列表
 	Likes           int           `json:"likes"`                                                          // 点赞
 	Views           int           `json:"views"`                                                          // 阅读量
 	UserId          int           `json:"user_id"`                                                        // 用户ID
@@ -41,8 +41,8 @@ func (l *VPosts) string() string {
 type VHead struct {
 	ID           int                `json:"id" form:"id"`                                                 // 主键ID，博客的唯一ID
 	RepositoryID int                `json:"repository_id"  form:"repository_id"`                          // 当前存储库的id
-	Repository   *domain.Repository `json:"repository"`                                                   // 当前存储库内容
-	History      []*domain.History  `json:"history"`                                                      // 当前博客的历史记录
+	Repository   *po.Repository `json:"repository"`                                                   // 当前存储库内容
+	History      []*po.History  `json:"history"`                                                      // 当前博客的历史记录
 	Visibility   int                `json:"visibility"`                                                   // 是否公开 1、私有 2、公开
 	Status       int                `json:"status"`                                                       // 博客状态 1、已暂存 2、已提交 3、已发布
 	Likes        int                `json:"likes"`                                                        // 点赞量
@@ -66,9 +66,9 @@ type VPost struct {
 	CoverImageID int            `json:"cover_image_id"`
 	UserID       int            `json:"user_id"`
 	User         *VUser         `json:"user"`
-	Tags         []*domain.Tag  `json:"tags"`
+	Tags         []*po.Tag  `json:"tags"`
 	CreatedAt    time.Time      `json:"created_at"`
 	UpdatedAt    time.Time      `json:"updated_at"`
 	DeletedAt    gorm.DeletedAt `json:"deleted_at"`
-	*domain.Repository
+	*po.Repository
 }

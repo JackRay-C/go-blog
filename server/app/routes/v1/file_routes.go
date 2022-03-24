@@ -1,8 +1,8 @@
 package v1
 
 import (
-	v1 "blog/app/api/v1"
-	"blog/app/api/web"
+	v1 "blog/app/api/console/v1"
+	web "blog/app/api/web/v1"
 	"blog/app/utils/wrapper"
 	"github.com/gin-gonic/gin"
 )

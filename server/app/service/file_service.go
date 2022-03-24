@@ -1,8 +1,8 @@
 package service
 
 import (
-	"blog/app/domain"
 	"blog/app/encrypt"
+	"blog/app/model/po"
 	"blog/app/pager"
 	"blog/core/global"
 	"blog/core/logger"
@@ -25,9 +25,9 @@ func NewFileService() *FileService {
 	return &FileService{log: global.Logger}
 }
 
-func (service *FileService) SelectOne(file *domain.File) error {
+func (service *FileService) SelectOne(file *po.File) error {
 	// 查询文件是否存在
-	db := global.DB.Model(&domain.File{}).Where("id=?", file.ID)
+	db := global.DB.Model(&po.File{}).Where("id=?", file.ID)
 
 	if file.UserID != 0 {
 		db.Where("user_id=?", file.UserID)
@@ -43,14 +43,14 @@ func (service *FileService) SelectOne(file *domain.File) error {
 	return err
 }
 
-func (service *FileService) SelectAll(c *gin.Context, page *pager.Pager, file *domain.File) error {
-	var files []*domain.File
+func (service *FileService) SelectAll(c *gin.Context, page *pager.Pager, file *po.File) error {
+	var files []*po.File
 
 	// 1、获取用户ID
 	currentUserId, _ := c.Get("current_user_id")
 
 	// 2、统计文件个数
-	db := global.DB.Model(&domain.File{}).Where("user_id=?", currentUserId.(int))
+	db := global.DB.Model(&po.File{}).Where("user_id=?", currentUserId.(int))
 	if err := db.Count(&page.TotalRows).Error; err != nil {
 		return err
 	}
@@ -62,10 +62,10 @@ func (service *FileService) SelectAll(c *gin.Context, page *pager.Pager, file *d
 	return db.Offset((page.PageNo - 1) * page.PageSize).Limit(page.PageSize).Find(&files).Error
 }
 
-func (service *FileService) DeleteOne(c *gin.Context, file *domain.File) error {
+func (service *FileService) DeleteOne(c *gin.Context, file *po.File) error {
 	// 1、查询文件是否存在
 	currentUserId, _ := c.Get("current_user_id")
-	err := global.DB.Model(&domain.File{}).Where("user_id=? and id=?", currentUserId.(int), file.ID).First(&file).Error
+	err := global.DB.Model(&po.File{}).Where("user_id=? and id=?", currentUserId.(int), file.ID).First(&file).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		service.log.Errorf("删除文件[%d]失败：文件不存在. ", file.ID)
 		return errors.New("该文件不存在. ")
@@ -78,7 +78,7 @@ func (service *FileService) DeleteOne(c *gin.Context, file *domain.File) error {
 	}
 
 	// 3、删除数据库数据
-	if err := global.DB.Model(&domain.File{}).Where("user_id=? and id=?",currentUserId.(int), file.ID).Delete(&file); err != nil {
+	if err := global.DB.Model(&po.File{}).Where("user_id=? and id=?",currentUserId.(int), file.ID).Delete(&file); err != nil {
 		service.log.Errorf("删除数据库记录失败: %s", err)
 		return errors.New(fmt.Sprintf("删除数据库记录失败： %s", err))
 	}
@@ -87,7 +87,7 @@ func (service *FileService) DeleteOne(c *gin.Context, file *domain.File) error {
 }
 
 
-func (service *FileService) CreateOne(c *gin.Context, file multipart.File, header *multipart.FileHeader, f *domain.File) error {
+func (service *FileService) CreateOne(c *gin.Context, file multipart.File, header *multipart.FileHeader, f *po.File) error {
 	// 1、判断文件大小
 	content, _ := ioutil.ReadAll(file)
 
@@ -130,19 +130,19 @@ func (service *FileService) CreateOne(c *gin.Context, file multipart.File, heade
 		f.Host = c.Request.Host
 	}
 
-	var newFile *domain.File
-	err := global.DB.Model(&domain.File{}).Where("user_id=? and name=? and ext=?", f.UserID, f.Name, f.Ext).First(&newFile).Error
+	var newFile *po.File
+	err := global.DB.Model(&po.File{}).Where("user_id=? and name=? and ext=?", f.UserID, f.Name, f.Ext).First(&newFile).Error
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// 插入数据库
-		if err := global.DB.Model(&domain.File{}).Create(&f).Error; err != nil {
+		if err := global.DB.Model(&po.File{}).Create(&f).Error; err != nil {
 			return err
 		}
 
 		// 上传至存储
 		if err := global.Storage.Save(path.Join(f.Path, f.Name), header); err != nil {
 			// 上传失败补偿，删除数据库记录
-			if err := global.DB.Model(&domain.File{}).Where("id=?", f.ID).Delete(&f).Error; err != nil {
+			if err := global.DB.Model(&po.File{}).Where("id=?", f.ID).Delete(&f).Error; err != nil {
 				return err
 			}
 			return errors.New("上传存储失败，请重新上传. ")

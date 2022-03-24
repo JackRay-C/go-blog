@@ -1,8 +1,9 @@
 package v1
 
 import (
-	v1 "blog/app/api/v1"
-	"blog/app/api/web"
+	v1 "blog/app/api/console/v1"
+	v12 "blog/app/api/web/v1"
+
 	"blog/app/utils/wrapper"
 	"github.com/gin-gonic/gin"
 )
@@ -23,7 +24,7 @@ func InitSubjectRouter(group *gin.RouterGroup) {
 func InitPublicSubjectRouter(group *gin.RouterGroup) {
 	subjectGroup := group.Group("subjects")
 	{
-		subject := web.NewSubject()
+		subject := v12.NewSubject()
 		subjectGroup.GET("", wrapper.Wrapper(subject.List))
 		subjectGroup.GET("/:id", wrapper.Wrapper(subject.Get))
 

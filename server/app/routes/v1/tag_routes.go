@@ -1,8 +1,8 @@
 package v1
 
 import (
-	v1 "blog/app/api/v1"
-	"blog/app/api/web"
+	v1 "blog/app/api/console/v1"
+	v12 "blog/app/api/web/v1"
 	"blog/app/utils/wrapper"
 	"github.com/gin-gonic/gin"
 )
@@ -23,7 +23,7 @@ func InitTagRouter(group *gin.RouterGroup) {
 func InitPublicTagRouter(group *gin.RouterGroup) {
 	tagGroup := group.Group("tags")
 	{
-		tag := web.NewTag()
+		tag := v12.NewTag()
 
 		tagGroup.GET("", wrapper.Wrapper(tag.List))
 		tagGroup.GET("/:id", wrapper.Wrapper(tag.Get))

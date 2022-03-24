@@ -1,7 +1,7 @@
 package vo
 
 import (
-	"blog/app/domain"
+	"blog/app/model/po"
 	"encoding/json"
 	"time"
 )
@@ -9,8 +9,8 @@ import (
 type VSubject struct {
 	ID          int          `json:"id" `          // 主键
 	Title       string       `json:"title" `       // 专题题目
-	Avatar      *domain.File `json:"image"`        // 头像
-	CoverImage  *domain.File `json:"cover_image"`  // 背景图
+	Avatar      *po.File `json:"image"`        // 头像
+	CoverImage  *po.File `json:"cover_image"`  // 背景图
 	Description string       `json:"description" ` // 描述
 	Visibility  int          `json:"visibility"`   // 是否公开
 	UserID      int          `json:"user_id"`      // 所属用户

@@ -1,10 +1,10 @@
 package service
 
 import (
-	"blog/app/domain"
 	"blog/app/encrypt"
 	"blog/app/jwt"
 	"blog/app/model/dto"
+	"blog/app/model/po"
 	"blog/app/model/vo"
 	"blog/app/pager"
 	"blog/app/response"
@@ -28,9 +28,9 @@ func NewUserService() *UserService {
 }
 
 func (a *UserService) Auth(login *dto.Login) (*vo.VToken, error) {
-	var user domain.User
+	var user po.User
 
-	if err := global.DB.Model(&domain.User{}).Where("username=? or email=?", login.Username, login.Username).First(&user).Error; err != nil {
+	if err := global.DB.Model(&po.User{}).Where("username=? or email=?", login.Username, login.Username).First(&user).Error; err != nil {
 		a.Log.Errorf("登录失败：用户【%s】不存在", login.Username)
 		return nil, response.IncorrectUsernamePassword
 	}
@@ -53,22 +53,22 @@ func (a *UserService) Auth(login *dto.Login) (*vo.VToken, error) {
 	}
 }
 
-func (u *UserService) DeleteOne(user *domain.User) error {
-	if err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error; err == gorm.ErrRecordNotFound {
+func (u *UserService) DeleteOne(user *po.User) error {
+	if err := global.DB.Model(&po.User{}).Where("id=?", user.ID).First(&user).Error; err == gorm.ErrRecordNotFound {
 		return errors.New("该用户不存在. ")
 	} else if err != nil {
 		return err
 	}
 
-	if err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).Delete(user).Error; err != nil {
+	if err := global.DB.Model(&po.User{}).Where("id=?", user.ID).Delete(user).Error; err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (u *UserService) SelectOne(user *domain.User) (*vo.VUser, error) {
-	db := global.DB.Model(&domain.User{})
+func (u *UserService) SelectOne(user *po.User) (*vo.VUser, error) {
+	db := global.DB.Model(&po.User{})
 
 	if user.Active != 0 {
 		db.Where("active=?", user.Active)
@@ -78,8 +78,8 @@ func (u *UserService) SelectOne(user *domain.User) (*vo.VUser, error) {
 		return nil, err
 	}
 
-	var file *domain.File
-	if err := global.DB.Model(&domain.File{}).Where("id=?", user.Avatar).First(&file).Error; err != nil {
+	var file *po.File
+	if err := global.DB.Model(&po.File{}).Where("id=?", user.Avatar).First(&file).Error; err != nil {
 		return nil, err
 	}
 
@@ -95,30 +95,30 @@ func (u *UserService) SelectOne(user *domain.User) (*vo.VUser, error) {
 
 }
 
-func (u *UserService) CreateOne(user *domain.User) error {
+func (u *UserService) CreateOne(user *po.User) error {
 	if err := global.DB.Transaction(func(tx *gorm.DB) error {
-		var u1 *domain.User
-		err := tx.Model(&domain.User{}).Where("username=?", user.Username).First(&u1).Error
+		var u1 *po.User
+		err := tx.Model(&po.User{}).Where("username=?", user.Username).First(&u1).Error
 
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("该用户名已存在. ")
 		}
 
 		u1 = nil
-		err = tx.Model(&domain.User{}).Where("email=?", user.Email).First(&u1).Error
+		err = tx.Model(&po.User{}).Where("email=?", user.Email).First(&u1).Error
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("该邮箱已经注册. ")
 		}
 
 		u1 = nil
-		err = tx.Model(&domain.User{}).Where("nickname=?", user.Nickname).First(&u1).Error
+		err = tx.Model(&po.User{}).Where("nickname=?", user.Nickname).First(&u1).Error
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return errors.New("该昵称已经存在. ")
 		}
 
 		// 密码加密
 		user.Password = encrypt.Sha256(user.Password)
-		if err := tx.Model(&domain.User{}).Create(user).Error; err != nil {
+		if err := tx.Model(&po.User{}).Create(user).Error; err != nil {
 			return err
 		}
 		return nil
@@ -129,13 +129,13 @@ func (u *UserService) CreateOne(user *domain.User) error {
 	return nil
 }
 
-func (u *UserService) SelectAll(p *pager.Pager, user *domain.User) error {
-	var users []*domain.User
+func (u *UserService) SelectAll(p *pager.Pager, user *po.User) error {
+	var users []*po.User
 	var voUsers []*vo.VUser
 	offset := (p.PageNo - 1) * p.PageSize
 	limit := p.PageSize
 
-	db := global.DB.Model(&domain.User{})
+	db := global.DB.Model(&po.User{})
 	if user.Active != 0 {
 		db.Where("active=?", user.Active)
 	}
@@ -149,8 +149,8 @@ func (u *UserService) SelectAll(p *pager.Pager, user *domain.User) error {
 	}
 
 	for _, user := range users {
-		var userAvatar *domain.File
-		if err := global.DB.Model(&domain.File{ID: user.Avatar}).First(&userAvatar).Error; err != nil {
+		var userAvatar *po.File
+		if err := global.DB.Model(&po.File{ID: user.Avatar}).First(&userAvatar).Error; err != nil {
 			return err
 		}
 		voUsers = append(voUsers, &vo.VUser{
@@ -176,8 +176,8 @@ func (u *UserService) SelectAll(p *pager.Pager, user *domain.User) error {
 }
 
 func (u *UserService) UpdateOne(param *dto.PutUser) (*vo.VUser, error) {
-	var user *domain.User
-	err := global.DB.Model(&domain.User{}).Where("id=? and username=?", param.ID, param.Username).First(&user).Error
+	var user *po.User
+	err := global.DB.Model(&po.User{}).Where("id=? and username=?", param.ID, param.Username).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.New("该用户不存在. ")
 	}
@@ -185,7 +185,7 @@ func (u *UserService) UpdateOne(param *dto.PutUser) (*vo.VUser, error) {
 		return nil, err
 	}
 
-	user = &domain.User{
+	user = &po.User{
 		ID:        param.ID,
 		Username:  param.Username,
 		Nickname:  param.Nickname,
@@ -196,51 +196,51 @@ func (u *UserService) UpdateOne(param *dto.PutUser) (*vo.VUser, error) {
 		UpdatedAt: time.Now(),
 	}
 
-	if err := global.DB.Model(&domain.User{}).Where("id=? and username=?", param.ID, param.Username).Omit("id", "username").Updates(user).Error; err != nil {
+	if err := global.DB.Model(&po.User{}).Where("id=? and username=?", param.ID, param.Username).Omit("id", "username").Updates(user).Error; err != nil {
 		return nil, err
 	}
 
-	return u.SelectOne(&domain.User{ID: user.ID})
+	return u.SelectOne(&po.User{ID: user.ID})
 }
 
-//func (u *UserService) SelectUserRoles(user *domain.User, roles *[]*domain.Role) error {
+//func (u *UserService) SelectUserRoles(user *po.User, roles *[]*po.Role) error {
 //	return global.DB.Table("roles").Joins("left join users_roles as ur on ur.role_id=roles.id").Joins("left join users as u on ur.user_id=u.id").Where("u.id=?", user.ID).Find(roles).Error
 //}
 //
-//func (u *UserService) InsertUserRoles(user *domain.User, roles []*domain.Role) error {
-//	if err := global.DB.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
+//func (u *UserService) InsertUserRoles(user *po.User, roles []*po.Role) error {
+//	if err := global.DB.Model(&po.User{}).Where("id=?", user.ID).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
 //		return err
 //	}
 //
-//	var usersRoles []*domain.UsersRoles
+//	var usersRoles []*po.UsersRoles
 //	for _, role := range roles {
-//		usersRoles = append(usersRoles, &domain.UsersRoles{UserId: user.ID, RoleId: role.ID})
+//		usersRoles = append(usersRoles, &po.UsersRoles{UserId: user.ID, RoleId: role.ID})
 //	}
-//	if err := global.DB.Model(&domain.UsersRoles{}).CreateInBatches(usersRoles, 1000).Error; err != nil {
+//	if err := global.DB.Model(&po.UsersRoles{}).CreateInBatches(usersRoles, 1000).Error; err != nil {
 //		return err
 //	}
 //
 //	return nil
 //}
 //
-//func (u *UserService) UpdateUserRoles(user *domain.User, roles []*domain.Role) error {
+//func (u *UserService) UpdateUserRoles(user *po.User, roles []*po.Role) error {
 //	if err := global.DB.Transaction(func(tx *gorm.DB) error {
-//		if err := tx.Model(&domain.User{}).Where("id=?", user.ID).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
+//		if err := tx.Model(&po.User{}).Where("id=?", user.ID).First(&user).Error; err != nil || err == gorm.ErrRecordNotFound {
 //			return err
 //		}
 //
 //		// 删除用户的角色
-//		if err := tx.Model(&domain.UsersRoles{}).Where("user_id=?", user.ID).Delete(&domain.UsersRoles{UserId: user.ID}).Error; err != nil {
+//		if err := tx.Model(&po.UsersRoles{}).Where("user_id=?", user.ID).Delete(&po.UsersRoles{UserId: user.ID}).Error; err != nil {
 //			return err
 //		}
 //
-//		var usersRoles []*domain.UsersRoles
+//		var usersRoles []*po.UsersRoles
 //		for _, role := range roles {
-//			usersRoles = append(usersRoles, &domain.UsersRoles{UserId: user.ID, RoleId: role.ID})
+//			usersRoles = append(usersRoles, &po.UsersRoles{UserId: user.ID, RoleId: role.ID})
 //		}
 //
 //		// 重新添加
-//		if err := tx.Model(&domain.UsersRoles{}).Create(usersRoles).Error; err != nil {
+//		if err := tx.Model(&po.UsersRoles{}).Create(usersRoles).Error; err != nil {
 //			return err
 //		}
 //
@@ -252,8 +252,8 @@ func (u *UserService) UpdateOne(param *dto.PutUser) (*vo.VUser, error) {
 //	return nil
 //}
 //
-//func (u *UserService) SelectMenus(p *pager.Pager, user *domain.User) error {
-//	var menus []*domain.Menu
+//func (u *UserService) SelectMenus(p *pager.Pager, user *po.User) error {
+//	var menus []*po.Menu
 //
 //	if err := user.CountMenus(&p.TotalRows); err != nil {
 //		return response.DatabaseSelectError.SetMsg("%s", err)
@@ -268,11 +268,11 @@ func (u *UserService) UpdateOne(param *dto.PutUser) (*vo.VUser, error) {
 //	return nil
 //}
 //
-//func (u *UserService) SelectPosts(p *pager.Pager, user *domain.User) error {
+//func (u *UserService) SelectPosts(p *pager.Pager, user *po.User) error {
 //	return nil
 //}
 //
-//func (u *UserService) SelectFiles(p *pager.Pager, user *domain.User) error {
+//func (u *UserService) SelectFiles(p *pager.Pager, user *po.User) error {
 //	return nil
 //}
 

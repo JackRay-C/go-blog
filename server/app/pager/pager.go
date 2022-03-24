@@ -19,3 +19,13 @@ func (p *Pager) String() string {
 	}
 	return string(marshal)
 }
+
+func (p *Pager) MustList(list interface{})  {
+	if p.TotalRows == 0 {
+		p.PageCount = 0
+		p.List = make([]string, 0)
+	} else {
+		p.PageCount = (p.PageCount + p.PageSize - 1)/p.PageSize
+		p.List = list
+	}
+}

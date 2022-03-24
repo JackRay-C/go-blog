@@ -1,14 +1,13 @@
 package dto
 
-import "blog/app/domain"
-
+import "blog/app/model/po"
 
 type PutUserRole struct {
-	Roles []*domain.Role `json:"roles"`
+	Roles []*po.Role `json:"roles"`
 }
 
 
 type PutRolePermission struct {
-	Permissions []*domain.Permissions `json:"permissions"`
+	Permissions []*po.Permissions `json:"permissions"`
 }
 
