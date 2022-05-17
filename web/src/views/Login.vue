@@ -1,5 +1,6 @@
 <template>
   <div class="login fadeInUp">
+    <div class="liner"></div>
     <div class="login-form">
       <!-- 标题 -->
       <div class="login-title">
@@ -72,12 +73,11 @@
 </template>
 
 <script>
-
-import SvgIcon from '@/components/SvgIcon'
+import SvgIcon from "@/components/SvgIcon";
 
 export default {
   components: {
-    SvgIcon
+    SvgIcon,
   },
   name: "Login",
   data() {
@@ -90,15 +90,15 @@ export default {
   },
   watch: {
     $route: {
-      handler: function(route) {
-        const query = route.query
+      handler: function (route) {
+        const query = route.query;
         if (query) {
-          this.redirect = query.redirect
-          this.otherQuery = this.getOtherQuery(query)
+          this.redirect = query.redirect;
+          this.otherQuery = this.getOtherQuery(query);
         }
       },
-      immediate: true
-    }
+      immediate: true,
+    },
   },
   methods: {
     login() {
@@ -113,7 +113,10 @@ export default {
             this.$notify.error({ title: "失败", message: res.message });
           }
 
-          this.$router.push({ path: this.redirect || '/admin/dashboard', query: this.otherQuery })
+          this.$router.push({
+            path: this.redirect || "/admin/dashboard",
+            query: this.otherQuery,
+          });
         })
         .catch((err) => {
           console.log(err);
@@ -125,15 +128,15 @@ export default {
     },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {
-        if (cur !== 'redirect') {
-          acc[cur] = query[cur]
+        if (cur !== "redirect") {
+          acc[cur] = query[cur];
         }
-        return acc
-      }, {})
+        return acc;
+      }, {});
     },
     goHome() {
-      this.$route.push("/")
-    }
+      this.$route.push("/");
+    },
   },
 };
 </script>
@@ -149,15 +152,9 @@ export default {
   width: 600px;
   padding: 32px 24px;
   box-shadow: 0 6px 28px 0 rgba(24, 52, 117, 0.2);
+
   border-top: 2px solid #4e6ef2;
-  border-image: linear-gradient(
-      to right,
-      #4e6ef2,
-      #4e6ef2 10%,
-      #0ae678 90%,
-      #0ae678
-    )
-    1;
+
 }
 
 .login-form {

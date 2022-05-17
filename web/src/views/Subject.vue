@@ -1,5 +1,5 @@
 <template>
-  <div class="containter fadeInUp">
+  <div class="subject fadeInUp">
     <div class="content">
       <SubjectCard v-for="subject in subjects" :key="subject.id" :subject="subject" />
 
@@ -66,9 +66,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.containter {
+.subject {
   width:100%;
-  padding-top: 70px;
+  box-sizing: border-box;
+  margin: 70px auto;
 
   .content {
     width: 1200px;

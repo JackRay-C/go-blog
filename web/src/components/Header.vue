@@ -54,6 +54,8 @@ export default {
   box-shadow: 0 2px 20px 0 rgba(31, 35, 41, 0.1);
   background: #ffffff;
   z-index: 1;
+  font-family: "pingfang SC", "helvetica neue", arial, "hiragino sans gb",
+    "microsoft yahei ui", "microsoft yahei", simsun, sans-serif;
 }
 .header .nav {
   display: flex;
@@ -61,15 +63,14 @@ export default {
   margin: 0 40px;
   height: 72px;
   justify-content: space-between;
-  font-family: 'Source Code Pro','DejaVu Sans Mono','Ubuntu Mono','Anonymous Pro','Droid Sans Mono';
 
   .nav-left {
     justify-content: flex-start;
 
     .title {
       font-weight: 800;
-      font-size: 21px;
-      color: #3e4c5b;
+      font-size: 20px;
+      color: #333;
       cursor: pointer;
       transition: transform 0.4s;
     }
@@ -78,7 +79,7 @@ export default {
   .nav-mid {
     display: flex;
     flex-direction: row;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1;
     list-style: none;
     justify-content: flex-end;
@@ -119,7 +120,7 @@ export default {
     align-items: center;
     button {
       min-width: 80px;
-      font-size: 15px;
+      font-size: 16px;
       display: inline-block;
       // line-height: 1;
       white-space: nowrap;

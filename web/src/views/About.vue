@@ -1,12 +1,12 @@
 <template>
-    <div class="about fadeInUp">
+    <div class="about fadeInUp markdown-content">
       <div class="post-title">
         <span class="post-title-text">
-          <h2>关于我</h2>
+          <h1>关于我</h1>
         </span>
       </div>
 
-      <div class="post-content" v-highlight>
+      <div class="post-content vditor-reset markdown-body" v-highlight>
         <h2>个人信息</h2>
         <p>1、姓名： 任浩杰</p>
         <p>2、性别： 男</p>
@@ -58,18 +58,13 @@ export default {
   position: relative;
   font-size: 30px;
   font-weight: 800;
-  color: #3e4c5b;
+  // color: #3e4c5b;
 }
 .post-title-text {
   vertical-align: middle;
   font-size: 21px;
 }
-.post-info {
-  display: flex;
-  align-items: center;
-  color: #9aa8b6;
-  font-size: 16px;
-}
+
 .post-info .post-tag {
   cursor: pointer;
 }
@@ -80,64 +75,64 @@ export default {
   background-color: #c3c6cb;
   margin: 0 8px;
 }
-.post-content {
-  line-height: 2em;
-  white-space: pre-line;
-  word-break: break-word;
-  font-size: 16px;
-  color: #3e4c5b;
-  box-sizing: border-box;
-  font-weight: 400;
+// .post-content {
+//   line-height: 2em;
+//   white-space: pre-line;
+//   word-break: break-word;
+//   font-size: 16px;
+//   color: #3e4c5b;
+//   box-sizing: border-box;
+//   font-weight: 400;
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: #616569;
-    line-height: 2.5;
+//   h1,
+//   h2,
+//   h3,
+//   h4,
+//   h5,
+//   h6 {
+//     color: #616569;
+//     line-height: 2.5;
 
-    &:first-child {
-      margin-top: 50px;
-    }
-  }
-  h1 {
-    font-weight: 800;
-  }
-  h2 {
-    font-weight: 800;
-    font-size: 25px;
-  }
-  p {
-    line-height: 2em;
-    white-space: pre-line;
-    word-break: break-word;
-    word-wrap: break-word;
-    font-size: 16px;
-    color: #616569;
-    box-sizing: border-box;
-    font-weight: 400;
-    margin: 8px 0;
-  }
+//     &:first-child {
+//       margin-top: 50px;
+//     }
+//   }
+//   h1 {
+//     font-weight: 800;
+//   }
+//   h2 {
+//     font-weight: 800;
+//     font-size: 25px;
+//   }
+//   p {
+//     line-height: 2em;
+//     white-space: pre-line;
+//     word-break: break-word;
+//     word-wrap: break-word;
+//     font-size: 16px;
+//     color: #616569;
+//     box-sizing: border-box;
+//     font-weight: 400;
+//     margin: 8px 0;
+//   }
 
-  pre[class*="language-"] {
-    line-height: 1.5;
-    padding: 0;
-    margin: 1rem 0;
-    font-size: 16px;
-    overflow: auto;
-    user-select: contain;
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    tab-size: 4;
-    hyphens: none;
-    display: block;
-    position: relative;
-    z-index: 1;
-    code {
-      padding: 2rem 1rem;
-    }
-  }
-}
+//   pre[class*="language-"] {
+//     line-height: 1.5;
+//     padding: 0;
+//     margin: 1rem 0;
+//     font-size: 16px;
+//     overflow: auto;
+//     user-select: contain;
+//     -webkit-user-select: text;
+//     -moz-user-select: text;
+//     tab-size: 4;
+//     hyphens: none;
+//     display: block;
+//     position: relative;
+//     z-index: 1;
+//     code {
+//       padding: 2rem 1rem;
+//     }
+//   }
+// }
 </style>

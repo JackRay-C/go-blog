@@ -44,7 +44,7 @@
     </div>
 
     <div class="content fadeInUp">
-      <PostCard v-for="post in posts" :key="post.id" :post="post" />
+      <PostCard v-for="post,index in posts" :key="index" :post="post" />
 
       <Pagination :pageCount="total_page" :pagerCount="10" @change="handlePageChange" />
       <br />
@@ -307,11 +307,10 @@ export default {
 }
 
 .content {
-  margin: 0;
   padding: 0;
   width: 60%;
   height: auto;
-  margin: auto;
+  margin: 50px auto;
   background: #f6f7fa;
 }
 </style>

@@ -20,6 +20,7 @@ export default {
 
 <style scoped>
 #home {
-  background: #f6f7fa;
+  /* background: #f6f7fa; */
+  background: #F6F7FD;
 }
 </style>

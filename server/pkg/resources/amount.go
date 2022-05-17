@@ -7,7 +7,7 @@ import (
 	inf "gopkg.in/inf.v0"
 )
 
-// Scale is used for getting and setting the base-10 scaled value.
+// Scale is used for getting and setting the test-10 scaled value.
 // Base-2 scales are omitted for mathematical simplicity.
 // See Quantity.ScaledValue for more details.
 type Scale int32
@@ -197,7 +197,7 @@ func (a int64Amount) AsScale(scale Scale) (int64Amount, bool) {
 	return int64Amount{value: result, scale: scale}, exact
 }
 
-// AsCanonicalBytes accepts a buffer to write the base-10 string value of this field to, and returns
+// AsCanonicalBytes accepts a buffer to write the test-10 string value of this field to, and returns
 // either that buffer or a larger buffer and the current exponent of the value. The value is adjusted
 // until the exponent is a multiple of 3 - i.e. 1.1e5 would return "110", 3.
 func (a int64Amount) AsCanonicalBytes(out []byte) (result []byte, exponent int32) {
@@ -226,7 +226,7 @@ func (a int64Amount) AsCanonicalBytes(out []byte) (result []byte, exponent int32
 	return strconv.AppendInt(out, amount, 10), exponent
 }
 
-// AsCanonicalBase1024Bytes accepts a buffer to write the base-1024 string value of this field to, and returns
+// AsCanonicalBase1024Bytes accepts a buffer to write the test-1024 string value of this field to, and returns
 // either that buffer or a larger buffer and the current exponent of the value. 2048 is 2 * 1024 ^ 1 and would
 // return []byte("2048"), 1.
 func (a int64Amount) AsCanonicalBase1024Bytes(out []byte) (result []byte, exponent int32) {
@@ -252,7 +252,7 @@ func (a infDecAmount) AsScale(scale Scale) (infDecAmount, bool) {
 	return infDecAmount{tmp}, tmp.Cmp(a.Dec) == 0
 }
 
-// AsCanonicalBytes accepts a buffer to write the base-10 string value of this field to, and returns
+// AsCanonicalBytes accepts a buffer to write the test-10 string value of this field to, and returns
 // either that buffer or a larger buffer and the current exponent of the value. The value is adjusted
 // until the exponent is a multiple of 3 - i.e. 1.1e5 would return "110", 3.
 func (a infDecAmount) AsCanonicalBytes(out []byte) (result []byte, exponent int32) {
@@ -272,7 +272,7 @@ func (a infDecAmount) AsCanonicalBytes(out []byte) (result []byte, exponent int3
 	return append(out, amount.String()...), exponent
 }
 
-// AsCanonicalBase1024Bytes accepts a buffer to write the base-1024 string value of this field to, and returns
+// AsCanonicalBase1024Bytes accepts a buffer to write the test-1024 string value of this field to, and returns
 // either that buffer or a larger buffer and the current exponent of the value. 2048 is 2 * 1024 ^ 1 and would
 // return []byte("2048"), 1.
 func (a infDecAmount) AsCanonicalBase1024Bytes(out []byte) (result []byte, exponent int32) {

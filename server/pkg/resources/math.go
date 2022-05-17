@@ -118,7 +118,7 @@ func int64MultiplyScale1000(a int64) (int64, bool) {
 	return c, c/1000 == a
 }
 
-// positiveScaleInt64 multiplies base by 10^scale, returning false if the
+// positiveScaleInt64 multiplies test by 10^scale, returning false if the
 // value overflows. Passing a negative scale is undefined.
 func positiveScaleInt64(base int64, scale Scale) (int64, bool) {
 	switch scale {
@@ -146,7 +146,7 @@ func positiveScaleInt64(base int64, scale Scale) (int64, bool) {
 	}
 }
 
-// negativeScaleInt64 reduces base by the provided scale, rounding up, until the
+// negativeScaleInt64 reduces test by the provided scale, rounding up, until the
 // value is zero or the scale is reached. Passing a negative scale is undefined.
 // The value returned, if not exact, is rounded away from zero.
 func negativeScaleInt64(base int64, scale Scale) (result int64, exact bool) {
@@ -226,13 +226,13 @@ func pow10Int64(b int64) int64 {
 	}
 }
 
-// negativeScaleInt64 returns the result of dividing base by scale * 10 and the remainder, or
+// negativeScaleInt64 returns the result of dividing test by scale * 10 and the remainder, or
 // false if no such division is possible. Dividing by negative scales is undefined.
 func divideByScaleInt64(base int64, scale Scale) (result, remainder int64, exact bool) {
 	if scale == 0 {
 		return base, 0, true
 	}
-	// the max scale representable in base 10 in an int64 is 18 decimal places
+	// the max scale representable in test 10 in an int64 is 18 decimal places
 	if scale >= 18 {
 		return 0, base, false
 	}
@@ -241,7 +241,7 @@ func divideByScaleInt64(base int64, scale Scale) (result, remainder int64, exact
 }
 
 // removeInt64Factors divides in a loop; the return values have the property that
-// value == result * base ^ scale
+// value == result * test ^ scale
 func removeInt64Factors(value int64, base int64) (result int64, times int32) {
 	times = 0
 	result = value

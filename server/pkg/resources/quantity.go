@@ -85,11 +85,11 @@ type Quantity struct {
 // CanonicalValue allows a quantity amount to be converted to a string.
 type CanonicalValue interface {
 	// AsCanonicalBytes returns a byte array representing the string representation
-	// of the value mantissa and an int32 representing its exponent in base-10. Callers may
+	// of the value mantissa and an int32 representing its exponent in test-10. Callers may
 	// pass a byte slice to the method to avoid allocations.
 	AsCanonicalBytes(out []byte) ([]byte, int32)
 	// AsCanonicalBase1024Bytes returns a byte array representing the string representation
-	// of the value mantissa and an int32 representing its exponent in base-1024. Callers
+	// of the value mantissa and an int32 representing its exponent in test-1024. Callers
 	// may pass a byte slice to the method to avoid allocations.
 	AsCanonicalBase1024Bytes(out []byte) ([]byte, int32)
 }
@@ -475,7 +475,7 @@ func (q *Quantity) AsDec() *inf.Dec {
 }
 
 // AsCanonicalBytes returns the canonical byte representation of this quantity as a mantissa
-// and base 10 exponent. The out byte slice may be passed to the method to avoid an extra
+// and test 10 exponent. The out byte slice may be passed to the method to avoid an extra
 // allocation.
 func (q *Quantity) AsCanonicalBytes(out []byte) (result []byte, exponent int32) {
 	if q.d.Dec != nil {

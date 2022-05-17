@@ -1,0 +1,95 @@
+app-author: renhj
+app-home-path: ./
+app-log-type: simple
+app-mode: production
+app-name: go-blog
+app-storage-type: local
+app-version: "v1.1.1"
+database:
+  mysql:
+    charset: utf8
+    db-name: go_blog
+    host: localhost
+    log-mode: info
+    max-idle-conns: 10
+    max-open-conns: 10
+    parse-time: true
+    password: ren123
+    port: 3306
+    username: root
+logs:
+  simple:
+    directory: logs
+    file-name: debug.log
+    level: info
+    log-in-console: true
+    log-max-age: 30
+    log-max-size: 1000
+    format: console
+server:
+  access-token-expire: 5m0s
+  addr: localhost
+  cert-file: bin/test/cert.crt
+  cert-key: bin/test/cert.key
+  domain: www.renhj.cc
+  port: 8000
+  protocol: http
+  readtimeout: 1m0s
+  refresh-token-expire: 168h0m0s
+  snow-flake-data-center-id: 1
+  snow-flake-work-id: 1
+  static-root-path: static
+  writetimeout: 1m0s
+smtp:
+  from-address: admin@go-blog.localhost
+  from-name: go-blog
+  host: ""
+  isssl: true
+  password: ""
+  username: ""
+storage:
+  allow-upload-file-exts:
+  - .jpg
+  - jpeg
+  - .png
+  - .bmp
+  - .psd
+  - .icon
+  - .gif
+  - .mp3
+  - .wav
+  - .mid
+  - .flac','.mp4','.mov
+  - .avi
+  - .flv
+  - .m4v
+  - .rmvb
+  - .zip
+  - .rar
+  - .tar
+  - .gz
+  - .ba2
+  - .doc
+  - .xlsx
+  - .pdf
+  - .ppt
+  - .pptx
+  - .xls
+  - .docx
+  - .md
+  - .html
+  - .js
+  - .css
+  - .java
+  - .class
+  - .py
+  - .go
+  - .sh
+  - .log
+  - .yaml
+  - .yml','.ini','.json
+  - .txt
+  - .xmind
+  allow-upload-max-size: 2147483648
+  local:
+    path: static/uploads

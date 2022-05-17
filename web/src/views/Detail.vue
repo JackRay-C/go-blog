@@ -3,19 +3,20 @@
     <div v-if="!loading">
       <div class="post-title">
         <span class="post-title-text">
-          <h1>{{ post.title }}</h1>
+          <h1>{{ repository.title }}</h1>
         </span>
       </div>
       <div class="post-info">
-        <span class="post-created" v-if="post.updated_at"
+        <span class="post-created" v-if="repository.updated_at"
           >更新于:
-          {{ post.updated_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
-          &nbsp;&nbsp;</span
+          {{ repository.updated_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+          </span
         >
-        <span class="post-created" v-else
+        <div class="devider"></div>
+        <span class="post-created" v-if="history.published_at"
           >发表于:
-          {{ post.created_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
-          &nbsp;&nbsp;</span
+          {{ history.published_at.Time | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+       </span
         >
         <div class="devider"></div>
         <div
@@ -25,9 +26,10 @@
           @click="goTag(tag.id)"
         >
           {{ tag.name }}
+          <div class="devider"></div>
         </div>
-        <div class="devider"></div>
-        <div class="post-tag">阅读量： {{ post.views }}</div>
+        
+        <div class="post-created">阅读量： {{ head.views }}</div>
       </div>
       <!-- <div
           class="post-content markdown-body"
@@ -38,7 +40,12 @@
         id="post-content"
         v-html="html"
       ></div>
+
+
     </div>
+
+
+  
   </div>
 </template>
 
@@ -59,15 +66,18 @@ export default {
   data() {
     return {
       id: "",
-      post: {
-        title: "",
-        markdown_content: "",
-        html_content: "",
-        created_at: "",
-        updated_at: "",
-        views: 0,
-        likes: 0,
-      },
+      // post: {
+      //   title: "",
+      //   markdown_content: "",
+      //   html_content: "",
+      //   created_at: "",
+      //   updated_at: "",
+      //   views: 0,
+      //   likes: 0,
+      // },
+      head: null,
+      repository: null,
+      history: null,
       tags: [],
       loading: false,
     };
@@ -84,9 +94,9 @@ export default {
   },
   computed: {
     html: function() {
-      let res = this.md.render(this.post.markdown_content)
+      let res = this.md.render(this.repository.markdown_content)
 
-      return '<div class="markdown-body">' + res + '</div>'
+      return '<div class="vditor-reset markdown-body ">' + res + '</div>'
     }
   },
   methods: {
@@ -97,7 +107,20 @@ export default {
       getPost(this.$route.params.id)
         .then((res) => {
           if (res.code === 200 && res.data) {
-            this.post = res.data;
+            console.log(res.data)
+            this.head = res.data.head
+            res.data.repositories.forEach(e => {
+              if(e.id === this.head.repository_id) {
+                this.repository = e
+              }
+            });
+
+            res.data.histories.forEach(e => {
+              if (e.head_id === this.head.id) {
+                this.history = e
+              }
+            })
+
             this.loading = false;
             this.load.close()
           }
@@ -113,13 +136,14 @@ export default {
 };
 </script>
 
+
 <style lang="scss" scoped>
 .detail {
   font-weight: 400;
   font-size: 16px;
   width: 60%;
   min-height: 573px;
-  margin: 70px auto 110px;
+  margin: 50px auto 110px;
   padding-left: 32px;
   box-sizing: border-box;
 }
@@ -128,46 +152,35 @@ export default {
   align-items: center;
   margin-bottom: 20px;
   position: relative;
-  font-size: 30px;
   font-weight: 800;
   color: #171d26;
 }
 .post-title-text {
-  vertical-align: middle;
-  font-size: 1.2rem;
+  line-height: 1;
+  font-size: 16px;
+  text-overflow: ellipsis;
 }
 .post-info {
   display: flex;
   align-items: center;
-  color: #9aa8b6;
-  font-size: 16px;
-  height: 40px;
+  color: #888888;
+  font-size: 13px;
+  height: 32px;
   margin-top: 20px;
+  display: flex;
 
   .post-created {
     height: 32px;
-    // background: #f6f7fa;
-    color: #888888;
     border-radius: 4px;
-    margin: 0 9px 0 0;
-    padding: 0px 10px 0 0;
     line-height: 30px;
-    font-size: 13px;
-    cursor: pointer;
     box-sizing: border-box;
   }
 }
 .post-info .post-tag {
   height: 32px;
-  // background: #f6f7fa;
-  color: #888888;
-  border-radius: 4px;
-  margin: 0 9px;
-  padding: 0px 10px;
   line-height: 30px;
-  font-size: 13px;
-  cursor: pointer;
   box-sizing: border-box;
+  cursor: pointer;
 
   &:hover {
     color: #0c64e9;
@@ -179,6 +192,7 @@ export default {
   width: 1px;
   height: 12px;
   background-color: #c3c6cb;
+  margin: 0 10px;
 }
 
 .fadeInUp {
@@ -186,96 +200,96 @@ export default {
 }
 </style>
 
-<style lang="scss">
-.markdown-body {
-  // padding-top: 30px;
-  color: #606c80 !important;
-  font-size: 16px !important;
-  line-height: 2em !important;
-  box-sizing: border-box;
-  font-weight: 400;
-  margin: 8px 0 !important;
+// <style lang="scss">
+// .markdown-body {
+//   // padding-top: 30px;
+//   color: #606c80 !important;
+//   font-size: 16px !important;
+//   line-height: 2em !important;
+//   box-sizing: border-box;
+//   font-weight: 400;
+//   margin: 8px 0 !important;
 
-  // .katex .vlist>span {
-  //   top: -1.263em !important;
-  // }
-  // .katex .vlist>span>span {
-  //   font-size: 0.8em;
-  // }
+//   // .katex .vlist>span {
+//   //   top: -1.263em !important;
+//   // }
+//   // .katex .vlist>span>span {
+//   //   font-size: 0.8em;
+//   // }
 
 
-  img {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-  }
+//   img {
+//     width: 100%;
+//     height: 100%;
+//     padding: 0;
+//     margin: 0;
+//   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: #171d26 !important;
+//   h1,
+//   h2,
+//   h3,
+//   h4,
+//   h5,
+//   h6 {
+//     color: #171d26 !important;
 
-    &:not(first-child) {
-      margin-top: 24px;
-    }
-  }
+//     &:not(first-child) {
+//       margin-top: 24px;
+//     }
+//   }
 
-  h1 {
-    line-height: 2;
-    margin-bottom: 20px !important;
-  }
-  h2 {
-    line-height: 2;
-    font-weight: 800;
-    font-size: 25px;
-    margin-bottom: 20px !important;
-  }
+//   h1 {
+//     line-height: 2;
+//     margin-bottom: 20px !important;
+//   }
+//   h2 {
+//     line-height: 2;
+//     font-weight: 800;
+//     font-size: 25px;
+//     margin-bottom: 20px !important;
+//   }
 
-  p {
-    line-height: 2;
-    white-space: pre-wrap;
-    color: #171d26;
-    word-break: break-all;
-    font-size: 16px;
-    box-sizing: border-box;
-    font-weight: 400;
-    margin: 24px 0;
+//   p {
+//     line-height: 2;
+//     white-space: pre-wrap;
+//     color: #171d26;
+//     word-break: break-all;
+//     font-size: 16px;
+//     box-sizing: border-box;
+//     font-weight: 400;
+//     margin: 24px 0;
 
-    strong {
-      color: #464952;
-      font-weight: 500;
-    }
-  }
-  pre {
-    padding: 0;
-    margin: 24px auto;
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
+//     strong {
+//       color: #464952;
+//       font-weight: 500;
+//     }
+//   }
+//   pre {
+//     padding: 0;
+//     margin: 24px auto;
+//     white-space: pre-wrap;
+//     word-break: break-all;
+//   }
 
-  code {
-    font-size: 16px;
-    margin: 0;
-    white-space: pre-wrap;
-    word-break: break-all;
-  }
+//   code {
+//     font-size: 16px;
+//     margin: 0;
+//     white-space: pre-wrap;
+//     word-break: break-all;
+//   }
 
-  ul {
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 2em;
+//   ul {
+//     font-size: 16px;
+//     font-weight: 400;
+//     line-height: 2em;
 
-    li {
-      margin: 8px 0;
-    }
-  }
-}
-.hljs {
-  padding: 15px 15px;
-}
+//     li {
+//       margin: 8px 0;
+//     }
+//   }
+// }
+// .hljs {
+//   padding: 15px 15px;
+// }
 
-</style>
+// </style>

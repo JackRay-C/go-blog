@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/spf13/cobra"
-	"runtime"
-	"time"
 )
 
 type version struct {
@@ -13,7 +11,7 @@ type version struct {
 	GitVersion   string
 	GitCommit    string
 	GitTreeState string
-	BuildDate    time.Time
+	BuildTime    string
 	GoVersion    string
 	Compiler     string
 	Platform     string
@@ -28,13 +26,15 @@ func (v *version) String() string {
 }
 
 var (
-	GoVersion    = runtime.Version()
-	BuildDate    = time.Now()
+	GoVersion    = ""
+	BuildTime    = ""
 	GitCommit    = ""
-	BuildVersion = "v1.0.0"
-	Compiler     = "gc"
-	GitVersion   = "v1.321.1"
-	Platform     = runtime.GOOS + "/" + runtime.GOARCH
+	BuildVersion = ""
+	Compiler     = ""
+	GitVersion   = ""
+	Platform     = ""
+	ServerName   = ""
+	ClientName = ""
 )
 
 var versionCmd = &cobra.Command{
@@ -46,7 +46,7 @@ var versionCmd = &cobra.Command{
 			Version:    BuildVersion,
 			GitCommit:  GitCommit,
 			GitVersion: GitVersion,
-			BuildDate:  BuildDate,
+			BuildTime:  BuildTime,
 			GoVersion:  GoVersion,
 			Compiler:   Compiler,
 			Platform:   Platform,
@@ -55,7 +55,7 @@ var versionCmd = &cobra.Command{
 			Version:    BuildVersion,
 			GitCommit:  GitCommit,
 			GitVersion: GitVersion,
-			BuildDate:  BuildDate,
+			BuildTime:  BuildTime,
 			GoVersion:  GoVersion,
 			Compiler:   Compiler,
 			Platform:   Platform,

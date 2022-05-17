@@ -2,11 +2,14 @@
 
     <div class="post-card">
       <div>
-        <h1 class="post-title" v-on:click="toDetail">{{post.title}}</h1>
+        <h1 class="post-title" v-on:click="toDetail">{{repository.title}}</h1>
       </div>
       <div class="post-content">
-        <p>
-          {{replaceContent(post.description)}}
+        <p v-if="repository.description">
+          {{repository.description}}
+        </p>
+        <p v-else>
+          {{replaceContent(repository.markdown_conntent)}}
         </p>
       </div>
     </div>
@@ -14,6 +17,7 @@
 </template>
 
 <script>
+
 export default {
   name: "PostCard",
   props: {
@@ -25,9 +29,21 @@ export default {
   mounted(){
     
   },
+  computed: {
+    // 获取仓库中id等于head.repository_id的值
+    // repository: ()=> {
+      
+    // }
+    repository: function() {
+      return this.post.repositories.find(item => item.id===this.post.head.repository_id)
+    },
+    history: function()  {
+      return this.post.repositories.find(item => item.head_id===this.post.head.id && item.repository_id === this.post.head.repository_id)
+    }
+  },
   methods: {
     toDetail() {
-      this.$router.push(`/detail/${this.post.id}`);
+      this.$router.push(`/detail/${this.post.head.id}`);
     },
     replaceContent(content) {
       content = content.replace(/[\r\n]/g, " ");
