@@ -7,12 +7,12 @@ import (
 )
 
 type Role struct {
-	ID          int          `json:"id" gorm:"type:int;primary_key;auto_increment;common:'主键ID'"`
+	ID          int64          `json:"id" gorm:"type:int;primary_key;auto_increment;common:'主键ID'"`
 	Name        string         `json:"name" gorm:"type:varchar(100);index:idx_name,unique;"`
 	Description string         `json:"description" gorm:"type:varchar(255)"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
-	DeleteAt    gorm.DeletedAt `json:"delete_at"`
+	DeletedAt    gorm.DeletedAt `json:"delete_at"`
 }
 
 

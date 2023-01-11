@@ -19,7 +19,7 @@ type AliyunOSS struct {
 	config    *config.AliyunOSS
 }
 
-func New(setting *config.AliyunOSS) (*AliyunOSS, error) {
+func New(setting *config.AliyunOSS) (*AliyunOSS,  error) {
 	client, err := oss.New(setting.Endpoint, setting.AccessKeyId, setting.AccessKeySecret, oss.Timeout(setting.HTTPTimeout, setting.ReadWriteTimeout), oss.EnableCRC(setting.EnableCRC))
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("inialization aliyun oss client failed: %s", err))
@@ -61,6 +61,8 @@ func (a *AliyunOSS) Save(header *multipart.FileHeader) (string, error) {
 	if err := a.Bucket.PutObject(p, open); err != nil {
 		return "", errors.New(fmt.Sprintf("aliyun oss client PutObject failed: %s", err))
 	}
+
+
 	return name.Name + "." + path.Ext(header.Filename), nil
 }
 

@@ -25,20 +25,17 @@ func NewFile() *File {
 
 func (i *File) Get(c *gin.Context) (*vo.Response, error) {
 	// 1、获取文件ID
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
 
-	// 2、获取用户ID
-	currentUserId, _ := c.Get("current_user_id")
-
 	// 3、根据用户ID和文件ID查询文件
-	file := po.File{ID: id, UserID: currentUserId.(int)}
+	file := po.File{ID: id, UserID: auth.GetCurrentUserId(c)}
 	if err = i.fileService.ISelectOne(c, &file); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
-	return vo.Success(file), nil
+	return vo.Success(&file), nil
 }
 
 func (i *File) List(c *gin.Context) (*vo.Response, error) {
@@ -47,8 +44,8 @@ func (i *File) List(c *gin.Context) (*vo.Response, error) {
 		PageSize: page.GetPageSize(c),
 	}
 
-	if !auth.CheckLogin(c) {
-		return nil, vo.NotLogin.SetMsg("未登录. ")
+	if !auth.CheckPermission(c, "files", "list") {
+		return nil, vo.Forbidden
 	}
 
 	if err := i.fileService.ISelectList(c, &p, &po.File{}); err != nil {
@@ -73,14 +70,13 @@ func (i *File) Post(c *gin.Context) (*vo.Response, error) {
 }
 
 func (i *File) Delete(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
 
-
-	if err := i.fileService.IDeleteOne(c, &po.File{ID: id}); err != nil {
-		return nil, err
+	if err := i.fileService.IDeleteFile(c, &po.File{ID: id}); err != nil {
+		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 
 	return vo.Success("删除成功. "), nil

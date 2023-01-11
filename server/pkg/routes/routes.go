@@ -43,35 +43,32 @@ func NewRouters(setting *config.App) *gin.Engine {
 	r.Use(middleware.AppInfo())
 	r.Use(middleware.RequestID())
 	r.Use(middleware.Logger())
-	r.Use(middleware.Authentication())
 
 	consoleGroup := r.Group("/api/v1/console")
+	consoleGroup.Use(middleware.Permission())
 	{
-		console.InitAuthRouter(consoleGroup)
 		console.InitCommentRouter(consoleGroup)
 		console.InitDictRouter(consoleGroup)
-		console.InitHistoryRouter(consoleGroup)
-		console.InitRepositoryRouter(consoleGroup)
+		console.InitDraftRouter(consoleGroup)
 		console.InitPostRouter(consoleGroup)
 		console.InitSubjectRouter(consoleGroup)
 		console.InitFileRouter(consoleGroup)
-		console.InitHeadsRouter(consoleGroup)
 		console.InitPermissionRouter(consoleGroup)
 		console.InitUserRouter(consoleGroup)
 		console.InitTagRouter(consoleGroup)
 		console.InitRolesRouter(consoleGroup)
-
 	}
 
 	webGroup := r.Group("/api/v1/")
 	{
+		web.InitAuthRouter(webGroup)
 		web.InitWebCommentRouter(webGroup)
 		web.InitWebDictRouter(webGroup)
 		web.InitWebFileRouter(webGroup)
-
-		web.InitWebHeadRouter(webGroup)
 		web.InitWebPostsRoutes(webGroup)
 		web.InitWebSubjectRouter(webGroup)
+		web.InitWebTagRouter(webGroup)
+		web.InitWebUserRouter(webGroup)
 
 	}
 

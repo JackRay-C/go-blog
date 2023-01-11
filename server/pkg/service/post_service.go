@@ -1,20 +1,18 @@
 package service
 
 import (
-	"blog/pkg/model/bo"
 	"blog/pkg/model/common"
+	"blog/pkg/model/po"
 	"blog/pkg/service/impl"
 	"github.com/gin-gonic/gin"
 )
 
 type PostService interface {
 	common.BaseService
-	ILike(c *gin.Context, post *bo.Post) error // 喜欢
-	//IStaged(c *gin.Context, post *bo.Post) error    // 保存草稿
-	//ICommit(c *gin.Context, post *bo.Post) error    // 保存博客快照
-	//IPublish(c *gin.Context, post *bo.Post) error   // 发布博客
-	//IPull(c *gin.Context, post *bo.Post) error      // 查询单条博客的所有信息
-
+	ILike(c *gin.Context, post *po.Post) error          // 喜欢
+	IUnLike(c *gin.Context, post *po.Post) error        // 喜欢
+	IIncrementView(c *gin.Context, post *po.Post) error // 阅读量加一
+	IDecrementViews(c *gin.Context, post *po.Post) error
 }
 
 func NewPostService() PostService {

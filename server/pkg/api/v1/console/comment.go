@@ -26,19 +26,19 @@ func NewComment() *Comment {
 
 func (c *Comment) Get(ctx *gin.Context) (*vo.Response, error) {
 	// 1、判断是否登录
-	if !auth.CheckLogin(ctx) {
-		return nil, vo.NotLogin
+	if !auth.CheckPermission(ctx, "comments", "read") {
+		return nil, vo.Forbidden
 	}
 
 	// 2、根据user id 查询comment
 	userId, _ := ctx.Get(global.SessionUserIDKey)
 
-	id, err := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
 		return nil, vo.InvalidParams.SetMsg("invalid params ID.")
 	}
 
-	c2 := &po.Comment{ID: id, UserID: userId.(int)}
+	c2 := &po.Comment{ID: id, UserID: userId.(int64)}
 
 	// 3、查询comment
 	if err := c.commentService.ISelectOne(ctx, c2); err != nil {
@@ -50,9 +50,8 @@ func (c *Comment) Get(ctx *gin.Context) (*vo.Response, error) {
 }
 
 func (c *Comment) List(ctx *gin.Context) (*vo.Response, error) {
-	// 1、判断是否登录
-	if !auth.CheckLogin(ctx) {
-		return nil, vo.NotLogin
+	if !auth.CheckPermission(ctx, "comments", "list") {
+		return nil, vo.Forbidden
 	}
 
 	p := vo.Pager{
@@ -73,16 +72,17 @@ func (c *Comment) Post(ctx *gin.Context) (*vo.Response, error) {
 }
 
 func (c *Comment) Delete(ctx *gin.Context) (*vo.Response, error) {
-	c.log.Infof("delete comment")
-	id, err := strconv.Atoi(ctx.Param("id"))
+	if !auth.CheckPermission(ctx, "comments", "delete") {
+		return nil, vo.Forbidden
+	}
+
+	id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 	if err != nil {
-		c.log.Error(err)
-		return nil, vo.InvalidParams.SetMsg("invalid param ID")
+		return nil, vo.InvalidParams
 	}
 
 	// 2、根据user id 查询comment
-	userId, _ := ctx.Get(global.SessionUserIDKey)
-	comment := &po.Comment{ID: id, UserID: userId.(int)}
+	comment := &po.Comment{ID: id, UserID: auth.GetCurrentUserId(ctx)}
 
 	if err := c.commentService.IDeleteOne(ctx, comment); err != nil {
 		c.log.Error(err)

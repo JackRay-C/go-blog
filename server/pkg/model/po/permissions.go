@@ -7,14 +7,14 @@ import (
 )
 
 type Permissions struct {
-	ID          int            `json:"id" gorm:"type:int;primary_key;autoIncrement;common:主键ID;"`
+	ID          int64            `json:"id" gorm:"type:int;primary_key;autoIncrement;common:主键ID;"`
 	Name        string         `json:"name" gorm:"type:varchar(255);index:idx_name,unique;"`
 	ObjectType  string         `json:"object_type" gorm:"type:varchar(255);index:idx_p,unique;"`
 	ActionType  string         `json:"action_type" gorm:"type:varchar(255);index:idx_p,unique;"`
 	Description string         `json:"description"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
-	DeleteAt    gorm.DeletedAt `json:"delete_at"`
+	DeletedAt    gorm.DeletedAt `json:"delete_at"`
 }
 
 func (p *Permissions) String() string {

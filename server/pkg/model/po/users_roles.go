@@ -3,8 +3,8 @@ package po
 import "encoding/json"
 
 type UsersRoles struct {
-	UserId int `json:"user_id" gorm:"type:int"`
-	RoleId int `json:"role_id" gorm:"type:int"`
+	UserId int64 `json:"user_id" gorm:"type:int"`
+	RoleId int64 `json:"role_id" gorm:"type:int"`
 }
 
 func (*UsersRoles) TableName() string {

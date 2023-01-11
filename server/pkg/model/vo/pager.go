@@ -4,6 +4,7 @@ import (
 	"blog/pkg/utils/convert"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 type Pager struct {
@@ -13,6 +14,7 @@ type Pager struct {
 	TotalRows int64       `json:"total_rows"`
 	List      interface{} `json:"list"`
 	Search    string      `json:"search" form:"search"`
+	FullIndex bool        `json:"full_index" form:"full_index"`
 	SortBy    string      `json:"sort_by" form:"sort_by"`
 	SortOrder string      `json:"sort_order" form:"sort_order"`
 }
@@ -29,14 +31,16 @@ func (p *Pager) MustList(list interface{}) {
 	if p.TotalRows == 0 {
 		p.PageCount = 0
 		p.List = make([]string, 0)
+		log.Println(p)
 	} else {
-		p.PageCount = (p.PageCount + p.PageSize - 1) / p.PageSize
+		p.PageCount = int((p.TotalRows + int64(p.PageSize) - 1) / int64(p.PageSize))
+
 		p.List = list
 	}
 }
 
 // MustPageNo bind query page_no or set default value 1
-func (p *Pager) MustPageNo(c *gin.Context)  {
+func (p *Pager) MustPageNo(c *gin.Context) {
 	pageNo := c.DefaultQuery("page_no", "1")
 	p.PageNo = convert.StrTo(pageNo).MustInt()
 }
@@ -44,16 +48,16 @@ func (p *Pager) MustPageNo(c *gin.Context)  {
 // MustPageSize bind query page_size or set default 10
 func (p *Pager) MustPageSize(c *gin.Context) {
 	pageSize := c.DefaultQuery("page_size", "10")
-	p.PageSize =  convert.StrTo(pageSize).MustInt()
+	p.PageSize = convert.StrTo(pageSize).MustInt()
 }
 
 // MustSort bind sort meta from query or set default {"sort_by": "created_by", "sort_order":"desc"}
-func (p *Pager) MustSort(c *gin.Context)  {
+func (p *Pager) MustSort(c *gin.Context) {
 	p.SortBy = c.DefaultQuery("sort_by", "created_at")
 	p.SortOrder = c.DefaultQuery("sort_order", "desc")
 }
 
 // MustSearch bind search query or set default ""
-func (p *Pager) MustSearch(c *gin.Context)  {
+func (p *Pager) MustSearch(c *gin.Context) {
 	p.Search = c.DefaultQuery("search", "")
 }

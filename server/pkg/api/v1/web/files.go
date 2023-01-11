@@ -25,14 +25,14 @@ func NewFile() *File {
 
 func (i *File) Get(c *gin.Context) (*vo.Response, error) {
 	// 1、获取文件ID
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
 
 	// 2、根据用户ID和文件ID查询文件
 	file := po.File{ID: id}
-	if err = i.fileService.ISelectOne(c,&file); err != nil {
+	if err = i.fileService.ISelectOneWeb(c,&file); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 	return vo.Success(file), nil

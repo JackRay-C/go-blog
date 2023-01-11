@@ -20,6 +20,5 @@ func InitRolesRouter(group *gin.RouterGroup) {
 		rolePermission := console.NewRolePermission()
 		roleGroup.GET("/:id/permissions", wrapper.Wrapper(rolePermission.Get))
 		roleGroup.PUT("/:id/permissions", wrapper.Wrapper(rolePermission.Put))
-
 	}
 }

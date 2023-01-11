@@ -17,6 +17,9 @@ func InitTagRouter(group *gin.RouterGroup) {
 		tagGroup.POST("", wrapper.Wrapper(tag.Post))
 		tagGroup.DELETE("/:id", wrapper.Wrapper(tag.Delete))
 		tagGroup.PUT("/:id", wrapper.Wrapper(tag.Put))
+
+
+		tagGroup.GET("/:id/posts", wrapper.Wrapper(tag.ListPosts))
 	}
 }
 

@@ -3,6 +3,7 @@ package console
 import (
 	"blog/internal/logger"
 	"blog/pkg/global"
+	"blog/pkg/model/common"
 	"blog/pkg/model/dto"
 	"blog/pkg/model/po"
 	"blog/pkg/model/vo"
@@ -14,25 +15,67 @@ import (
 )
 
 type User struct {
-	log            logger.Logger
-	userService    service.UserService
-	subjectService service.SubjectService
-	postService    service.PostService
-	fileService    service.FileService
+	log                   logger.Logger
+	service               common.BaseService
+	postService           service.PostService
+	fileService           service.FileService
+	userRoleService       service.UsersRolesService
+	rolePermissionService service.RolePermissionService
 }
 
 func NewUser() *User {
 	return &User{log: global.Log,
-		userService:    service.NewUserService(),
-		subjectService: service.NewSubjectService(),
-		postService:    service.NewPostService(),
-		fileService:    service.NewFileService(),
+		service:               &common.BaseServiceImpl{},
+		postService:           service.NewPostService(),
+		fileService:           service.NewFileService(),
+		userRoleService:       service.NewUsersRolesService(),
+		rolePermissionService: service.NewRolesPermissionService(),
 	}
+}
+
+// GetUserInfo 获取当前用户信息
+func (u *User) GetUserInfo(c *gin.Context) (*vo.Response, error) {
+	// 1、获取当前用户ID
+	currentUserId, _ := c.Get(global.SessionUserIDKey)
+	roles := make([]*po.Role, 0)
+	permissions := make([]*po.Permissions, 0)
+
+	// 2、获取当前用户的角色
+	if err := u.userRoleService.ISelectUserRoles(c, &po.User{ID: currentUserId.(int64)}, &roles); err != nil {
+		return nil, vo.InternalServerError.SetMsg("%s", err)
+	}
+
+	// 3、根据角色获取当前用户的权限列表
+	if len(roles) != 0 {
+		if err := u.rolePermissionService.ISelectPermissionByRoles(c, &permissions, roles...); err != nil {
+			return nil, vo.InternalServerError.SetMsg("%s", err)
+		}
+	}
+
+	// 4、获取当前用户的信息
+	user := &po.User{ID: currentUserId.(int64)}
+	err := u.service.ISelectOne(c, user)
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo := &vo.VUserInfo{
+		ID:          currentUserId.(int),
+		Username:    user.Username,
+		Nickname:    user.Nickname,
+		Active:      user.Active,
+		Email:       user.Email,
+		Avatar:      &po.File{ID: user.Avatar},
+		Roles:       roles,
+		Permissions: permissions,
+		CreatedAt:   user.CreatedAt,
+	}
+	return vo.Success(userInfo), nil
 }
 
 // 更新用户信息
 func (u *User) Put(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
@@ -46,9 +89,9 @@ func (u *User) Put(c *gin.Context) (*vo.Response, error) {
 		putUser.ID = id
 	}
 
-	currentUserId, _ := c.Get("current_user_id")
+	currentUserId, _ := c.Get(global.SessionUserIDKey)
 	// 修改别人的信息
-	if putUser.ID != currentUserId.(int) {
+	if putUser.ID != currentUserId.(int64) {
 		if !auth.CheckPermission(c, "users", "update") {
 			return nil, vo.Forbidden.SetMsg("修改ID为【%d】的用户信息失败：没有权限. ", id)
 		}
@@ -57,7 +100,7 @@ func (u *User) Put(c *gin.Context) (*vo.Response, error) {
 	// 修改自己的信息
 	user := &po.User{ID: id}
 
-	if err := u.userService.IUpdateOne(c, user, user);err != nil {
+	if err := u.service.IUpdateOne(c, user, user); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 
@@ -71,26 +114,25 @@ func (u *User) List(c *gin.Context) (*vo.Response, error) {
 		PageSize: page.GetPageSize(c),
 	}
 
-	active := c.DefaultQuery("active", "0")
-	atoi, err := strconv.Atoi(active)
+	active, err := strconv.ParseInt(c.DefaultQuery("active", "0"), 10, 8)
 	if err != nil {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
 
 	if !auth.CheckPermission(c, "users", "list") {
-		return nil, vo.Forbidden.SetMsg("查询用户列表失败：没有权限")
+		return nil, vo.Forbidden
 	}
 
-	if err := u.userService.ISelectList(c, &p, &po.User{Active: int8(atoi)}); err != nil {
+	if err := u.service.ISelectList(c, &p, &po.User{Active: int8(active)}); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 
 	return vo.Success(&p), nil
 }
 
-// 根据ID获取用户信息
+// Get 根据ID获取用户信息
 func (u *User) Get(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
@@ -101,7 +143,7 @@ func (u *User) Get(c *gin.Context) (*vo.Response, error) {
 
 	user := &po.User{ID: id}
 
-	if err := u.userService.ISelectOne(c, user);err != nil {
+	if err := u.service.ISelectOne(c, user); err != nil {
 		u.log.Error(err)
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
@@ -109,7 +151,7 @@ func (u *User) Get(c *gin.Context) (*vo.Response, error) {
 	return vo.Success(user), nil
 }
 
-// 创建用户
+// Post 创建用户
 func (u *User) Post(c *gin.Context) (*vo.Response, error) {
 	u.log.Infof("创建用户")
 	createUser := &po.User{}
@@ -118,7 +160,7 @@ func (u *User) Post(c *gin.Context) (*vo.Response, error) {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
 
-	if err := u.userService.ICreateOne(c, createUser); err != nil {
+	if err := u.service.ICreateOne(c, createUser); err != nil {
 		u.log.Errorf("创建用户失败：%s", err)
 		return nil, vo.InternalServerError.SetMsg("创建用户失败：%s", err)
 	}
@@ -127,16 +169,16 @@ func (u *User) Post(c *gin.Context) (*vo.Response, error) {
 	return vo.Success(createUser), nil
 }
 
-// 根据ID删除用户
+// Delete 根据ID删除用户
 func (u *User) Delete(c *gin.Context) (*vo.Response, error) {
 	u.log.Infof("删除用户")
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		u.log.Errorf("参数绑定错误：%s", err)
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
 
-	if err := u.userService.IDeleteOne(c, &po.User{ID: id}); err != nil {
+	if err := u.service.IDeleteOne(c, &po.User{ID: id}); err != nil {
 		u.log.Info("查询删除用户失败： ", err)
 		return nil, vo.InternalServerError.SetMsg("删除用户失败：%s", err)
 	}
@@ -144,7 +186,6 @@ func (u *User) Delete(c *gin.Context) (*vo.Response, error) {
 	u.log.Info("删除用户成功 ", id)
 	return vo.Success("删除成功"), nil
 }
-
 
 //
 //func (u *User) ListRole(c *gin.Context) (*vo.Response, error) {
@@ -202,4 +243,3 @@ func (u *User) Delete(c *gin.Context) (*vo.Response, error) {
 //	}
 //	return vo.Success(requestRoles), nil
 //}
-

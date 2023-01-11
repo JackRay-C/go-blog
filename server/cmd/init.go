@@ -1,7 +1,6 @@
 package cmd
 
 import (
-
 	"blog/internal/config"
 	"blog/internal/storage"
 	"fmt"
@@ -40,6 +39,7 @@ const (
 	DefaultStorageType               = "local"
 	DefaultStorageUploadMaxSize      = 2 * storage.GB
 	DefaultLocalPath                 = "uploads"
+	DefaultLocalHost                 = "http://localhost:8000"
 	DefaultAliyunOSSEndpoint         = ""
 	DefaultAliyunOSSAccessKeyId      = ""
 	DefaultAliyunOSSAccessKeySecret  = ""
@@ -95,10 +95,15 @@ const (
 	DefaultServerStaticRootPath      = "public"
 	DefaultServerCertFile            = "cert.crt"
 	DefaultServerCertKey             = "cert.key"
-	DefaultServerAccessTokenExpire   = 5 * 60 * time.Second
-	DefaultServerRefreshTokenExpire  = 7 * 24 * time.Hour
+	DefaultServerAccessTokenExpire   = 10 * 60 * time.Second
+	DefaultServerRefreshTokenExpire  = 30 * 24 * time.Hour
 	DefaultServerWorkId              = 1
 	DefaultServerDataCenterId        = 1
+	DefaultRedisAddr                 = "localhost:6379"
+	DefaultRedisPassword             = ""
+	DefaultRedisDb                   = 0
+	DefaultRedisMaxRetry             = 3
+	DefaultRedisPoolSize             = 10
 )
 
 var (
@@ -111,6 +116,7 @@ var (
 	simpleLoggerConfig           = &config.Simple{}
 	zapLoggerConfig              = &config.Zap{}
 	smtpConfig                   = &config.Smtp{}
+	redisConfig                  = &config.Redis{}
 	supportLogTpe                = stringArray{"simple", "zap"}
 	supportLogFormat             = stringArray{"console", "json"}
 	supportAppMode               = stringArray{"production", "development"}
@@ -186,6 +192,7 @@ func initFlags() {
 	// ###################################### storage bind flags #################################
 	initCommand.Flags().Var(&configStorage.AllowUploadMaxSize, "storage.allow-upload-max-size", "storage allow upload max size")
 	initCommand.Flags().StringVar(&configStorage.Local.Path, "storage.local.path", DefaultLocalPath, "local upload path")
+	initCommand.Flags().StringVar(&configStorage.Local.Host, "storage.local.host", DefaultLocalHost, "local upload host")
 	initCommand.Flags().StringVar(&configStorage.Qiniu.Zone, "storage.qiniu.zone", DefaultQiniuZone, "qiniu oss zone")
 	initCommand.Flags().StringVar(&configStorage.Qiniu.Bucket, "storage.qiniu.bucket", DefaultQiniuBucket, "qiniu oss bucket")
 	initCommand.Flags().StringVar(&configStorage.Qiniu.ImgPath, "storage.qiniu.img-path", DefaultQiniuImgPath, "qiniu oss img path")
@@ -250,6 +257,11 @@ func initFlags() {
 	initCommand.Flags().StringVar(&smtpConfig.FromAddress, "smtp.from-address", DefaultSmtpFromAddress, "smtp from address")
 	// ###################################### smtp  bind flags ###################################
 
+	initCommand.Flags().StringVar(&redisConfig.Addr, "redis.addr", DefaultRedisAddr, "redis address")
+	initCommand.Flags().StringVar(&redisConfig.Password, "redis.password", DefaultRedisPassword, "redis password")
+	initCommand.Flags().IntVar(&redisConfig.Db, "redis.db", DefaultRedisDb, "redis database")
+	initCommand.Flags().IntVar(&redisConfig.MaxRetry, "redis.max-retry", DefaultRedisMaxRetry, "redis connect max retry number")
+	initCommand.Flags().IntVar(&redisConfig.PoolSize, "redis.pool-size", DefaultRedisPoolSize, "redis conn pool size")
 }
 
 func checkSupport() {
@@ -367,6 +379,7 @@ func writeConfigs() {
 	switch appConfig.AppStorageType {
 	case Local:
 		v.Set("storage.local.path", path.Join(appConfig.AppHomePath, configStorage.Local.Path))
+		v.Set("storage.local.host", configStorage.Local.Host)
 	case AliyunOSS:
 		v.Set("storage.aliyun-oss.endpoint", configStorage.AliyunOSS.Endpoint)
 		v.Set("storage.aliyun-oss.access-key-id", configStorage.AliyunOSS.AccessKeyId)
@@ -389,6 +402,12 @@ func writeConfigs() {
 		v.Set("storage.qiniu.secret-key", configStorage.Qiniu.SecretKey)
 		v.Set("storage.qiniu.domain", configStorage.Qiniu.Domain)
 	}
+
+	v.Set("redis.addr", redisConfig.Addr)
+	v.Set("redis.password", redisConfig.Password)
+	v.Set("redis.db", redisConfig.Db)
+	v.Set("redis.max-retry", redisConfig.MaxRetry)
+	v.Set("redis.pool-size", redisConfig.PoolSize)
 
 	writeViperDefaultConfigurationToInitPath()
 }
@@ -451,7 +470,6 @@ func writeViperDefaultConfigurationToInitPath() {
 	}
 	createDir(logsDir)
 	log.Printf("initialized default log directory %s", logsDir)
-
 
 	if appConfig.AppStorageType == Local {
 		localStoragePath := path.Join(appConfig.AppHomePath, configStorage.Local.Path)

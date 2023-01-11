@@ -7,9 +7,10 @@ import (
 	"blog/pkg/model/vo"
 	"blog/pkg/utils/encrypt"
 	"blog/pkg/utils/token"
-
 	"errors"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"log"
 	"strings"
 	"time"
 )
@@ -70,7 +71,7 @@ func (a *AuthServiceImpl) ILogin(body *dto.LoginBody) (*dto.Token, error) {
 	t2 := &dto.Token{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		Expire:       1000,
+		Expire:       global.App.Server.RefreshTokenExpire,
 	}
 	global.Log.Infof("login success: %s", body)
 	return t2, nil
@@ -130,7 +131,10 @@ func (a *AuthServiceImpl) IRegister(register *dto.RegisterBody) error {
 // IRefreshToken 根据refreshToken刷新accessToken，并重置refreshToken过期时间
 func (a *AuthServiceImpl) IRefreshToken(refreshToken string) (*dto.Token, error) {
 	// 1、判断refreshToken是否过期
+
 	claims, err := token.ParseRefreshToken(refreshToken)
+	log.Println(claims)
+	log.Println(err != nil)
 	if err != nil {
 		return nil, vo.TokenExpire
 	}
@@ -150,6 +154,63 @@ func (a *AuthServiceImpl) IRefreshToken(refreshToken string) (*dto.Token, error)
 		RefreshToken: refreshToken,
 		Expire:       global.App.Server.AccessTokenExpire,
 	}, nil
+}
+
+func (a *AuthServiceImpl) IInfo(c *gin.Context, accessToken string, user *po.User) error {
+	// 1、解析token
+	claims, err := token.ParseAccessToken(accessToken)
+	if err != nil {
+		return err
+	}
+	// 查询用户信息
+	if err = global.DB.Model(&po.User{}).Where("id=?", claims.UserId).First(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *AuthServiceImpl) IPermissions(c *gin.Context, accessToken string, permissions *[]*po.Permissions) error {
+	claims, err := token.ParseAccessToken(accessToken)
+	if err != nil {
+		return err
+	}
+	// 查询用户信息
+	user := &po.User{}
+	if err = global.DB.Model(&po.User{}).Where("id=?", claims.UserId).First(&user).Error; err != nil {
+		return err
+	}
+
+	// 查询角色信息
+	roles := make([]*po.Role, 0)
+	ur := &UsersRolesServiceImpl{}
+	if err := ur.ISelectUserRoles(c, user, &roles); err != nil {
+		return err
+	}
+	// 根据角色查询所有权限列表
+	r := &RolePermissionServiceImpl{}
+	if err := r.ISelectPermissionByRoles(c, permissions, roles...); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *AuthServiceImpl) IRoles(c *gin.Context, accessToken string, roles *[]*po.Role) error  {
+	claims, err := token.ParseAccessToken(accessToken)
+	if err != nil {
+		return err
+	}
+	// 查询用户信息
+	user := &po.User{}
+	if err = global.DB.Model(&po.User{}).Where("id=?", claims.UserId).First(&user).Error; err != nil {
+		return err
+	}
+
+	// 查询角色信息
+	ur := &UsersRolesServiceImpl{}
+	if err := ur.ISelectUserRoles(c, user, roles); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (a *AuthServiceImpl) ICaptcha() (string, error) {

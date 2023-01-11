@@ -13,13 +13,13 @@ func Authentication() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		var token string
-		if s, exist := c.GetQuery(global.RequestAccessTokenKey); exist {
+		if s, exist := c.GetQuery(global.RequestQueryTokenKey); exist {
 			token = s
 		} else {
-			token = c.GetHeader(global.RequestAccessTokenKey)
+			token = c.GetHeader(global.RequestHeaderTokenKey)
 		}
 
-		if token == "" {
+		if token == "" || c.Request.RequestURI=="/api/v1/auth/login"{
 			c.Set(global.SessionIsLoginKey, false)
 			c.Next()
 			return
@@ -29,16 +29,6 @@ func Authentication() gin.HandlerFunc {
 				log.Infof("failed to valied token: %s", token)
 				c.AbortWithStatusJSON(http.StatusOK, vo.TokenError)
 				return
-				//switch err.(*gojwt.ValidationError).Errors {
-				//case gojwt.ValidationErrorExpired:
-				//	log.Error("Token超时! ")
-				//	c.AbortWithStatusJSON(http.StatusOK, vo.TokenExpire)
-				//	return
-				//default:
-				//	log.Error("Token验证错误! ")
-				//	c.AbortWithStatusJSON(http.StatusOK, vo.TokenError)
-				//	return
-				//}
 			}
 
 			c.Set(global.SessionUserNameKey, claim.Username)

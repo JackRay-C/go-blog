@@ -1,16 +1,23 @@
 package po
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"gorm.io/gorm"
+	"time"
+)
 
 type Dict struct {
-	ID          int    `json:"id" gorm:"type:int;primary_key;auto_increment;common:主键ID"`
-	Name        string `json:"name" gorm:"type:varchar(255);index:idx_type_code,unique;"`
-	Code        int    `json:"code" gorm:"type:int;index:idx_type_code,unique;"`
-	Value       string `json:"value" gorm:"type:varchar(255);index:idx_type_code,unique;"`
-	Description string `json:"description" gorm:"type:varchar(255)"`
+	ID          int64            `json:"id" gorm:"type:int;primary_key;auto_increment;common:主键ID"`
+	Name        string         `json:"name" gorm:"type:varchar(255);index:idx_type_code,unique;"`
+	Code        int            `json:"code" gorm:"type:int;index:idx_type_code,unique;"`
+	Value       string         `json:"value" gorm:"type:varchar(255);index:idx_type_code,unique;"`
+	Description string         `json:"description" gorm:"type:varchar(255)"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `json:"deleted_at"`
 }
 
-func (d *Dict) TableName() string  {
+func (d *Dict) TableName() string {
 	return "dicts"
 }
 

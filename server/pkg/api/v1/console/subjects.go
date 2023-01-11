@@ -3,11 +3,10 @@ package console
 import (
 	"blog/internal/logger"
 	"blog/pkg/global"
-	"blog/pkg/model/bo"
+	"blog/pkg/model/common"
 	"blog/pkg/model/dto"
 	"blog/pkg/model/po"
 	"blog/pkg/model/vo"
-	"blog/pkg/service"
 	"blog/pkg/utils/auth"
 	"blog/pkg/utils/page"
 	"github.com/gin-gonic/gin"
@@ -15,22 +14,20 @@ import (
 )
 
 type Subject struct {
-	Log            logger.Logger
-	subjectService service.SubjectService
-	postService    service.PostService
+	Log     logger.Logger
+	service common.BaseService
 }
 
 func NewSubject() *Subject {
 	return &Subject{
-		Log:            global.Log,
-		subjectService: service.NewSubjectService(),
-		postService:    service.NewPostService(),
+		Log:     global.Log,
+		service: &common.BaseServiceImpl{},
 	}
 }
 
 func (s *Subject) Get(c *gin.Context) (*vo.Response, error) {
 	// 1、获取参数
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
@@ -47,8 +44,8 @@ func (s *Subject) Get(c *gin.Context) (*vo.Response, error) {
 
 	// 4、查询专题
 	userId, _ := c.Get(global.SessionUserIDKey)
-	subject := &po.Subject{ID: id, UserID: userId.(int)}
-	if err := s.subjectService.ISelectOne(c, subject); err != nil {
+	subject := &po.Subject{ID: id, UserID: userId.(int64)}
+	if err := s.service.ISelectOne(c, subject); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 
@@ -57,7 +54,7 @@ func (s *Subject) Get(c *gin.Context) (*vo.Response, error) {
 
 func (s *Subject) List(c *gin.Context) (*vo.Response, error) {
 	// 1、获取参数
-	var params *po.Subject
+	params := &po.Subject{}
 	if err := c.ShouldBind(&params); err != nil {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
@@ -77,8 +74,9 @@ func (s *Subject) List(c *gin.Context) (*vo.Response, error) {
 		PageNo:   page.GetPageNo(c),
 		PageSize: page.GetPageSize(c),
 	}
+	p.MustSearch(c)
 
-	if err := s.subjectService.ISelectList(c, &p, params); err != nil {
+	if err := s.service.ISelectList(c, &p, params); err != nil {
 		s.Log.Errorf("获取专题列表失败： %s", err)
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
@@ -106,7 +104,7 @@ func (s *Subject) Post(c *gin.Context) (*vo.Response, error) {
 	}
 
 	// 4、创建专题
-	if err := s.subjectService.ICreateOne(c, subject); err != nil {
+	if err := s.service.ICreateOne(c, subject); err != nil {
 		return nil, err
 	}
 
@@ -115,7 +113,7 @@ func (s *Subject) Post(c *gin.Context) (*vo.Response, error) {
 
 func (s *Subject) Delete(c *gin.Context) (*vo.Response, error) {
 	// 1、绑定参数
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
@@ -132,8 +130,8 @@ func (s *Subject) Delete(c *gin.Context) (*vo.Response, error) {
 
 	// 4、删除该专题
 	userId, _ := c.Get(global.SessionUserIDKey)
-	subject := &po.Subject{ID: id, UserID: userId.(int)}
-	if err := s.subjectService.IDeleteOne(c, subject); err != nil {
+	subject := &po.Subject{ID: id, UserID: userId.(int64)}
+	if err := s.service.IDeleteOne(c, subject); err != nil {
 		return nil, err
 	}
 
@@ -142,7 +140,7 @@ func (s *Subject) Delete(c *gin.Context) (*vo.Response, error) {
 
 func (s *Subject) Put(c *gin.Context) (*vo.Response, error) {
 	// 1、绑定参数
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
@@ -165,7 +163,7 @@ func (s *Subject) Put(c *gin.Context) (*vo.Response, error) {
 	// 4、更新专题
 	updateSubject := &po.Subject{ID: id}
 
-	if err := s.subjectService.IUpdateOne(c, &subject , updateSubject);err != nil {
+	if err := s.service.IUpdateOne(c, &subject, updateSubject); err != nil {
 		return nil, err
 	}
 
@@ -178,21 +176,20 @@ func (s *Subject) GetPosts(c *gin.Context) (*vo.Response, error) {
 		PageSize: page.GetPageSize(c),
 	}
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		s.Log.Errorf("参数绑定错误：%s", err)
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
 
-	post := &bo.Post {Head: &po.Head{SubjectID: id}}
+	post := &po.Post{SubjectID: id}
 	if err := c.ShouldBind(&post); err != nil {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
 
 	if !auth.CheckLogin(c) {
-		post.Head.Visibility = global.Public
-		post.Head.Status = global.Publish
-		if err := s.postService.ISelectListWeb(c, &p, post); err != nil {
+		post.Visibility = global.Public
+		if err := s.service.ISelectListWeb(c, &p, post); err != nil {
 			return nil, err
 		}
 		return vo.Success(p), nil
@@ -204,9 +201,9 @@ func (s *Subject) GetPosts(c *gin.Context) (*vo.Response, error) {
 	}
 
 	userId, _ := c.Get(global.SessionUserIDKey)
-	post.Head.UserID = userId.(int)
+	post.UserID = userId.(int64)
 
-	if err := s.postService.ISelectList(c, &p, post); err != nil {
+	if err := s.service.ISelectList(c, &p, post); err != nil {
 		return nil, err
 	}
 

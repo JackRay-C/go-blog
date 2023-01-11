@@ -19,17 +19,17 @@ func (s *CommentServiceImpl) ISelectAllByPostId(ctx *gin.Context, comments *[]*p
 		return vo.InvalidParams.SetMsg("this query param post_id is required. ")
 	}
 
-	var head *po.Head
-	if err := global.DB.Model(&po.Head{}).Where("id=?", postId).First(&head).Error; err != nil {
+	var post *po.Post
+	if err := global.DB.Model(&po.Post{}).Where("id=?", postId).First(&post).Error; err != nil {
 		return vo.RecordNotFound.SetMsg("not found this post: %s", postId)
 	}
-	
+
 	var all []*po.Comment
 	if err := global.DB.Model(&po.Comment{}).Where("post_id=?", postId).Find(&all).Error; err != nil {
 		return vo.DatabaseSelectError
 	}
 
-	m := make(map[int]*po.Comment)
+	m := make(map[int64]*po.Comment)
 	for _, comment := range all {
 		if comment.ParentID == 0 {
 			*comments = append(*comments, comment)

@@ -17,14 +17,12 @@ func InitTable() {
 		&po.Tag{},
 		&po.Role{},
 		&po.File{},
-		&po.HeadsTags{},
+		&po.PostsTags{},
 		&po.UsersRoles{},
 		&po.Dict{},
 		&po.Permissions{},
 		&po.RolesPermissions{},
-		&po.Repository{},
-		&po.History{},
-		&po.Head{},
+		&po.Draft{},
 	)
 	if err != nil {
 		global.Log.Fatalf("创建数据库表错误：%s", err)
@@ -143,14 +141,29 @@ func initPermissionData() {
 		{ID: 40, Name: "Delete users", ObjectType: "users", ActionType: "delete", Description: "delete users", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		{ID: 41, Name: "Read users", ObjectType: "users", ActionType: "read", Description: "read users", CreatedAt: time.Now(), UpdatedAt: time.Now()},
 		{ID: 42, Name: "Authorization users role", ObjectType: "users", ActionType: "authorization", Description: "authorization users role", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+
+		{ID: 43, Name: "Add drafts", ObjectType: "drafts", ActionType: "add", Description: "add drafts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: 44, Name: "List drafts", ObjectType: "drafts", ActionType: "list", Description: "list drafts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: 45, Name: "Update drafts", ObjectType: "drafts", ActionType: "update", Description: "update drafts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: 46, Name: "Delete drafts", ObjectType: "drafts", ActionType: "delete", Description: "delete drafts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: 47, Name: "Read drafts", ObjectType: "drafts", ActionType: "read", Description: "read drafts", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+
+		{ID: 48, Name: "Add files", ObjectType: "files", ActionType: "add", Description: "add files", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: 49, Name: "List files", ObjectType: "files", ActionType: "list", Description: "list files", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: 50, Name: "Update files", ObjectType: "files", ActionType: "update", Description: "update files", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: 51, Name: "Delete files", ObjectType: "files", ActionType: "delete", Description: "delete files", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+		{ID: 52, Name: "Read files", ObjectType: "files", ActionType: "read", Description: "read files", CreatedAt: time.Now(), UpdatedAt: time.Now()},
+
+
 	}, 1000).Error; err != nil {
 		global.Log.Fatalf("初始化权限表失败： %s", err)
 	}
 
 	var permissions []*po.RolesPermissions
-	for i := 0; i < 42; i++ {
-		permissions = append(permissions, &po.RolesPermissions{RoleId: 1, PermissionId: i + 1})
+	for i := 0; i < 52; i++ {
+		permissions = append(permissions, &po.RolesPermissions{RoleId: 1, PermissionId: int64(i + 1)})
 	}
+
 	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 1})
 	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 2})
 	permissions = append(permissions, &po.RolesPermissions{RoleId: 2, PermissionId: 3})

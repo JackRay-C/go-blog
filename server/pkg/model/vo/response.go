@@ -24,6 +24,12 @@ func Success(data interface{}) *Response {
 	}
 }
 
+func Message(code int, message string) *Response {
+	return &Response{
+		Code:    code,
+		Message: message,
+	}
+}
 
 func Failed(code int, message string) *Response {
 	return &Response{
@@ -31,4 +37,3 @@ func Failed(code int, message string) *Response {
 		Message: message,
 	}
 }
-

@@ -3,7 +3,7 @@ package console
 import (
 	"blog/internal/logger"
 	"blog/pkg/global"
-	"blog/pkg/model/dto"
+	"blog/pkg/model/common"
 	"blog/pkg/model/po"
 	"blog/pkg/model/vo"
 	"blog/pkg/service"
@@ -14,21 +14,21 @@ import (
 )
 
 type Tag struct {
-	Log         logger.Logger
-	tagService  service.TagService
-	postService service.PostService
+	Log     logger.Logger
+	service common.BaseService
+	postTagService service.PostsTagsService
 }
 
 func NewTag() *Tag {
 	return &Tag{
-		Log:         global.Log,
-		tagService:  service.NewTagService(),
-		postService: service.NewPostService(),
+		Log:     global.Log,
+		service: &common.BaseServiceImpl{},
+		postTagService: service.NewPostsTagsService(),
 	}
 }
 
 func (t *Tag) Get(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
@@ -37,11 +37,9 @@ func (t *Tag) Get(c *gin.Context) (*vo.Response, error) {
 		return nil, vo.Forbidden.SetMsg("查询ID为【%d】的标签失败：没有权限", id)
 	}
 
-	currentUserId, _ := c.Get("current_user_id")
+	tag := &po.Tag{ID: id, UserID: auth.GetCurrentUserId(c)}
 
-	tag := &po.Tag{ID: id, UserId: currentUserId.(int)}
-
-	if err := t.tagService.ISelectOne(c, tag); err != nil {
+	if err := t.service.ISelectOne(c, tag); err != nil {
 		return nil, err
 	}
 	return vo.Success(tag), nil
@@ -57,8 +55,8 @@ func (t *Tag) List(c *gin.Context) (*vo.Response, error) {
 		return nil, vo.Forbidden.SetMsg("查询标签列表失败：没有权限")
 	}
 
-	userID, _ := c.Get(global.SessionUserIDKey)
-	if err := t.tagService.ISelectList(c, &p, &po.Tag{UserId: userID.(int)}); err != nil {
+
+	if err := t.service.ISelectList(c, &p, &po.Tag{UserID: auth.GetCurrentUserId(c)}); err != nil {
 		t.Log.Errorf("%s", err)
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
@@ -77,17 +75,17 @@ func (t *Tag) Post(c *gin.Context) (*vo.Response, error) {
 		return nil, vo.Forbidden.SetMsg("新建标签失败：没有权限")
 	}
 
-	userID, _ := c.Get(global.SessionUserIDKey)
-	tag.UserId = userID.(int)
-	if err := t.tagService.ICreateOne(c, tag); err != nil {
+	tag.UserID = auth.GetCurrentUserId(c)
+	if err := t.service.ICreateOne(c, tag); err != nil {
 		t.Log.Error(err)
 		return nil, vo.InternalServerError.SetMsg("创建标签【%s】失败：%s", tag.Name, err)
 	}
+
 	return vo.Success(tag), nil
 }
 
 func (t *Tag) Delete(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
@@ -96,9 +94,8 @@ func (t *Tag) Delete(c *gin.Context) (*vo.Response, error) {
 		return nil, vo.Forbidden.SetMsg("删除ID为【%d】的标签失败：没有权限", id)
 	}
 
-	currentUserId, _ := c.Get(global.SessionUserIDKey)
-	tag := &po.Tag{ID: id, UserId: currentUserId.(int)}
-	if err := t.tagService.IDeleteOne(c, tag); err != nil {
+	tag := &po.Tag{ID: id, UserID: auth.GetCurrentUserId(c)}
+	if err := t.service.IDeleteOne(c, tag); err != nil {
 		t.Log.Error(err)
 		return nil, vo.InternalServerError
 	}
@@ -107,12 +104,12 @@ func (t *Tag) Delete(c *gin.Context) (*vo.Response, error) {
 }
 
 func (t *Tag) Put(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
 
-	var putTag *dto.PutTags
+	putTag := &po.Tag{}
 	if err := c.ShouldBindJSON(&putTag); err != nil {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
@@ -121,11 +118,38 @@ func (t *Tag) Put(c *gin.Context) (*vo.Response, error) {
 		return nil, vo.Forbidden.SetMsg("更新ID为【%d】的标签失败：没有权限", id)
 	}
 
-	userID, _ := c.Get(global.SessionUserIDKey)
-	tag := &po.Tag{ID: id, UserId: userID.(int)}
-	if err := t.tagService.IUpdateOne(c, tag, putTag); err != nil {
+	tag := &po.Tag{ID: id, UserID: auth.GetCurrentUserId(c)}
+	if err := t.service.IUpdateOne(c, tag, putTag); err != nil {
 		t.Log.Error(err)
 		return nil, vo.InternalServerError
 	}
+
 	return vo.Success(tag), nil
+}
+
+func (t *Tag) ListPosts(c *gin.Context) (*vo.Response, error) {
+	// 获取tagid
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		return nil, vo.InvalidParams.SetMsg("%s", err)
+	}
+	post := po.Post{}
+	if err := c.ShouldBind(&post); err != nil {
+		return nil, vo.InvalidParams.SetMsg("%s", err)
+	}
+
+	p := vo.Pager{
+		PageNo:   page.GetPageNo(c),
+		PageSize: page.GetPageSize(c),
+	}
+
+	if !auth.CheckPermission(c, "posts", "list") {
+		return nil, vo.Forbidden.SetMsg("查询标签列表失败：没有权限")
+	}
+
+	if err := t.postTagService.ISelectPostsByTag(c, &p, &po.Tag{ID: id}); err != nil {
+		return nil, vo.InternalServerError.SetMsg("%s", err)
+	}
+
+	return vo.Success(&p), err
 }

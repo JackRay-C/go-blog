@@ -7,11 +7,10 @@ import (
 )
 
 type Tag struct {
-	ID          int            `json:"id" gorm:"type:int;primary_key;auto_increment;common:'主键ID'"`
+	ID          int64          `json:"id" gorm:"type:int;primary_key;auto_increment;common:'主键ID'"`
 	Name        string         `json:"name" gorm:"type:varchar(255);uniqueIndex;common:'标签名称'"`
-	//Slug        string         `json:"slug" gorm:"type:varchar(255);uniqueIndex;common:slug"`
-	UserId      int            `json:"user_id" gorm:"type:int"`
-	CoverImage  int            `json:"cover_image" gorm:"type:int;default:1;common:背景图，文件id"` // 背景图
+	UserID      int64          `json:"user_id" gorm:"type:int"`
+	CoverImage  int64          `json:"cover_image" gorm:"type:int;default:1;common:背景图，文件id"` // 背景图
 	Description string         `json:"description" gorm:"type:text"`
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`

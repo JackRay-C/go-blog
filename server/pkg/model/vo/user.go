@@ -7,13 +7,13 @@ import (
 )
 
 type VUser struct {
-	ID        int          `json:"id"`
-	Username  string       `json:"username"`
-	Nickname  string       `json:"nickname"`
-	Active    int8         `json:"active"`
-	Email     string       `json:"email"`
-	Avatar    *po.File `json:"avatar"`
-	CreatedAt time.Time    `json:"created_at"`
+	ID        int       `json:"id"`
+	Username  string    `json:"username"`
+	Nickname  string    `json:"nickname"`
+	Active    int8      `json:"active"`
+	Email     string    `json:"email"`
+	Avatar    *po.File  `json:"avatar"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 func (l *VUser) string() string {
@@ -29,15 +29,15 @@ type VToken struct {
 }
 
 type VUserInfo struct {
-	ID          int                   `json:"id"`
-	Username    string                `json:"username"`
-	Nickname    string                `json:"nickname"`
-	Active      int8                  `json:"active"`
-	Email       string                `json:"email"`
+	ID          int               `json:"id"`
+	Username    string            `json:"username"`
+	Nickname    string            `json:"nickname"`
+	Active      int8              `json:"active"`
+	Email       string            `json:"email"`
 	Avatar      *po.File          `json:"avatar"`
 	Roles       []*po.Role        `json:"roles"`
 	Permissions []*po.Permissions `json:"permissions"`
-	CreatedAt   time.Time             `json:"created_at"`
+	CreatedAt   time.Time         `json:"created_at"`
 }
 
 func (v *VUserInfo) string() string {
@@ -49,13 +49,13 @@ func (v *VUserInfo) string() string {
 }
 
 type UserInfo struct {
-	ID          int            `json:"id"`
-	Username    string         `json:"username"`
-	Nickname    string         `json:"nickname"`
-	Active      int8           `json:"active"`
-	Email       string         `json:"email"`
-	AvatarImage string         `json:"avatar_image"`
+	ID          int        `json:"id"`
+	Username    string     `json:"username"`
+	Nickname    string     `json:"nickname"`
+	Active      int8       `json:"active"`
+	Email       string     `json:"email"`
+	AvatarImage string     `json:"avatar_image"`
 	Roles       []*po.Role `json:"roles"`
 	Permissions []*po.Role `json:"permissions"`
-	CreatedAt   time.Time      `json:"created_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 }

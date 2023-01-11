@@ -6,8 +6,8 @@ import (
 	"blog/internal/mail"
 	"blog/internal/snowflake"
 	"blog/internal/storage"
-	"github.com/JackRay-C/go-mapcache"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"github.com/spf13/viper"
 	"gorm.io/gorm"
 	"net/http"
@@ -17,7 +17,7 @@ var (
 	Viper     *viper.Viper
 	App       *config.App
 	Log       logger.Logger
-	Cache     mapcache.Cache
+	Cache     *redis.Client
 	DB        *gorm.DB
 	Snowflake *snowflake.Snowflake
 	Storage   storage.Storage

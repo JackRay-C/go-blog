@@ -3,8 +3,8 @@ package po
 import "encoding/json"
 
 type RolesPermissions struct {
-	RoleId       int `json:"role_id" gorm:"type:int;index:idx_roleId_permissionId,unique;"`
-	PermissionId int `json:"permission_id" gorm:"type:int;index:idx_roleId_permissionId,unique;"`
+	RoleId       int64 `json:"role_id" gorm:"type:int;index:idx_roleId_permissionId,unique;"`
+	PermissionId int64 `json:"permission_id" gorm:"type:int;index:idx_roleId_permissionId,unique;"`
 }
 
 func (p *RolesPermissions) String() string {

@@ -3,7 +3,6 @@ module blog
 go 1.16
 
 require (
-	github.com/JackRay-C/go-mapcache v1.0.4
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.9+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
 	github.com/fsnotify/fsnotify v1.4.9
@@ -11,6 +10,7 @@ require (
 	github.com/gin-gonic/autotls v0.0.3
 	github.com/gin-gonic/gin v1.7.1
 	github.com/go-playground/validator/v10 v10.5.0 // indirect
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.1.2
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
@@ -26,8 +26,6 @@ require (
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.18.1
 	golang.org/x/crypto v0.0.0-20210415154028-4f45737414dc
-	golang.org/x/sys v0.0.0-20210925032602-92d5a993a665 // indirect
-	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
@@ -36,5 +34,3 @@ require (
 	gorm.io/driver/mysql v1.0.5
 	gorm.io/gorm v1.21.7
 )
-
-replace github.com/JackRay-C/go-mapcache v1.0.4 => /Users/renhj/Workspace/go/src/mapcache

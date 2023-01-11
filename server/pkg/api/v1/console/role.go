@@ -3,9 +3,9 @@ package console
 import (
 	"blog/internal/logger"
 	"blog/pkg/global"
+	"blog/pkg/model/common"
 	"blog/pkg/model/po"
 	"blog/pkg/model/vo"
-	"blog/pkg/service"
 	"blog/pkg/utils/auth"
 	"blog/pkg/utils/page"
 	"github.com/gin-gonic/gin"
@@ -14,19 +14,19 @@ import (
 
 type Role struct {
 	log           logger.Logger
-	roleService service.RoleService
+	service common.BaseService
 }
 
 func NewRole() *Role {
 	return &Role{
 		log: global.Log,
-		roleService: service.NewRoleService(),
+		service: &common.BaseServiceImpl{},
 	}
 }
 
 // 获取角色信息
 func (r *Role) Get(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
@@ -37,7 +37,7 @@ func (r *Role) Get(c *gin.Context) (*vo.Response, error) {
 
 	role := &po.Role{ID: id}
 
-	if err := r.roleService.ISelectOne(c, role); err != nil {
+	if err := r.service.ISelectOne(c, role); err != nil {
 		return nil, vo.InternalServerError.SetMsg("查询ID为【%d】的角色信息失败：%s",id, err)
 	}
 
@@ -55,7 +55,7 @@ func (r *Role) List(c *gin.Context) (*vo.Response, error) {
 		return nil, vo.Forbidden.SetMsg("查询角色失败：没有权限. ")
 	}
 
-	if err := r.roleService.ISelectList(c, &p, &po.Role{}); err != nil {
+	if err := r.service.ISelectList(c, &p, &po.Role{}); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 
@@ -73,7 +73,7 @@ func (r *Role) Post(c *gin.Context) (*vo.Response, error) {
 		return nil, vo.Forbidden.SetMsg("新建角色失败：没有权限. ")
 	}
 
-	if err := r.roleService.ICreateOne(c, role); err != nil {
+	if err := r.service.ICreateOne(c, role); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 
@@ -82,7 +82,7 @@ func (r *Role) Post(c *gin.Context) (*vo.Response, error) {
 
 // 删除角色
 func (r *Role) Delete(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("ID is required. ")
 	}
@@ -92,7 +92,7 @@ func (r *Role) Delete(c *gin.Context) (*vo.Response, error) {
 	}
 
 	role := &po.Role{ID: id}
-	if err := r.roleService.IDeleteOne(c,role); err != nil {
+	if err := r.service.IDeleteOne(c,role); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 	return vo.Success("删除成功"), nil
@@ -100,7 +100,7 @@ func (r *Role) Delete(c *gin.Context) (*vo.Response, error) {
 
 // 修改角色
 func (r *Role) Put(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
@@ -115,7 +115,7 @@ func (r *Role) Put(c *gin.Context) (*vo.Response, error) {
 	}
 	role.ID = id
 
-	if err := r.roleService.IUpdateOne(c, &role, &role); err != nil {
+	if err := r.service.IUpdateOne(c, &role, &role); err != nil {
 		return nil, vo.InternalServerError.SetMsg("%s", err)
 	}
 

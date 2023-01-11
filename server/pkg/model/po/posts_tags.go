@@ -2,12 +2,12 @@ package po
 
 import "encoding/json"
 
-type HeadsTags struct {
-	HeadId int `json:"head_id" gorm:"type:int;index:idx_headId_tagId,unique;common:head id"`
-	TagId  int `json:"tag_id" gorm:"type:int;index:idx_headId_tagId,unique;common:tag id"`
+type PostsTags struct {
+	PostId int64 `json:"post_id" gorm:"type:int;index:idx_postId_tagId,unique;common:head id"`
+	TagId  int64 `json:"tag_id" gorm:"type:int;index:idx_postId_tagId,unique;common:tag id"`
 }
 
-func (p *HeadsTags) String() string {
+func (p *PostsTags) String() string {
 	marshal, err := json.Marshal(p)
 	if err != nil {
 		return ""
@@ -15,6 +15,6 @@ func (p *HeadsTags) String() string {
 	return string(marshal)
 }
 
-func (*HeadsTags) TableName() string {
+func (*PostsTags) TableName() string {
 	return "heads_tags"
 }

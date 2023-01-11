@@ -1,7 +1,6 @@
 package wrapper
 
 import (
-
 	"blog/pkg/model/vo"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -21,10 +20,13 @@ func Wrapper(f func(c *gin.Context)(*vo.Response, error)) gin.HandlerFunc  {
 		if of.Kind() == reflect.Ptr {
 			of = of.Elem()
 		}
-		if of.Name() == "vo.Error" {
+
+		if of.String() == "vo.Error" {
 			c.JSON(http.StatusOK, err)
+			return
 		} else {
 			c.JSON(http.StatusOK, gin.H{"code": 500, "message": err})
+			return
 		}
 	}
 }

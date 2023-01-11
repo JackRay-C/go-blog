@@ -5,6 +5,7 @@ import (
 	"blog/pkg/model/po"
 	"blog/pkg/model/vo"
 	"blog/pkg/service"
+	"blog/pkg/utils/token"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -12,21 +13,46 @@ import (
 
 func Permission() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var accessToken string
+		if s, exist := c.GetQuery(global.RequestQueryTokenKey); exist {
+			accessToken = s
+		} else {
+			accessToken = c.GetHeader(global.RequestQueryTokenKey)
+		}
+
+		if accessToken == "" {
+			c.AbortWithStatusJSON(http.StatusOK, vo.NotLogin)
+			//c.Next()
+			return
+		} else {
+			// 验证token
+			claim, err := token.ParseAccessToken(accessToken)
+			if err != nil {
+				global.Log.Infof("failed to valied token: %s", err)
+				c.AbortWithStatusJSON(http.StatusOK, vo.TokenError.SetMsg("%s", err))
+				return
+			}
+
+			// 验证通过之后延长token的时长
+			if err := token.SetAccessTokenExpire(accessToken, global.App.Server.AccessTokenExpire); err != nil {
+				c.AbortWithStatusJSON(http.StatusOK, vo.TokenError.SetMsg("%s", err))
+				return
+			}
+
+			c.Set(global.SessionUserNameKey, claim.Username)
+			c.Set(global.SessionUserIDKey, claim.UserId)
+			c.Set(global.SessionIsLoginKey, true)
+		}
+
 		userRoleService := service.NewUsersRolesService()
 		rolePermissionService := service.NewRolesPermissionService()
 
 		var roles []*po.Role
 		var permissions []*po.Permissions
 
-		isLogin, exists := c.Get(global.SessionIsLoginKey)
-		if !exists || !isLogin.(bool) {
-			c.AbortWithStatusJSON(http.StatusOK, vo.NotLogin)
-			return
-		}
-
 		// 获取用户角色列表
 		userId, _ := c.Get(global.SessionUserIDKey)
-		if err := userRoleService.ISelectUserRoles(c, &po.User{ID: userId.(int)}, &roles); err != nil {
+		if err := userRoleService.ISelectUserRoles(c, &po.User{ID: userId.(int64)}, &roles); err != nil {
 			c.AbortWithStatusJSON(http.StatusOK, vo.Forbidden)
 			return
 		}

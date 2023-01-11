@@ -10,7 +10,7 @@ import (
 )
 
 type Storage interface {
-	Save(header *multipart.FileHeader) (string,error)
+	Save(header *multipart.FileHeader) (string, error)
 	Delete(name ...string) (int, error)
 	GetAccessUrl(name string) (string, error)
 }

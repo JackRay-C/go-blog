@@ -3,6 +3,7 @@ package console
 import (
 	"blog/internal/logger"
 	"blog/pkg/global"
+	"blog/pkg/model/common"
 	"blog/pkg/model/dto"
 	"blog/pkg/model/po"
 	"blog/pkg/model/vo"
@@ -14,21 +15,21 @@ import (
 
 type UserRole struct {
 	log             logger.Logger
-	roleService     service.RoleService
+	service         common.BaseService
 	userRoleService service.UsersRolesService
 }
 
 func NewUserRole() *UserRole {
 	return &UserRole{
 		log:             global.Log,
-		roleService:     service.NewRoleService(),
+		service:         &common.BaseServiceImpl{},
 		userRoleService: service.NewUsersRolesService(),
 	}
 }
 
 // Get 根据用户ID获取角色
 func (ur *UserRole) Get(c *gin.Context) (*vo.Response, error) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}
@@ -51,7 +52,7 @@ func (ur *UserRole) Get(c *gin.Context) (*vo.Response, error) {
 // Put 修改用户角色
 func (ur *UserRole) Put(c *gin.Context) (*vo.Response, error) {
 	// 获取用户ID
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil || id == 0 {
 		return nil, vo.InvalidParams.SetMsg("%s", err)
 	}

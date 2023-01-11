@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-
 type AppMode int8
 
 const (
@@ -39,6 +38,7 @@ type App struct {
 	Smtp            *Smtp     `mapstructure:"smtp"`
 	Server          *Server   `mapstructure:"server"`
 	Storage         *Storage  `mapsturcture:"storage"`
+	Redis           *Redis    `mapsturcture:"redis"`
 }
 
 func (a *App) String() string {
@@ -47,6 +47,14 @@ func (a *App) String() string {
 		return ""
 	}
 	return string(marshal)
+}
+
+type Redis struct {
+	Addr     string `mapsturcture:"addr"`
+	Password string `mapsturcture:"password"`
+	Db       int    `mapsturcture:"db"`
+	MaxRetry int    `mapsturcture:"max-retry"`
+	PoolSize int    `mapsturcture:"pool-size"`
 }
 
 type Logs struct {
@@ -63,6 +71,7 @@ type Simple struct {
 	LogMaxAge    int    `mapstructure:"log-max-age"`
 	Format       string `mapstructure:"format"` // text / json
 }
+
 type Zap struct {
 	Level         string `mapstructure:"level"`           // 日志级别
 	Format        string `mapstructure:"format"`          // 格式化
@@ -154,6 +163,7 @@ type Storage struct {
 
 type Local struct {
 	Path string `mapstructure:"path"`
+	Host string `mapstructure:"host"`
 }
 
 type Qiniu struct {

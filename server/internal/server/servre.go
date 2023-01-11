@@ -1,6 +1,7 @@
 package server
 
 import (
+	"blog/internal/cache"
 	"blog/internal/database"
 	"blog/internal/hook"
 	"blog/internal/logger"
@@ -41,14 +42,14 @@ func New(file string) {
 	}
 	global.Log.Infof("初始化数据库...")
 	if global.DB, err = database.New(global.App); err != nil {
-		global.Log.Fatalf("failed to init database config: %s", err)
+		global.Log.Fatalf("初始化数据库失败: %s", err)
 	}
 
 	initialize.InitTable()
 
 	global.Log.Infof("初始化雪花ID...")
 	if global.Snowflake, err = snowflake.New(global.App); err != nil {
-		global.Log.Fatalf("failed to init snowflake config: %s", err)
+		global.Log.Fatalf("初始化雪花生成器失败：: %s", err)
 	}
 
 	global.Log.Infof("初始化SMTP配置...")
@@ -56,11 +57,18 @@ func New(file string) {
 
 	global.Log.Infof("初始化存储...")
 	if global.Storage, err = storage.New(global.App); err != nil {
-		global.Log.Fatal(err)
+		global.Log.Fatalf("初始化存储失败： %s", err)
 	}
 
 	global.Log.Infof("初始化路由...")
 	global.Routers = routes.NewRouters(global.App)
+
+	global.Log.Infof("初始化缓存Redis...")
+
+	if global.Cache, err = cache.NewRedis(global.App); err != nil {
+		global.Log.Fatalf("初始化Redis失败: %s", err)
+	}
+
 	global.Log.Infof("初始化Server...")
 	global.Server = &http.Server{
 		Addr:           fmt.Sprintf(":%d", global.App.Server.Port),

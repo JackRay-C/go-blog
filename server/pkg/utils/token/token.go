@@ -2,8 +2,12 @@ package token
 
 import (
 	"blog/pkg/global"
+	"context"
 	"encoding/json"
+	"errors"
+	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
+	"strings"
 	"time"
 )
 
@@ -13,7 +17,7 @@ type Interface interface {
 }
 
 type Claims struct {
-	UserId   int    `json:"user_id"`
+	UserId   int64    `json:"user_id"`
 	Username string `json:"username"`
 }
 
@@ -32,13 +36,14 @@ func GenerateAccessToken(c *Claims) (string, error) {
 		return "", err
 	}
 
+	uid := strings.ReplaceAll(newUUID.String(), "-", "")
 	// 2、存储到cache中
-	if err := global.Cache.Set("accessToken:"+newUUID.String(), c.String()); err != nil {
+	if err := global.Cache.Set(context.Background(), "accessToken:"+uid, c.String(), global.App.Server.AccessTokenExpire).Err(); err != nil {
 		return "", err
 	}
 
 	// 3、返回
-	return newUUID.String(), nil
+	return uid, nil
 }
 
 func GenerateRefreshToken(c *Claims) (string, error) {
@@ -48,52 +53,53 @@ func GenerateRefreshToken(c *Claims) (string, error) {
 		return "", err
 	}
 
+	uid := strings.ReplaceAll(newUUID.String(), "-", "")
 	// 2、存储到cache中
-	if err := global.Cache.Set("refreshToken:"+newUUID.String(), c.String()); err != nil {
+	if err := global.Cache.Set(context.Background(),"refreshToken:"+uid, c.String(), global.App.Server.RefreshTokenExpire).Err(); err != nil {
 		return "", err
 	}
 
 	// 3、返回
-	return newUUID.String(), nil
+	return uid, nil
 }
 
 func SetAccessTokenExpire(token string, expire time.Duration) error {
-	if err := global.Cache.SetExpire("accessToken:"+token, expire); err != nil {
-		return err
-	}
-	return nil
+	return global.Cache.Expire(context.Background(), "accessToken:"+token, expire).Err()
 }
 
 func SetRefreshTokenExpire(token string, expire time.Duration) error {
-	if err := global.Cache.SetExpire("refreshToken:"+token, expire); err != nil {
-		return err
-	}
-	return nil
+	return global.Cache.Expire(context.Background(), "refreshToken:"+token, expire).Err()
 }
 
 func ParseAccessToken(token string) (*Claims, error) {
-	get, err := global.Cache.Get("accessToken" + token)
+	get, err := global.Cache.Get(context.Background(), "accessToken:" + token).Result()
+
+	if err == redis.Nil {
+		return nil, errors.New("token expire. ")
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	var claims *Claims
+	claims :=  &Claims{}
 	err = json.Unmarshal([]byte(get), claims)
 	if err != nil {
 		return nil, err
 	}
+
 	return claims, nil
 }
 
 func ParseRefreshToken(token string) (*Claims, error) {
-	get, err := global.Cache.Get("refreshToken:" + token)
+	get, err := global.Cache.Get(context.Background(), "refreshToken:" + token).Result()
 	if err != nil {
 		return nil, err
 	}
-	var claims *Claims
-	err = json.Unmarshal([]byte(get), claims)
-	if err != nil {
+	claims:= &Claims{}
+
+	if err := json.Unmarshal([]byte(get), claims);err != nil {
 		return nil, err
 	}
+
 	return claims, nil
 }
