@@ -3,64 +3,39 @@
     <div class="header">
       <div class="edit-header-left">
         <div class="back">
-          <el-button
-            class="back-text"
-            @click="goback"
-            type="text"
-            icon="el-icon-arrow-left"
-            >返回</el-button
-          >
+          <el-button-group class="button-left">
+            <el-button size="medium" plain @click="goback"><i class="el-icon-arrow-left"></i>返回</el-button>
+           
+          </el-button-group>
         </div>
         <div class="title">
-          <span class="title-text" v-show="!post_title_edit">{{
-            post.title
-          }}</span>
-
-          <el-input
-            class="title-text"
-            v-show="post_title_edit"
-            v-model="post.title"
-            @blur="post_title_edit = !post_title_edit"
-          ></el-input>
-
-          <i
-            :class="{
-              'el-icon-edit': !post_title_edit,
-              'el-icon-check': post_title_edit,
-            }"
-            @click="post_title_edit = !post_title_edit"
-          ></i>
-
-          <span v-if="post.id" class="date-text"
-            >创建于{{
-              post.created_at | momentfmt("YYYY-MM-DD HH:mm:ss")
-            }}</span
-          >
+          <span class="title-text" v-show="!post_title_edit">
+            {{ post.title }}
+          </span>
+          <el-input class="title-text" v-show="post_title_edit" v-model="post.title"
+            @blur="post_title_edit = !post_title_edit"></el-input>
+          <i :class="{
+            'el-icon-edit': !post_title_edit,
+            'el-icon-check': post_title_edit,
+          }" @click="post_title_edit = !post_title_edit"></i>
+          <span v-if="post.id" class="date-text">
+            创建于{{ post.created_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+          </span>
         </div>
       </div>
 
       <div class="edit-header-right">
-        <el-button-group class="button-right">
-          <el-button size="medium" plain @click="stagedPost"
-            >保存草稿</el-button
-          >
+        <!-- <el-button-group class="button-right">
+          <el-button size="medium" plain @click="stagedPost">保存草稿</el-button>
           <el-button size="medium" plain @click="commitPost">发布博客</el-button>
-          <el-button size="medium" plain @click="drawer = !drawer"
-            >博客设置</el-button
-          >
-        </el-button-group>
-        <!-- <el-avatar
-          class="avatar"
-          size="medium"
-          v-if="post.user"
-          :src="post.user.avatar.host + post.user.avatar.access_url"
-        ></el-avatar> -->
+        </el-button-group> -->
 
-        <!-- <el-avatar
-          class="avatar"
-          size="medium"
-          src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
-        ></el-avatar> -->
+        <el-button-group>
+           <el-button size="medium" plain @click="stagedPost">草稿</el-button>
+            <el-button size="medium" plain @click="commitPost">发布</el-button>
+          <!-- <el-button size="medium" plain @click="deletePost"><i class="el-icon-delete"> 删除</i></el-button> -->
+          <el-button size="medium" plain @click="drawer = !drawer">设置</el-button>
+        </el-button-group>
       </div>
     </div>
 
@@ -81,7 +56,7 @@ import debounce from "lodash.debounce";
 import { getPost, addPost, putPost } from "@/api/admin/post";
 import api from "@/api/admin/api";
 
-export default {  
+export default {
   name: "editor",
   data() {
     return {
@@ -92,14 +67,27 @@ export default {
       img_ids: [],
       loading: false,
       post: {},
+      head: {},
+      repositories: [],
+      histories: [],
+      current_repository: {},
+      current_history: {},
     };
   },
-  created() {
-    this.initEditor();
-    this.fetchPost();
-  },
+
   watch: {
     $route: "fetchPost",
+  },
+  mounted() {
+    if (this.$route.params.id && /^\d+$/.test(this.$route.params.id)) {
+      // 如果存在id，请求post，再初始化编辑器
+      this.fetchPost();
+      this.initEditor();
+    } else {
+      // 不存在，新建博客，再初始化编辑器
+      this.initPost();
+      this.initEditor();
+    }
   },
   computed: {},
   methods: {
@@ -233,13 +221,14 @@ export default {
           cache: {
             enable: false,
           },
+          // cdn: "https://fastly.jsdelivr.net/npm/vditor",
           placeholder: this.placeholder,
           tab: "\t",
           typewriterMode: true,
           mode: "ir",
           input: debounce(this.onChange, 500),
           blur: debounce(this.onBlur, 500),
-          esc: () => {},
+          esc: () => { },
           after: () => {
             this.editor.setValue(this.post.markdown_content);
             this.loading = false;
@@ -289,11 +278,19 @@ export default {
         });
       });
     },
-    fetchPost() {
-      if (this.$route.params.id && /^\d+$/.test(this.$route.params.id)) {
-        this.pullPost();
+    async fetchPost() {
+      this.loading = true;
+      let res = await getPost(this.$route.params.id);
+      if (res.code === 200) {
+        console.log(res);
+        this.post = res.data;
       } else {
-        this.initPost();
+        this.$alert(res.message, "Error " + res.code, {
+          confirmButtonText: "确定",
+          callback: () => {
+            this.$router.go(-1);
+          },
+        });
       }
     },
     pushPost() {
@@ -302,16 +299,22 @@ export default {
         putPost(this.$route.params.id, this.post)
           .then((res) => {
             if (res.code === 200) {
-              this.post = res.data
-              this.$notify.success({title: 'Success', message: '发布博客成功. '})
+              this.post = res.data;
+              this.$notify.success({
+                title: "Success",
+                message: "发布博客成功. ",
+              });
             }
           })
           .catch((err) => {
-            this.$notify.success({title: 'Failed', message: '发布博客失败: ' + err})
+            this.$notify.success({
+              title: "Failed",
+              message: "发布博客失败: " + err,
+            });
             console.log(err);
           });
       } else {
-        console.log("id: " + this.$route.params.id)
+        console.log("id: " + this.$route.params.id);
       }
     },
     onChange() {
@@ -323,11 +326,11 @@ export default {
       // 保存 或保存到草稿箱,如果是新建 跳转到编辑页面
       this.description = val.substring(0, 300);
       console.log("onBlur", val.substring(0, 300));
-      this.pushPost();
+      this.stagedPost();
     },
     initPost() {
       // 初始化博客
-      this.$loading()
+      this.$loading();
       this.post = {
         title: "新建博客",
         markdown_content: "",
@@ -341,7 +344,7 @@ export default {
           console.log(res);
           if (res.code === 200) {
             this.post.id = res.data.id;
-            this.$loading.close()
+            this.$loading.close();
             this.$router.push("/admin/edit/" + res.data.id);
           } else {
             this.$notify({
@@ -354,27 +357,30 @@ export default {
           console.log(err);
         });
     },
-    pullPost() {
-      // 请求博客
-      this.loading = true
-      getPost(this.$route.params.id).then((res) => {
-        this.loading = false;
-        if (res.code === 200) {
-          this.post = res.data;
-        } else {
-          this.$alert(res.message, "Error " + res.code, {
-            confirmButtonText: "确定",
-            callback: () => {
-              this.$router.go(-1);
-            },
-          });
-        }
-      });
-    },
-    stagedPost() {
+    staged() {
       // 保存草稿
-      this.post.status = 1;
-      this.pushPost();
+      // 将当前repository的内容提交到服务器
+    },
+    commit() {
+      // 将repository提交到history
+    },
+    push() {
+      // 提交post到服务器
+    },
+    switch(id) {
+      // 将当前repository的内容展现到editor上
+    },
+    reset() {
+      // 将post提交到服务器上
+    },
+
+    // 保存草稿： update repository，update head
+    // 保存：update repository，update history push
+    // 发布： update repository， update hisotry， update head
+    async stagedPost() {
+      // 保存草稿
+      this.head.status = this.GLOBAL.dicts.post.status.commit;
+      await this.pushPost();
     },
     commitPost() {
       // 发布博客
@@ -400,7 +406,7 @@ export default {
 
 .header {
   width: 100%;
-  height: 56px;
+  height: 64px;
   background: #ffffff;
   position: relative;
   z-index: 1000;
@@ -415,12 +421,12 @@ export default {
     justify-content: flex-start;
     align-items: center;
     flex: 1;
-    height: 56px;
+    height: 64px;
 
     .back {
       margin-left: 36px;
       margin-right: 20px;
-      width: 56px;
+      // width: 56px;
 
       .back-text {
         font-size: 16px;
@@ -429,9 +435,11 @@ export default {
     }
 
     .title {
+      text-align: center;
       display: flex;
       flex-direction: row;
       align-items: center;
+      align-content: center;
       font-size: 16px;
       color: #606266;
       min-width: 180px;
@@ -475,6 +483,7 @@ export default {
 
   .editor-content {
     height: 100%;
+
     // vditor scss
     .vditor-toolbar {
       line-height: 1.5;

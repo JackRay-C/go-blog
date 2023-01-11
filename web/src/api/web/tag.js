@@ -19,13 +19,12 @@ export function getTagsById(id) {
 }
 
 
-export function getPostByTagId(tagId, pageNo, pageSize) {
+export function getPostByTagId(tagId, params) {
     return request({
         url: `${api.tags}/${tagId}/posts`,
         method: 'GET',
         params: {
-            pageNo,
-            pageSize
+            ...params
         }
     })
 }

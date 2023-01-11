@@ -3,11 +3,13 @@
   flex: 1;
   min-width: 1px;
   position: relative;
-  width: 100%;
-  padding: 0 50px 50px 50px;
+  width: 55%;
+  padding: 100px 60px 100px 60px;
   background-color: var(--panel-background-color);
 
+
   &__node {
+
     &[data-type="code-block"]:before,
     &[data-type="code-block"]:after,
     &[data-type="yaml-front-matter"]:before,
@@ -135,21 +137,13 @@
 
   pre.vditor-reset {
     background-color: var(--panel-background-color);
-    padding: 0 !important;
-    margin: 0;
+    line-height: 1.7;
+    font-size: 14px;
     white-space: pre-wrap;
+    font-family: "pingfang SC", "helvetica neue", arial, "hiragino sans gb",
+    "microsoft yahei ui", "microsoft yahei", simsun, sans-serif;
     height: 100%;
-    box-sizing: border-box;
-    padding-top: 36px !important;
 
-
-    // padding-top: 30px;
-  color: #606c80 !important;
-  font-size: 16px !important;
-  line-height: 100% !important;
-  box-sizing: border-box;
-  font-weight: 400;
-  margin: 8px 0 !important;
 
     &[contenteditable="false"] {
       opacity: 0.3;
@@ -169,7 +163,7 @@
 
     &:after {
       content: "";
-      height: var(--editor-bottom);
+      // height: var(--editor-bottom);
       display: block;
     }
 
@@ -185,7 +179,7 @@
   }
 
   blockquote:empty::before,
-  pre > code:empty::before,
+  pre>code:empty::before,
   p:empty::before,
   h1:empty::after,
   h2:empty::after,
@@ -197,12 +191,12 @@
   }
 
   // block title
-  & .vditor-reset > h1:before,
-  & .vditor-reset > h2:before,
-  & .vditor-reset > h3:before,
-  & .vditor-reset > h4:before,
-  & .vditor-reset > h5:before,
-  & .vditor-reset > h6:before,
+  & .vditor-reset>h1:before,
+  & .vditor-reset>h2:before,
+  & .vditor-reset>h3:before,
+  & .vditor-reset>h4:before,
+  & .vditor-reset>h5:before,
+  & .vditor-reset>h6:before,
   div[data-type="link-ref-defs-block"]:before,
   div[data-type="footnotes-block"]:before,
   .vditor-toc:before {
@@ -215,23 +209,23 @@
     color: var(--second-color);
   }
 
-  & .vditor-reset > h2:before {
+  & .vditor-reset>h2:before {
     content: 'H2';
   }
 
-  & .vditor-reset > h3:before {
+  & .vditor-reset>h3:before {
     content: 'H3';
   }
 
-  & .vditor-reset > h4:before {
+  & .vditor-reset>h4:before {
     content: 'H4';
   }
 
-  & .vditor-reset > h5:before {
+  & .vditor-reset>h5:before {
     content: 'H5';
   }
 
-  & .vditor-reset > h6:before {
+  & .vditor-reset>h6:before {
     content: 'H6';
   }
 
@@ -252,8 +246,15 @@
     padding-top: 24px;
     margin-top: 24px;
 
-    & > div[data-type="footnotes-def"] {
-      & > ul, & > ol, & > p, & > blockquote, & > pre, & > table, & > hr {
+    &>div[data-type="footnotes-def"] {
+
+      &>ul,
+      &>ol,
+      &>p,
+      &>blockquote,
+      &>pre,
+      &>table,
+      &>hr {
         margin-left: 8px;
       }
     }
@@ -274,6 +275,7 @@
 
 @media screen and (max-width: $max-width) {
   .vditor-ir {
+
     h1:before,
     h2:before,
     h3:before,

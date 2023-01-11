@@ -16,8 +16,8 @@
         <ul class="nav-list nav-main">
           <li>
             <router-link to="/admin/dashboard" active-class="active">
-            <svg-icon icon-class="dashboard" />
-              Dashboard
+            <svg-icon icon-class="dashboard" class-name="dashboard_svg__a" />
+              {{$t("sidebar.dashboard")}}
             </router-link>
           </li>
         </ul>
@@ -26,31 +26,32 @@
           <li class="nav-list-new">
             <router-link to="/admin/posts" active-class="active">
             <svg-icon icon-class="edit" />
-              Posts
+              {{$t("sidebar.posts")}}
             </router-link>
-            <router-link
+            <div
               to="/admin/edit"
+              @click="newPost"
               class="nav-new-post"
               active-class="active"
             >
               <span>
                 <svg-icon icon-class="plus" class-name="page_svg__a" />
               </span>
-            </router-link>
+            </div>
             <div class="nav-post-container">
               <div class="nav-post-container-child">
                 <ul class="nav-view-list">
                   <li>
                     <router-link to="/admin/drafts" active-class="active">
                       <span class="viewname">
-                        Drafts
+                        {{$t("sidebar.drafts")}}
                       </span>
                     </router-link>
                   </li>
                   <li>
                     <router-link to="/admin/published" active-class="active">
                       <span class="viewname">
-                        Published
+                        {{$t("sidebar.published")}}
                       </span>
                     </router-link>
                   </li>
@@ -59,42 +60,13 @@
             </div>
           </li>
 
-          <li v-for="route in routes" :key="route.path">
-            <router-link :to="route.path" active-class="active" v-if="route.meta && route.meta.sidebar && route.name!== 'Posts' && route.name!= 'Dashboard'">
+          <li v-for="route,index in routes" :key="index">
+            <router-link :to="route.path" active-class="active" v-if="route.meta && route.meta.sidebar && route.name!== 'posts' && route.name!= 'dashboard'">
               <svg-icon :icon-class="route.meta.icon" :class-name="route.meta.iconClass" />
-              {{route.name}}
+              {{ $t("sidebar." + `${route.name}`) }}
             </router-link>
           </li>
-          <!-- <li>
-            <router-link to="/admin/pages" active-class="active">
-            <svg-icon icon-class="pages" class-name="page_svg__a" />
-              Pages
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/admin/tag" active-class="active">
-              <svg-icon icon-class="tags"/>
-              Tags
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/admin/subject" active-class="active">
-              <svg-icon icon-class="subjects"/>
-              Subjects
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/admin/dicts" active-class="active">
-              <svg-icon icon-class="dicts"/>
-              Dicts
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/admin/users" active-class="active">
-              <svg-icon icon-class="members" class-name="members_svg__cls-1" />
-              Accounts
-            </router-link>
-          </li> -->
+
         </ul>
 
         <ul class="nav-list"></ul>
@@ -108,7 +80,7 @@
                 <div class="nav-trigger-flex" @click="dropdown1 = !dropdown1">
                   <div
                     class="user-avatar"
-                    :style="'background-image: url(' + avatar.host +'' + avatar.access_url + ')'"
+                    :style="'background-image: url(' + avatar + ')'"
                   ></div>
                   <svg-icon icon-class="dropdown" class-name="w3 mr1 fill-darkgrey" />
                 </div>
@@ -118,7 +90,7 @@
                       <div class="account-menu-header">
                         <div
                           class="user-avatar"
-                          :style="'background-image: url(' + avatar.host +'' + avatar.access_url + ')'"
+                          :style="'background-image: url(' + avatar + ')'"
                         ></div>
                         <div class="user-info">
                           <h4 class="user-name">任浩杰</h4>
@@ -133,9 +105,12 @@
                       >
                     </li>
                     <li>
-                      <router-link to="/admin/logout" @click="logout" class="dropdown-item"
+                      <div class="dropdown-item logout" @click="logout" >
+                        Sign out
+                      </div>
+                      <!-- <router-link to="" @click="logout" class="dropdown-item"
                         >Sign out</router-link
-                      >
+                      > -->
                     </li>
                   </ul>
                 </div>
@@ -156,6 +131,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import SvgIcon from "@/components/SvgIcon"
+import { addPost } from '../../api/admin/post';
 
 export default {
   components: {
@@ -170,7 +146,8 @@ export default {
     ])
   },
   mounted() {
-    console.log(this.avatar)
+
+    
   },
   data() {
     return {
@@ -184,10 +161,35 @@ export default {
   methods: {
     logout() {
       this.dropdown1 = !this.dropdown1
-      this.$sotre.dispatch('DispatchLogout').then(res=> {
+      this.$store.dispatch('DispatchLogout').then(res=> {
         console.log(res)
-        this.$route.push("/login")
+        this.$router.push("/login")
       })
+    },
+    newPost(){
+      // 新建空博客，获取ID，跳转到编辑页面
+      let post = {
+        "title": "新建博客",
+        "markdown_content": "",
+        "status": 1, // 草稿
+        "visibility": 2, // 公开
+      };
+  
+      addPost({...post}).then((res) => {
+          console.log(res);
+          if (res.code === 200) {
+            // this.$router.push("/admin/edit/" + res.data.id);
+            this.$router.push("/admin/new/" + res.data.id)
+          } else {
+            this.$notify({
+              title: "Error " + res.code,
+              message: res.message,
+            });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   }
 };
@@ -286,19 +288,25 @@ export default {
         line-height: 1;
         transition: none;
         z-index: 999;
-
+        fill: #15171a;
+        
         &:not(:root) {
           overflow: hidden;
         }
       }
 
       .members_svg__cls-1,
-      .page_svg__a {
+      .page_svg__a, .tag_svg__a,.dashboard_svg__a {
         fill: none;
-        stroke: currentColor;
+        stroke: #15171a;
         stroke-linecap: round;
         stroke-linejoin: round;
-        stroke-width: 1.5 px;
+        stroke-width: 1.5px;
+      }
+      .subjects_svg__a {
+        fill: none;
+        stroke: #15171a;
+        stroke-width: 62px;
       }
     }
 
@@ -337,9 +345,22 @@ export default {
             span {
               background: #f1f3f4;
 
-              svc {
+              svg {
                 fill: #15171a;
               }
+            }
+          }
+
+          .edit_svg__a{
+            fill: none;
+            stroke: currentColor;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+          stroke-width: 1.5 px;
+          }
+          .avtive {
+            .edit_svg__a {
+              fill: #15171a;
             }
           }
 
@@ -571,7 +592,7 @@ export default {
     li {
       margin: 0;
 
-      a {
+      .logout, a {
         font-size: 1.4rem;
         margin: 0;
         width: unset;

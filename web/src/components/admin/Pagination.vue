@@ -1,7 +1,7 @@
 <template>
   <div class="pagination">
     <div class="prev" :class="prevDisable ? 'disable' : ''" @click="prev">
-      上一页
+      {{$t("page.prev")}}
     </div>
 
     <ul class="pagination-item">
@@ -18,7 +18,7 @@
       <li
         v-for="i in pagers"
         :key="i"
-        @click="change(i)"
+        @click="go(i)"
         :class="{ active: i === current }"
       >
         {{ i }}
@@ -37,7 +37,7 @@
     </ul>
 
     <div class="next" :class="nextDisable ? 'disable' : ''" @click="next">
-      下一页
+      {{$t("page.next")}}
     </div>
   </div>
 </template>
@@ -46,24 +46,31 @@
 export default {
   name: "Pagination",
   data() {
-    return {};
-  },
-  model: {
-    prop: "current",
+    return {
+      current: this.pageNo
+    };
   },
   props: {
-    current: {
+    // 页码
+    pageNo: {
       type: Number,
-      default: 1,
+      default: 1
     },
+    // 每页大小
+    pageSize: {
+      type: Number,
+      default: 10
+    },
+    // 总页数
     pageCount: {
       type: Number,
-      required: true,
+      required: true
     },
+    // 超过多少页显示省略号
     pagerCount: {
-      type: Number,
-      default: 10,
-    },
+        type: Number,
+        default: 10
+    }
   },
   computed: {
     prevDisable() {
@@ -125,30 +132,30 @@ export default {
   },
   methods: {
     prev() {
-      if (this.current - 1 < 1) {
-        this.current = 1;
-      } else {
-        let new_current = this.current - 1;
-        this.$emit("change", new_current);
-      }
+      if (this.current > 1) {
+        this.go(this.current - 1)
+      } 
     },
     next() {
-      if (this.current + 1 > this.pageCount) {
-        this.current = this.pageCount;
-      } else {
-        let new_current = this.current + 1;
-        this.$emit("change", new_current);
+      if (this.current < this.pageCount) {
+        this.go(this.current + 1)
+      } 
+    },
+    go(index) {
+      console.log("go: " + index)
+      if(this.current !== index){
+        this.current = index
+        this.$emit("change", this.current);
       }
-    },
-    change(index) {
-      this.current = index;
-      this.$emit("change", this.current);
-    },
+    }
   },
   watch: {
-    current(newVal) {
-      this.$emit("change", newVal);
+    pageNo(newVal) {
+      this.current = newVal || 1;
     },
+    current(newVal) {
+      this.$emit("change", newVal)
+    }
   },
 };
 </script>

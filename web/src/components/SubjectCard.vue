@@ -85,7 +85,8 @@ export default {
     .subject-title{
       font-size: 25px;
       font-weight: 700;
-      color: #4E6EF2;
+      // color: #4E6EF2;
+      color: #121127;
       white-space: nowrap;
       text-overflow: ellipsis;
       overflow: hidden;
@@ -97,7 +98,8 @@ export default {
       font-size: 15px;
       font-weight: 500;
       padding: 10px 0;
-      color: #9aa8b6;
+      // color: #9aa8b6;
+      color: #888888;
     }
     .subject-desc{
       margin-top: 10px;
@@ -109,7 +111,8 @@ export default {
       overflow: hidden;
       font-size: 15px;
       font-weight: 500;
-      color: #888888;
+      // color: #888888;
+      color: #121115;
 
     }
   }

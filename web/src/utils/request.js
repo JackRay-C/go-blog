@@ -9,8 +9,8 @@ const instance = axios.create({
 })
 
 instance.interceptors.request.use(config => {
-    if(localStorage.getItem("token")) {
-        config.headers.token = localStorage.getItem("token")
+    if(localStorage.getItem("access_token")) {
+        config.headers.token = localStorage.getItem("access_token")
     }
     return config
 }, error => {
@@ -23,8 +23,9 @@ instance.interceptors.response.use(res => {
     if (res.status !== 200) {
         return Promise.reject(res.statusText)
     } else {
+        //todo: 判断是否有refreshtoken 刷新token再请求
         if(res.data.code === 401 || res.data.code === 1003 || res.data.code === 1004) {
-            localStorage.removeItem("token")
+            localStorage.removeItem("access_token")
             router.push("/login")
             return Promise.reject(res)
         }

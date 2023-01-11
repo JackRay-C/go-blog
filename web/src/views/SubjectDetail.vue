@@ -1,8 +1,13 @@
 <template>
   <div class="subject-detail">
-    <el-skeleton style="width:100%" :loading="loading1 && loading2" animated :throttle="2000">
+    <el-skeleton
+      style="width: 100%"
+      :loading="loading1 && loading2"
+      animated
+      :throttle="2000"
+    >
       <template slot="template">
-        <el-skeleton-item variant="image" style="height: 360px;">
+        <el-skeleton-item variant="image" style="height: 360px">
           <div class="subject-header-box">
             <el-skeleton-item variant="text" class="subject-header-title" />
             <el-skeleton-item variant="text" class="subject-header-desc" />
@@ -11,12 +16,25 @@
         <div class="content">
           <div class="subject-posts">
             <div class="subject-posts-info">
-              <el-skeleton-item variant="rect" style="height:92px;position: absolute;top: -40%;width: 100%;background:#ffffff;" />
+              <el-skeleton-item
+                variant="rect"
+                style="
+                  height: 92px;
+                  position: absolute;
+                  top: -40%;
+                  width: 100%;
+                  background: #ffffff;
+                "
+              />
             </div>
 
+            <el-skeleton-item
+              variant="rect"
+              v-for="i in 3"
+              :key="i"
+              style="width: 100%; height: 200px; margin: 24px auto"
+            />
 
-            <el-skeleton-item variant="rect" v-for="i in 3" :key="i"  style="width: 100%;height: 200px;margin:24px auto;" />
-            
             <br />
           </div>
         </div>
@@ -26,11 +44,7 @@
         <div
           class="subject-header"
           :style="{
-            backgroundImage:
-              'url(' +
-              subject.cover_image.host +
-              subject.cover_image.access_url +
-              ')',
+            backgroundImage: 'url(' + cover_image + ')',
           }"
         >
           <div class="subject-header-box">
@@ -76,6 +90,7 @@
 import PostCard from "@/components/PostCard.vue";
 import Pagination from "@/components/Pagination.vue";
 import { getSubjectById, getPostBySubjectId } from "@/api/web/subject.js";
+import { getFileById } from "@/api/web/file.js";
 
 export default {
   components: {
@@ -92,7 +107,8 @@ export default {
       posts: [],
       subject: {},
       loading1: true,
-      loading2: true
+      loading2: true,
+      cover_image: ""
     };
   },
   beforeRouteUpdate(to, from, next) {
@@ -112,11 +128,14 @@ export default {
     fetchSubjectId() {
       getSubjectById(this.id)
         .then((res) => {
-          this.loading1 = false
+          this.loading1 = false;
           this.subject = res.data;
-          // getFileById(res.data.cover_image).then(res => {
-          //   this.cover_image = 'http://localhost:8000/' + res.data.access_url
-          // })
+          
+          getFileById(res.data.cover_image).then((res) => {
+            this.cover_image =
+              process.env.VUE_APP_BASE_URL + "/" +res.data.access_url;
+              
+          });
         })
         .catch((err) => {
           console.log(err);
@@ -125,8 +144,8 @@ export default {
     fetchSubjectPosts() {
       getPostBySubjectId(this.id, this.page_no, this.page_size)
         .then((res) => {
-          console.log(res)
-          this.loading2 = false
+          console.log(res);
+          this.loading2 = false;
           if (res.code === 200 && res.data) {
             this.posts = res.data.list;
             this.page_no = res.data.page_no;

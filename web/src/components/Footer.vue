@@ -1,10 +1,11 @@
 <template>
     <footer class="footer">
-        Copyright © 2014-2020 jackray-c
+        <div class="copy">Copyright © 2014-2020 jackray-c</div>
+        <div class="icp"><a href="https://beian.miit.gov.cn">京ICP备2021032569号-1</a></div>
     </footer>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .footer {
     height: 100px;
     width: 100%;
@@ -13,5 +14,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    .copy {
+        width: 300px;
+    }
+    .icp {
+        width: 200px;
+    }
+    
 }
 </style>

@@ -77,7 +77,7 @@ export default {
       posts: [],
       bannerTitle: "无名天地之始，有名万物之母",
       fixedHeaderVisibility: false,
-      banner_image: "http://localhost:8000/static/uploads/image/7068c7e50f850ee3590253dd66193415.jpg"
+      banner_image: "http://localhost:8000/static/uploads/image/0cc175b9c0f1b6a831c399e269772661.jpg"
     };
   },
   beforeRouteUpdate(to, from, next) {
@@ -309,7 +309,7 @@ export default {
 .content {
   padding: 0;
   width: 60%;
-  height: auto;
+
   margin: 50px auto;
   background: #f6f7fa;
 }

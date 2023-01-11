@@ -10,3 +10,17 @@ export function listUsers(params){
         }
     })
 }
+
+export function getUserById(id) {
+    return request({
+        url: api.users + `/${id}`,
+        menthod: 'GET',
+    })
+}
+
+export function getUserInfo() {
+    return request({
+        url: `${api.auth}/info`,
+        method: 'GET',
+    })
+}

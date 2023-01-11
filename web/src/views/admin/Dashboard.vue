@@ -1,6 +1,6 @@
 <template>
-  <div class="dashboard">
-    <div class="dashboard-header">
+  <div class="container">
+    <div class="container-header">
       <header class="header-content">
         <h2 class="header-title">
           Dashboard
@@ -8,8 +8,31 @@
       </header>
     </div>
 
-    <div class="dashboard-container">
-      <section class="dashboard-area charts">
+    <div class="container-content">
+      <section class="container-content-data">
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <div>
+              <el-statistic group-separator="," :value="postCount" title="Posts"></el-statistic>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div>
+              <el-statistic group-separator="," :value="subjectCount" title="Subjects"></el-statistic>
+            </div>
+          </el-col>
+          <el-col :span="6">
+            <div>
+              <el-statistic group-separator="," :value="memberCount" title="Accounts"></el-statistic>
+            </div>
+          </el-col> 
+          <el-col :span="6">
+            <div>
+              <el-statistic group-separator="," :value="memberCount" title="Tags"></el-statistic>
+            </div>
+          </el-col> 
+        </el-row>
+<!-- 
         <div class="dasbboard-box posts">
           <div class="chart-conntainer">
             <div class="chart-summary">
@@ -59,7 +82,7 @@
               </div>
             </div>
           </div>
-        </div>
+        </div> -->
       </section>
       <section class="dashboard-area mixed">
         <div class="mixed-container">
@@ -133,6 +156,8 @@
         <div class="dashboard-box draft"></div>
       </section>
     </div>
+    <div class="container-footer">
+    </div>
   </div>
 </template>
 
@@ -149,7 +174,7 @@ export default {
       chart2: "",
       chart3: "",
       chartColor: [
-        "#409EFF",
+        "#cbdccd",
         "#2f4554",
         "#61a0a8",
         "#d48265",
@@ -168,9 +193,9 @@ export default {
     };
   },
   mounted() {
-    this.initPostCharts();
-    this.initViewsCharts();
-    this.initMonthCharts();
+    // this.initPostCharts();
+    // this.initViewsCharts();
+    // this.initMonthCharts();
     this.getPostCount();
     this.getSubjectCount();
     this.getMemberCount()
@@ -266,7 +291,6 @@ export default {
     getPostCount(){
       listPosts({page_no: 1, page_size: 5}).then(res => {
          if(res.code === 200){
-           console.log(res)
            this.recent_posts = res.data.list
            this.postCount = res.data.total_rows
         } else {
@@ -305,51 +329,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.dashboard {
-  width: 100%;
-  position: relative;
-  flex-grow: 1;
-  padding: 0 48px 48px 48px;
-  margin: 0 auto;
-  //   background: #fff;
-}
-
-.dashboard-header {
-  margin: 0 -48px;
-  padding: 0 48px;
-  position: -webkit-sticky;
-  position: sticky;
-  top: 0;
-  background: #fff;
-  z-index: 700;
-  border-bottom: 1px solid #edeeef;
-}
-
-.header-content {
-  height: 95px;
-  position: relative;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.header-title {
-  display: flex;
-  align-items: center;
-  overflow: hidden;
-  margin: -3px 0 0;
-  padding: 0;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 3.1rem;
-  line-height: 1.3em;
-  font-weight: 700;
-  letter-spacing: 0;
-  min-height: 35px;
-  color: #15171a;
-}
-
-.dashboard-container {
+.container-content {
   display: grid;
   grid-template-columns: 2fr 1fr;
   grid-gap: 1.8vw;
@@ -378,6 +358,16 @@ export default {
   grid-column: 1/3;
 }
 
+.container-content-data {
+  background: #fff;
+  padding: 24px 0;
+  border: 1px solid #edeef0;
+  border-radius: 3px;
+  grid-column: 1/3;
+  display: grid;
+  flex-direction: column;
+  grid-column-gap: 1.8vw;
+}
 .dasbboard-box {
   display: flex;
   flex-direction: column;
@@ -386,7 +376,7 @@ export default {
   border-radius: 3px;
   padding: 28px;
   margin-bottom: 1.0vw;
-  box-shadow: 0 8px 24px 0 rgba(54, 97, 174, 0.05);
+  // box-shadow: 0 8px 24px 0 rgba(54, 97, 174, 0.05);
 }
 
 .dashboard-area.charts .posts {

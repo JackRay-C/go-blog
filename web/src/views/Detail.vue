@@ -3,19 +3,19 @@
     <div v-if="!loading">
       <div class="post-title">
         <span class="post-title-text">
-          <h1>{{ repository.title }}</h1>
+          <h1>{{ post.title }}</h1>
         </span>
       </div>
       <div class="post-info">
-        <span class="post-created" v-if="repository.updated_at"
+        <span class="post-created" v-if="post.updated_at"
           >更新于:
-          {{ repository.updated_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+          {{ post.updated_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
           </span
         >
         <div class="devider"></div>
-        <span class="post-created" v-if="history.published_at"
+        <span class="post-created" v-if="post.published_at"
           >发表于:
-          {{ history.published_at.Time | momentfmt("YYYY-MM-DD HH:mm:ss") }}
+          {{ post.published_at | momentfmt("YYYY-MM-DD HH:mm:ss") }}
        </span
         >
         <div class="devider"></div>
@@ -29,15 +29,11 @@
           <div class="devider"></div>
         </div>
         
-        <div class="post-created">阅读量： {{ head.views }}</div>
+        <div class="post-created">阅读量： {{ post.views }}</div>
       </div>
-      <!-- <div
-          class="post-content markdown-body"
-          v-highlight
-          v-html="post.html_content"
-        ></div> -->
+
       <div
-        id="post-content"
+        id="post-content markdown-body"
         v-html="html"
       ></div>
 
@@ -51,7 +47,7 @@
 
 <script>
 // import VditorPreview from "vditor/dist/method.min";
-import "@/components/Vditor/css/index.scss";
+// import "@/components/Vditor/css/index.scss";
 // import "github-markdown-css/github-markdown.css";
 import "katex/dist/katex.min.css";
 import 'highlight.js/styles/monokai-sublime.css';
@@ -66,15 +62,6 @@ export default {
   data() {
     return {
       id: "",
-      // post: {
-      //   title: "",
-      //   markdown_content: "",
-      //   html_content: "",
-      //   created_at: "",
-      //   updated_at: "",
-      //   views: 0,
-      //   likes: 0,
-      // },
       head: null,
       repository: null,
       history: null,
@@ -94,7 +81,7 @@ export default {
   },
   computed: {
     html: function() {
-      let res = this.md.render(this.repository.markdown_content)
+      let res = this.md.render(this.post.markdown_content)
 
       return '<div class="vditor-reset markdown-body ">' + res + '</div>'
     }
@@ -108,19 +95,7 @@ export default {
         .then((res) => {
           if (res.code === 200 && res.data) {
             console.log(res.data)
-            this.head = res.data.head
-            res.data.repositories.forEach(e => {
-              if(e.id === this.head.repository_id) {
-                this.repository = e
-              }
-            });
-
-            res.data.histories.forEach(e => {
-              if (e.head_id === this.head.id) {
-                this.history = e
-              }
-            })
-
+            this.post = res.data
             this.loading = false;
             this.load.close()
           }

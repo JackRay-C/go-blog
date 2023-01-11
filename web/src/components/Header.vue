@@ -23,7 +23,7 @@
       </ul>
 
       <div class="nav-right">
-        <div>
+        <div class="login-button">
           <button @click="login">登录</button>
         </div>
       </div>

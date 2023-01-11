@@ -9,14 +9,13 @@
       </div>
     </div>
 
-
     <div class="content">
       <div class="subject-posts">
         <div class="subject-posts-info">
           <div class="subject-post-info-box">
             <div class="info-item">
               <div class="info-item-number">
-                <span class="number">{{posts.length}}</span> 篇
+                <span class="number">{{ posts.length }}</span> 篇
               </div>
               <div class="info-item-text">文 章</div>
             </div>
@@ -25,7 +24,11 @@
 
         <PostCard v-for="post in posts" :post="post" :key="post.id" />
 
-        <Pagination :pageCount="total_page" :pagerCount="13" @change="handlePageChange" />
+        <Pagination
+          :pageCount="total_page"
+          :pagerCount="13"
+          @change="handlePageChange"
+        />
         <br />
       </div>
     </div>
@@ -34,7 +37,7 @@
 
 <script>
 import { getPostByTagId, getTagsById } from "@/api/web/tag";
-import {getFileById} from "@/api/web/file.js";
+import { getFileById } from "@/api/web/file.js";
 import PostCard from "@/components/PostCard.vue";
 import Pagination from "@/components/Pagination.vue";
 
@@ -71,7 +74,8 @@ export default {
         page_no: this.page_no,
         page_size: this.page_size,
       }).then((res) => {
-        if (res.code === 200 && res.data) {
+        console.log(res)
+        if (res.code === 200 && res.data) {   
           this.posts = res.data.list;
           this.page_size = res.data.page_size;
           this.page_no = res.data.page_no;
@@ -84,9 +88,9 @@ export default {
       getTagsById(this.tagId).then((res) => {
         if (res.code === 200 && res.data) {
           this.tag = res.data;
-          getFileById(res.data.cover_image).then(res => {
-            this.cover_image = 'http://localhost:8000/' + res.data.access_url
-          })
+          getFileById(res.data.cover_image).then((res) => {
+            this.cover_image = "http://localhost:8000/" + res.data.access_url;
+          });
         }
       });
     },
@@ -139,7 +143,7 @@ export default {
     }
   }
 
-    .content {
+  .content {
     width: 100%;
     padding-bottom: 100px;
 
@@ -190,7 +194,5 @@ export default {
       }
     }
   }
-
-
 }
 </style>

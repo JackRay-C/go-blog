@@ -1,74 +1,57 @@
 <template>
-    <div class="container">
-        <div class="container-header">
-            <div class="header-content">
-                <h2 class="header-title">
-                    <router-link to="/admin/subjects">Subjects</router-link>
-                </h2>
-                <section class="view-actions">
-                    <div class="contentfilter">
-                        
-                    </div>
-                </section>
-            </div>
-        </div>
-        subjects
+  <div class="container">
+    <div class="container-header">
+      <div class="header-content">
+        <h2 class="header-title">
+          <router-link to="/admin/subjects">Subjects</router-link>
+        </h2>
+        <section class="view-actions">
+          <div class="contentfilter"></div>
+        </section>
+      </div>
     </div>
+
+    <div class="container-content">
+      <div class="mixed-container">
+        <el-card class="mixed-box">
+            subject1
+        </el-card>
+        <el-card class="mixed-box" >
+            subject2
+        </el-card>
+        <el-card class="mixed-box" shadow="never">
+            subject3
+        </el-card>
+      </div>
+    </div>
+
+    <div class="container-footer"></div>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'subjects',
-    data() {
-        return {
-            total_page: 0,
-            page_no: 1,
-        }
-    }
-}
+  name: "subjects",
+  data() {
+    return {
+      total_page: 0,
+      page_no: 1,
+    };
+  },
+};
 </script>
 
 <style lang="scss" scoped>
-.container {
-    width: 100%;
-    position: relative;
-    flex-grow: 1;
-    padding: 0 48px 48px 48px;
-    margin: 0 auto;
+.mixed-container {
+  display: flex;
+  flex-direction: row;
+}
 
-    .container-header {
-        margin: 0 -48px;
-        padding: 0 48px;
-        position: sticky;
-        top: 0;
-        background: #fff;
-        z-index: 700;
-        border-bottom: 1px solid #edeeef;
-
-        .header-content {
-            height: 95px;
-            position: relative;
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            .header-title {
-                display: flex;
-                align-items: center;
-                overflow: hidden;
-                margin: -3px 0 0;
-                padding: 0;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                font-size: 3.1rem;
-                line-height: 1.3em;
-                font-weight: 700;
-                letter-spacing: 0;
-                min-height: 35px;
-                color: #15171a;
-            }
-        }
-    }
+.mixed-box {
+    background: #fff;
+    padding: 28px;
+    width: 33%;
+    max-height: 72px;
+    margin: 24px 12px;
 }
 </style>

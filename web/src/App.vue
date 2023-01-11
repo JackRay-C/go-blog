@@ -121,7 +121,10 @@ div {
   h3:first-child,
   h4:first-child,
   h5:first-child {
-    margin-top: 16px;
+    margin-top: 30px;
+  }
+  img:first-child {
+    margin-top: 30px;
   }
 
   h1,

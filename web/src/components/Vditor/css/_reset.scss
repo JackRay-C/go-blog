@@ -13,11 +13,12 @@
 
     color: #24292e;
     font-variant-ligatures: no-common-ligatures;
-    font-family: $font-family-base;
+    font-family: "pingfang SC", "helvetica neue", arial, "hiragino sans gb",
+    "microsoft yahei ui", "microsoft yahei", simsun, sans-serif;
     word-wrap: break-word;
     overflow: auto;
     line-height: 1.5;
-    font-size: 16px;
+    font-size: 15px;
     word-break: break-word;
 
     ul ul ul {
@@ -39,7 +40,7 @@
       margin-bottom: 16px;
     }
 
-    li + li {
+    li+li {
       margin-top: 0.25em;
     }
 
@@ -86,17 +87,17 @@
 
 
     h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    color: #171d26 !important;
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: #171d26 !important;
 
-    &:not(first-child) {
-      margin-top: 24px;
+      &:not(first-child) {
+        margin-top: 24px;
+      }
     }
-  }
 
     h1:nth-child(1),
     h2:nth-child(1),
@@ -106,7 +107,7 @@
     h6:nth-child(1) {
       margin-top: 10px;
     }
-    
+
 
     h1 {
       font-size: 1.75em;
@@ -151,16 +152,16 @@
       border-left: 0.25em solid #eaecef;
       margin: 0 0 16px 0;
 
-      & > :first-child {
+      &> :first-child {
         margin-top: 0
       }
 
-      & > :last-child {
+      &> :last-child {
         margin-bottom: 0
       }
     }
 
-    ins > iframe {
+    ins>iframe {
       border: 0;
     }
 
@@ -175,44 +176,44 @@
       }
     }
 
-    // table {
-    //   border-collapse: collapse;
-    //   empty-cells: show;
-    //   margin-bottom: 16px;
-    //   overflow: auto;
-    //   border-spacing: 0;
-    //   display: block;
-    //   word-break: keep-all;
-    //   width: 100%;
+    table {
+      border-collapse: collapse;
+      empty-cells: show;
+      margin-bottom: 16px;
+      overflow: auto;
+      border-spacing: 0;
+      display: table;
+      word-break: keep-all;
+      width: 100%;
 
-    //   tr {
-    //     background-color: #fafbfc;
-    //     border-top: 1px solid #c6cbd1;
-    //   }
+      tr {
+        background-color: #fafbfc;
+        border-top: 1px solid #c6cbd1;
+      }
 
-    //   td,
-    //   th {
-    //     padding: 6px 13px;
-    //     border: 1px solid #dfe2e5;
-    //     word-break: normal;
-    //     white-space: nowrap;
+      td,
+      th {
+        padding: 6px 13px;
+        border: 1px solid #dfe2e5;
+        word-break: normal;
+        white-space: nowrap;
 
-    //     &:first-child::after {
-    //       content: "";
-    //       display: inline-block;
-    //       vertical-align: top;
-    //       min-height: 24px;
-    //     }
-    //   }
+        &:first-child::after {
+          content: "";
+          display: inline-block;
+          vertical-align: top;
+          min-height: 24px;
+        }
+      }
 
-    //   th {
-    //     font-weight: 600;
-    //   }
+      th {
+        font-weight: 600;
+      }
 
-    //   tbody tr:nth-child(2n) {
-    //     background-color: #fff;
-    //   }
-    // }
+      tbody tr:nth-child(2n) {
+        background-color: #fff;
+      }
+    }
 
     code:not(.hljs):not(.highlight-chroma) {
       padding: 0.2em 0.4em;
@@ -228,7 +229,7 @@
     pre {
       margin: 1em 0;
 
-      & > code {
+      &>code {
         margin: 0;
         font-size: 85%;
         padding: 0.5em;
@@ -378,11 +379,12 @@
       pointer-events: none;
       top: 0.5em;
       left: 0;
-      width: 3em; /* works for line-numbers below 1000 lines */
+      width: 3em;
+      /* works for line-numbers below 1000 lines */
       user-select: none;
       counter-reset: linenumber;
 
-      & > span {
+      &>span {
         pointer-events: none;
         display: block;
 
@@ -545,7 +547,7 @@
       padding-left: 1em;
     }
 
-    & > ul {
+    &>ul {
       padding-left: 0;
     }
 
@@ -553,7 +555,7 @@
       cursor: pointer;
     }
 
-    li > span > svg {
+    li>span>svg {
       width: 0;
       height: 0;
     }
@@ -581,18 +583,18 @@
       margin: 0;
     }
 
-    &__content > ul {
+    &__content>ul {
       padding-left: 0;
     }
 
-    li > span {
+    li>span {
       display: flex;
       align-items: center;
       padding: 5px 10px;
       cursor: pointer;
       color: var(--textarea-text-color);
 
-      & > svg {
+      &>svg {
         height: 10px;
         width: 10px;
       }
@@ -601,7 +603,7 @@
         color: var(--toolbar-icon-hover-color);
       }
 
-      & > span {
+      &>span {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;

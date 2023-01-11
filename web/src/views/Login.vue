@@ -74,6 +74,12 @@
 
 <script>
 import SvgIcon from "@/components/SvgIcon";
+// import { webRoutes } from "../router";
+// import {
+//   getPermissionByAccessToken,
+//   getRolesByAccessToken,
+//   login,
+// } from "../api/web/login";
 
 export default {
   components: {
@@ -101,30 +107,49 @@ export default {
     },
   },
   methods: {
-    login() {
-      // 登录
-      this.$store
-        .dispatch("DispatchLogin", {
-          username: this.username,
-          password: this.password,
-        })
-        .then(async (res) => {
-          if (res.code !== 200) {
-            this.$notify.error({ title: "失败", message: res.message });
-          }
+    async login() {
+      // 1、登录获取token，存储到localstorage
+      let data = { username: this.username.trim(), password: this.password.trim() };
+      this.$store.dispatch('DispatchLogin', data).then(()=> {
+        this.$router.push({
+        path: this.redirect || "/admin/dashboard",
+        query: this.otherQuery,
+      });
+      }).catch(err => {
+        this.$notify.error({ title: "失败", message: err });
+        return
+      })
+      // let login_resp = await login(data);
+      // if (login_resp.code !== 200) {
+      //   this.$notify.error({ title: "失败", message: login_resp.message });
+      //   return 
+      // } 
+      // let { access_token, refresh_token, expire } = login_resp.data;
+      // localStorage.setItem("access_token", access_token);
+      // localStorage.setItem("refresh_token", refresh_token);
+      // localStorage.setItem("expire", expire);
 
-          this.$router.push({
-            path: this.redirect || "/admin/dashboard",
-            query: this.otherQuery,
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-          this.$notify.error({
-            title: "失败",
-            message: err.message,
-          });
-        });
+      // // 2、通过accessToken获取角色列表
+      // let roles_resp = await getRolesByAccessToken(access_token);
+      // if (roles_resp.code !== 200) {
+      //   this.$notify.error({ title: "失败", message: roles_resp.message });
+      //   return 
+      // }
+      // localStorage.setItem("roles", JSON.stringify(roles_resp.data));
+
+      // // 3、通过accessToken获取权限列表
+      // let permissions_resp = await getPermissionByAccessToken(access_token);
+      // if (permissions_resp.code !== 200) {
+      //   this.$notify.error({title: "失败",message: permissions_resp.message});
+      //   return
+      // }
+      // localStorage.setItem("permissions", JSON.stringify(permissions_resp.data));
+
+      // 跳转首页或者redirect
+      // this.$router.push({
+      //   path: this.redirect || "/admin/dashboard",
+      //   query: this.otherQuery,
+      // });
     },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {
@@ -154,7 +179,6 @@ export default {
   box-shadow: 0 6px 28px 0 rgba(24, 52, 117, 0.2);
 
   border-top: 2px solid #4e6ef2;
-
 }
 
 .login-form {

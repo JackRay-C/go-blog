@@ -20,18 +20,24 @@ export function getSubjectById(id) {
 
 export function getSubjectPostCount(id) {
     return request({
-        url: api.subjects + `/${id}/posts`,
-        method: "GET"
+        url: api.posts,
+        method: "GET",
+        params: {
+            page_no: 1,
+            page_size: 10,
+            subject_id: id
+        }
     })
 }
 
 export function getPostBySubjectId(id, pageNo, pageSize) {
     return request({
-        url: api.subjects + `/${id}/posts`,
+        url: api.posts,
         method: "GET",
         params: {
             pageNo,
-            pageSize
+            pageSize,
+            subject_id: id
         }
     })
 }

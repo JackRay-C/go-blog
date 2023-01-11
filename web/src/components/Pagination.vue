@@ -114,6 +114,7 @@ export default {
         this.current = 1;
       } else {
         let new_current = this.current - 1;
+        this.current = new_current
         this.$emit("change", new_current);
       }
     },
@@ -122,6 +123,7 @@ export default {
         this.current = this.pageCount;
       } else {
         let new_current = this.current + 1;
+        this.current = new_current
         this.$emit("change", new_current);
       }
     },
@@ -207,8 +209,9 @@ export default {
 }
 
 .active {
-  background: #4E6EF2;
-  color: #ffffff;
+  // background: #4E6EF2;
+  background: #f6f7fa;
+  color: #4E6EF2;
   font-weight: 600;
 }
 

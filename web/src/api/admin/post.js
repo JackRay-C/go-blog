@@ -45,3 +45,10 @@ export function putPost(postId, data) {
         }
     })
 }
+
+export function listPostTags(postId) {
+    return request({
+        url: api.posts + `/${postId}/tags`,
+        method: 'GET'
+    })
+}
