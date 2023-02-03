@@ -7,6 +7,7 @@
         </h2>
         <section class="view-actions">
           <div class="contentfilter">
+            <select-menu :options="dropdowns[0].options" label="value" text="key" :default="1" v-model="statusSelectMenu" @select="statusSelect"/>
             <div
               class="contentfilter-menu"
               v-for="(dropdown, index) in dropdowns"
@@ -155,13 +156,16 @@
 
 <script>
   import Pagination from "@/components/admin/Pagination.vue";
+  import SelectMenu from "../../components/admin/SelectMenu.vue";
   import { listPosts } from "@/api/admin/post.js";
   import { getUserById } from "@/api/admin/user.js";
   import { addPost } from "../../api/admin/post";
 
+
   export default {
     components: {
       pagination: Pagination,
+      SelectMenu: SelectMenu,
     },
 
     data() {
@@ -172,16 +176,17 @@
         posts: [],
         loading: true,
         status: 1,
+        statusSelectMenu: null,
         dropdowns: [
           {
             show: false,
             options: [
-              { key: 0, value: "All posts" },
-              { key: 1, value: "Drafts" },
-              { key: 2, value: "Published" },
+              { key: 1, value: "All posts" },
+              { key: 2, value: "Drafts" },
+              { key: 3, value: "Published" },
             ],
-            default: 0,
-            selected: { key: 0, value: "All posts" },
+            default: 1,
+            selected: { key: 1, value: "All posts" },
             onSelected: () => {},
           },
           // {
@@ -236,7 +241,7 @@
       "$route.path": (newRoute, oldRoute) => {
         console.log(newRoute);
         console.log(oldRoute);
-      },
+      }
     },
     beforeRouteUpdate(to, from, next) {
       this.page_no = to.query.page || 1;
@@ -255,6 +260,11 @@
       this.fetchPosts();
     },
     methods: {
+      statusSelect(index, item){
+        console.log("select menu status")
+        console.log(index)
+        console.log(item)
+      },
       async fetchPosts() {
         let res = await listPosts({
           page_no: this.page_no,
