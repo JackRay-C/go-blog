@@ -10,16 +10,17 @@
 <template>
     <div class="dropdown">
         <div class="dropdown-header" @blur="onBlur" @click="openSelect()">
-            <div class="prefix">
-
+            <div class="prefix" v-if="!this.selectedLabel || (this.selectedLabel && placeholderKeep)">
+                {{ placeholder }} :
             </div>
 
             <div class="content" :class="['selected', {'placeholder': !selectedLabel}]" :style="`line-height: ${height-2}px; width: ${width- 37}px; height: ${height - 2}px`" :title="selectedLabel">
-                {{ selectedLabel || placeholder }}
+                {{ selectedLabel }}
             </div>
 
             <div class="suffix">
-                <i class="el-icon-arrow-down"></i>
+                <i class="el-icon-arrow-ip" v-if="showOptions"></i>
+                <i class="el-icon-arrow-down" v-else></i>
             </div>
         </div>
         <transition name="fade">
@@ -54,7 +55,7 @@ export default {
         selectedText(){
             this.initSelector();
         },
-        defaultValue() {
+        default() {
             this.initSelector();
         },
         options() {
@@ -136,17 +137,37 @@ export default {
         openSelect() {
             this.showOptions = !this.showOptions
             // 设置选择项
-            if(!this.hoverValue && this.selectedName) {
-                const target = this.options.find(item => item[this.value] === this.selectedName)
-                this.hoverValue = target[this.value];
+            if(!this.hoverValue && this.selectedLabel) {
+                const target = this.options.find(item => item[this.text] === this.selectedLabel)
+                this.hoverValue = target[this.text];
             }
         },
         initSelector() {
-            if(this.selectedValue) {
-                this.hoverValue = this.selectedValue
-
+            if(this.selectedText) {
+                // 如果有selectedText，则设置hover项并查找lable
+                this.hoverValue = this.selectedText
+                const target = this.options.find(item => item[this.text] === this.selectedText)
+                this.selectedLabel = target?target[this.label] : null
+            } else {
+                if (this.selectedText === '') {
+                    this.hoverValue = ''
+                    this.selectedLabel = ''
+                } else if (this.default){
+                    this.hoverValue = this.default[this.text]
+                    const target = this.options.find(item => item[this.text] === this.default[this.text])
+                    this.selectedLabel = target? target[this.label]:null
+                    this.selectedText = target? target[this.text]: null
+                    this.$emit('model', target)
+                }else {
+                    this.hoverValue = null
+                    this.selectedLabel = null
+                }
             }
         }
     }
 }
 </script>
+
+<style lang="scss" scoped>
+
+</style>
