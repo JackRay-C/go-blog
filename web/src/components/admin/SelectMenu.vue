@@ -41,20 +41,33 @@ export default {
         }
     },
     props: {
+        // 下拉选项
         options: {
             type: Array,
             default: () =>{
                 return []
             }
         },
+        // 默认值
+        default: {
+            type: [Number, String, Object],
+            default: null
+        },
+        // 下拉选项文本字段名
+        babel: {},
+        // 下拉选项的值字段名
+        text: {},
+        // 选中的值
         selected: {
             type: [Number, String, Object],
             default: null
         },
+        // 下拉选项宽度
         width: {
             type: Number,
             default: 200
         },
+        // 下拉选项高度
         height: {
             type: Number,
             default: 36
