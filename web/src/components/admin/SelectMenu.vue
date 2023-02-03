@@ -14,18 +14,22 @@
 
             </div>
 
-            <div class="content">
-
+            <div class="content" :class="['selected', {'placeholder': !selectedLabel}]" :style="`line-height: ${height-2}px; width: ${width- 37}px; height: ${height - 2}px`" :title="selectedLabel">
+                {{ selectedLabel || placeholder }}
             </div>
 
             <div class="suffix">
-
+                <i class="el-icon-arrow-down"></i>
             </div>
         </div>
         <transition name="fade">
             <div class="options" v-show="showOptions" @mouseleave="onLeave" :style="`top: ${height + 6}px;`">
-                <div>
-                    {{ showOptions }}
+                <div v-for="index,item in data" :key="index">
+                    <div class="item" @click="selectedItem(index,item)">
+                        <div>
+                            {{ index }} : {{ item }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </transition>
@@ -35,10 +39,30 @@
 <script>
 export default {
     name: "SelectMenu",
+    model:{
+        prop: "selectedText",
+        event: "model"
+    },
     data() {
         return {
-            showOptions: false
+            showOptions: false,
+            hoverValue: null,
+            selectedLabel: null,
         }
+    },
+    watch:{
+        selectedText(){
+            this.initSelector();
+        },
+        defaultValue() {
+            this.initSelector();
+        },
+        options() {
+            this.initSelector();
+        }
+    },
+    created() {
+        this.initSelector();
     },
     props: {
         // 下拉选项
@@ -54,9 +78,15 @@ export default {
             default: null
         },
         // 下拉选项文本字段名
-        babel: {},
+        label: {
+            type: String,
+            default: "label"
+        },
         // 下拉选项的值字段名
-        text: {},
+        text: {
+            type: String,
+            default: "text"
+        },
         // 选中的值
         selected: {
             type: [Number, String, Object],
@@ -84,5 +114,39 @@ export default {
         }
     },
 
+    methods: {
+        selectedItem: (index, item) => {
+            if(this.selected != item) {
+                this.selected = item
+                this.hoverValue = item
+                this.showOptions = false
+                this.$emit('model', item)
+                this.$emit('onSelect', index, item)
+            }
+        },
+        onBlur() {
+            this.showOptions = !this.showOptions
+        },
+        onEnter(value) {
+            this.hoverValue = value
+        },
+        onLeave() {
+            this.hoverValue = null
+        },
+        openSelect() {
+            this.showOptions = !this.showOptions
+            // 设置选择项
+            if(!this.hoverValue && this.selectedName) {
+                const target = this.options.find(item => item[this.value] === this.selectedName)
+                this.hoverValue = target[this.value];
+            }
+        },
+        initSelector() {
+            if(this.selectedValue) {
+                this.hoverValue = this.selectedValue
+
+            }
+        }
+    }
 }
 </script>
